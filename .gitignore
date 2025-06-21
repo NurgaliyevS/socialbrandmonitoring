@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 .next
 pnpm-lock.yaml
+.pnpm-lock.yaml
 
 node_modules
 dist
