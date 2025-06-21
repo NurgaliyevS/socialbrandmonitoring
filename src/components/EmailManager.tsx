@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Trash2, Mail, Users } from "lucide-react";
@@ -12,7 +14,7 @@ interface EmailData {
 const EmailManager = () => {
   const [emails, setEmails] = useState<EmailData[]>([]);
   const [isVisible, setIsVisible] = useState(false);
-  
+
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleString();
   };
