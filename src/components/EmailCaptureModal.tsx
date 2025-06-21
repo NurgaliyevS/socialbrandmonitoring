@@ -12,13 +12,6 @@ interface EmailCaptureModalProps {
   source?: string;
 }
 
-interface EmailData {
-  email: string;
-  source: string;
-  timestamp: string;
-  id: string;
-}
-
 const EmailCaptureModal = ({ 
   isOpen, 
   onClose, 
@@ -53,12 +46,22 @@ const EmailCaptureModal = ({
     setIsSubmitting(true);
 
     try {
-      const emailData: EmailData = {
-        email: email.trim(),
-        source,
-        timestamp: new Date().toISOString(),
-        id: Date.now().toString()
-      };
+      const response = await fetch('/api/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          source
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save email');
+      }
 
       // Show success state
       setIsSuccess(true);
@@ -71,7 +74,7 @@ const EmailCaptureModal = ({
       }, 3000);
 
     } catch (error) {
-      setError("Failed to save email. Please try again.");
+      setError(error instanceof Error ? error.message : "Failed to save email. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

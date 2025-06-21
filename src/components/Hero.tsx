@@ -39,7 +39,7 @@ const Hero = () => {
                 Get Early Access - Free
               </Button>
             </div>
-            <p className="mt-4 text-blue-200">Join 200+ marketers in our beta waitlist</p>
+            <p className="mt-4 text-blue-200">Join our beta waitlist</p>
           </div>
         </div>
       </section>

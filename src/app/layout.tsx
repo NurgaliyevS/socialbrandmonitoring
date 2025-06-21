@@ -4,7 +4,6 @@ import './globals.css'
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import EmailManager from "@/components/EmailManager";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,7 +24,6 @@ export default function RootLayout({
             <Toaster />
             <Sonner />
             {children}
-            <EmailManager />
           </TooltipProvider>
       </body>
     </html>
