@@ -1,11 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import EmailCaptureModal from "./EmailCaptureModal";
 
 const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [emailCount, setEmailCount] = useState(0);
+
+  const fetchEmailCount = async () => {
+    const response = await fetch("/api/emails");
+    const data = await response.json();
+    return data.count;
+  };
+
+  useEffect(() => {
+    fetchEmailCount().then(setEmailCount);
+  }, []);
 
   return (
     <>
@@ -39,7 +50,7 @@ const Hero = () => {
                 Get Early Access - Free
               </Button>
             </div>
-            <p className="mt-4 text-blue-200">Join our beta waitlist</p>
+            <p className="mt-4 text-blue-200">Already {emailCount ? emailCount : ""} people on the waitlist</p>
           </div>
         </div>
       </section>
