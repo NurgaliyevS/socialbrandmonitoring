@@ -1,5 +1,5 @@
 
-import { Clock, ArrowUp, MessageSquare, Search } from "lucide-react";
+import { Clock, ArrowUp, MessageSquare, BarChart3 } from "lucide-react";
 
 const RedditAdvantage = () => {
   const advantages = [
@@ -19,14 +19,14 @@ const RedditAdvantage = () => {
       description: "Comments sections reveal in-depth customer feedback, pain points, and suggestions that's impossible to find elsewhere on social media."
     },
     {
-      icon: Search,
+      icon: BarChart3,
       title: "Market Research Goldmine",
       description: "This isn't just social listening – it's a comprehensive market research tool that reveals genuine customer insights and trends."
     }
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-orange-50 to-purple-50">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
