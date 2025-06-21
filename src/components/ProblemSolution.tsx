@@ -27,14 +27,15 @@ const ProblemSolution = () => {
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
-      <div className="container mx-auto px-4">
+    <section className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 text-white">
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="relative container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             The Reddit Monitoring Challenge{" "}
-            <span className="text-purple-600">Solved</span>
+            <span className="text-orange-400">Solved</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
             Every day, thousands of conversations about your brand happen on Reddit. Here's how we solve the biggest challenges in monitoring them effectively.
           </p>
         </div>
@@ -43,26 +44,30 @@ const ProblemSolution = () => {
           {challenges.map((challenge, index) => (
             <div key={index} className="max-w-6xl mx-auto">
               <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="bg-red-50 p-8 rounded-2xl border-l-4 border-red-500">
+                <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20">
                   <div className="flex items-center mb-4">
-                    <challenge.icon className="h-8 w-8 text-red-500 mr-3" />
-                    <h3 className="text-2xl font-bold text-red-700">
+                    <div className="bg-red-500/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                      <challenge.icon className="h-6 w-6 text-red-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-red-200">
                       Problem: {challenge.problem}
                     </h3>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-blue-100 leading-relaxed">
                     {challenge.description}
                   </p>
                 </div>
 
-                <div className="bg-green-50 p-8 rounded-2xl border-l-4 border-green-500">
+                <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20">
                   <div className="flex items-center mb-4">
-                    <Zap className="h-8 w-8 text-green-500 mr-3" />
-                    <h3 className="text-2xl font-bold text-green-700">
+                    <div className="bg-orange-500/20 w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                      <Zap className="h-6 w-6 text-orange-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-orange-200">
                       Solution: {challenge.solution}
                     </h3>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
+                  <p className="text-blue-100 leading-relaxed">
                     {challenge.solutionDesc}
                   </p>
                 </div>

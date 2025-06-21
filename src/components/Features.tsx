@@ -31,14 +31,15 @@ const Features = () => {
   ];
 
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 text-white">
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="relative container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
             Everything You Need to Monitor{" "}
-            <span className="text-purple-600">Reddit</span>
+            <span className="text-orange-400">Reddit</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
             Built specifically for marketers and PR agencies who need to stay on top of Reddit conversations.
           </p>
         </div>
@@ -47,15 +48,15 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105 group"
+              className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 group"
             >
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-6 group-hover:bg-purple-200 transition-colors duration-300">
-                <feature.icon className="h-8 w-8 text-purple-600" />
+              <div className="bg-orange-400/20 w-16 h-16 rounded-full flex items-center justify-center mb-6 group-hover:bg-orange-400/30 transition-colors duration-300">
+                <feature.icon className="h-8 w-8 text-orange-300" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-bold text-white mb-4">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-blue-100 leading-relaxed">
                 {feature.description}
               </p>
             </div>

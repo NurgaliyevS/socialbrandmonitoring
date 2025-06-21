@@ -26,13 +26,14 @@ const RedditAdvantage = () => {
   ];
 
   return (
-    <section className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-blue-600 to-purple-600 text-white">
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="relative container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            The <span className="text-purple-600">Reddit</span> Advantage
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            The <span className="text-orange-400">Reddit</span> Advantage
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
             Reddit offers unique advantages that make it the most valuable platform for authentic customer insights and market intelligence.
           </p>
         </div>
@@ -41,17 +42,17 @@ const RedditAdvantage = () => {
           {advantages.map((advantage, index) => (
             <div 
               key={index} 
-              className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 group"
+              className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/20 hover:bg-white/20 transition-all duration-300 group"
             >
               <div className="flex items-start space-x-4">
-                <div className="bg-purple-100 w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-purple-200 transition-colors duration-300">
-                  <advantage.icon className="h-7 w-7 text-purple-600" />
+                <div className="bg-orange-400/20 w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-orange-400/30 transition-colors duration-300">
+                  <advantage.icon className="h-7 w-7 text-orange-300" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  <h3 className="text-xl font-bold text-white mb-3">
                     {advantage.title}
                   </h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-blue-100 leading-relaxed">
                     {advantage.description}
                   </p>
                 </div>
