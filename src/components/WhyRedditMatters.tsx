@@ -26,19 +26,18 @@ const WhyRedditMatters = () => {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white">
-      <div className="absolute inset-0 bg-black/10"></div>
-      <div className="relative container mx-auto px-4 py-20">
+    <section className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
             Why Reddit Matters More Than{" "}
-            <span className="text-orange-400">Other Platforms</span>
+            <span className="text-orange-500">Other Platforms</span>
           </h2>
-          <p className="text-xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             Reddit users don't hold back. While other social platforms show polished, filtered conversations, 
             Reddit is where people share brutally honest opinions about brands, products, and services. 
             These unfiltered discussions drive purchasing decisions, shape brand perception, and can make or break product launches. 
-            <span className="font-semibold text-white"> If you're not monitoring Reddit, you're missing the most authentic voice of your customers.</span>
+            <span className="font-semibold text-gray-900"> If you're not monitoring Reddit, you're missing the most authentic voice of your customers.</span>
           </p>
         </div>
 
@@ -48,13 +47,13 @@ const WhyRedditMatters = () => {
               key={index} 
               className="text-center group hover:transform hover:scale-105 transition-all duration-300"
             >
-              <div className="bg-orange-400/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-orange-400/30 transition-colors duration-300">
-                <reason.icon className="h-10 w-10 text-orange-300" />
+              <div className="bg-orange-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-orange-200 transition-colors duration-300">
+                <reason.icon className="h-10 w-10 text-orange-600" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-4">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">
                 {reason.title}
               </h3>
-              <p className="text-blue-100 leading-relaxed">
+              <p className="text-gray-600 leading-relaxed">
                 {reason.description}
               </p>
             </div>
