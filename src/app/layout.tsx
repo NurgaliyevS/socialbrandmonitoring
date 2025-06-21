@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,6 +20,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          defer
+          data-website-id="6856d2a58965f177e76bfadc"
+          data-domain="no7ify.com"
+          src="https://datafa.st/js/script.js"
+        />
+      </head>
       <body className={inter.className}>
           <TooltipProvider>
             <Toaster />
