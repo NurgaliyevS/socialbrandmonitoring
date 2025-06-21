@@ -32,7 +32,7 @@ const EmailSchema: Schema = new Schema({
 
 // Create a virtual for the id field
 EmailSchema.virtual('id').get(function() {
-  return this._id.toHexString();
+  return (this._id as mongoose.Types.ObjectId).toHexString();
 });
 
 // Ensure virtual fields are serialized
