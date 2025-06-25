@@ -23,8 +23,8 @@ export default function RootLayout({
       <head>
         <Script
           defer
-          data-website-id="6856d2a58965f177e76bfadc"
-          data-domain="no7ify.com"
+          data-website-id="685c2c3b4a49545aec53e2c1"
+          data-domain="socialbrandmonitoring.com"
           src="https://datafa.st/js/script.js"
         />
       </head>
