@@ -9,7 +9,7 @@ import Script from 'next/script'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Reddit Whisperer Alerts',
+  title: 'Social Brand Monitoring',
   description: 'Get real-time alerts for Reddit opportunities',
 }
 
