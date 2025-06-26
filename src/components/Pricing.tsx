@@ -13,7 +13,8 @@ const Pricing = () => {
     "Priority support and direct feedback channel",
     "Influence product development and new features",
     "Exclusive early access to future updates",
-    "Market rate: $99-399/month Your rate: $497 lifetime",
+    "Market rate: $99-399/month",
+    "Your rate: $497 lifetime",
     "No recurring bills ever",
   ];
 
@@ -82,7 +83,8 @@ const Pricing = () => {
                     "Priority support and direct feedback channel",
                     "Influence product development and new features",
                     "Exclusive early access to future updates",
-                    "Market rate: $99-399/month Your rate: $497 lifetime",
+                    "Market rate: $99-399/month",
+                    "Your rate: $497 lifetime",
                     "No recurring bills ever",
                   ].map((feature, index) => (
                     <li key={index} className="flex items-center">
@@ -95,7 +97,7 @@ const Pricing = () => {
 
               <Button
                 className="w-full py-4 text-lg font-semibold rounded-full bg-purple-600 hover:bg-purple-700 text-white transition-all duration-300"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => window.open('https://buy.stripe.com/4gMeVf0Jy6TN5W248waVa0g', '_blank')}
               >
                 Lock In Your Lifetime 50% Off
               </Button>

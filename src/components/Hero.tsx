@@ -61,7 +61,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl"
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => window.open('https://buy.stripe.com/4gMeVf0Jy6TN5W248waVa0g', '_blank')}
               >
                 Lock In Your Lifetime 50% Off
               </Button>
