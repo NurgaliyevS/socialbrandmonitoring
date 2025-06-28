@@ -38,22 +38,44 @@ const OnboardingFlow = () => {
     }
   };
 
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     setIsAnalyzing(true);
     setAnalysisProgress(0);
     
-    // Simulate analysis progress
-    const interval = setInterval(() => {
-      setAnalysisProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsAnalyzing(false);
-          setTimeout(() => setCurrentStep(3), 500);
-          return 100;
-        }
-        return prev + Math.random() * 15;
+    try {
+      // Call the actual backend API
+      const response = await fetch('/api/analyze-website', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ website }),
       });
-    }, 200);
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Analysis failed');
+      }
+
+      // Simulate progress while API processes
+      const interval = setInterval(() => {
+        setAnalysisProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setIsAnalyzing(false);
+            setTimeout(() => setCurrentStep(3), 500);
+            return 100;
+          }
+          return prev + Math.random() * 15;
+        });
+      }, 200);
+
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      setIsAnalyzing(false);
+      // You might want to show an error message to the user here
+    }
   };
 
   const removeKeyword = (id: string) => {
