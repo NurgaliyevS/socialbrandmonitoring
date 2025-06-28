@@ -14,18 +14,6 @@ const Header = ({ searchQuery, onSearchChange, onAddFilter, onExport }: HeaderPr
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-900">All mentions</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onExport}
-            className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Download className="w-4 h-4 mr-2 inline" />
-            Export
-          </button>
-          <button className="text-gray-400 hover:text-gray-600">
-            <MoreVertical className="w-5 h-5" />
-          </button>
-        </div>
       </div>
 
       <div className="flex items-center gap-3">
