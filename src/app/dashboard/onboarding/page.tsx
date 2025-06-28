@@ -24,6 +24,7 @@ const OnboardingFlow = () => {
   const [website, setWebsite] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [validationError, setValidationError] = useState('');
   const [keywords, setKeywords] = useState<KeywordSuggestion[]>([
     { id: '1', name: 'mvpagency', type: 'Own Brand', mentions: 'low', color: 'bg-green-500' },
     { id: '2', name: 'webflow', type: 'Competitor', mentions: 'medium', color: 'bg-blue-500' },
@@ -32,9 +33,24 @@ const OnboardingFlow = () => {
   ]);
 
   const handleWebsiteSubmit = () => {
-    if (website.trim()) {
+    setValidationError('');
+    if (!website.trim()) {
+      setValidationError('Please enter a website URL, format: http:// or https://');
+      return;
+    }
+    
+    // Validate URL format
+    try {
+      const url = new URL(website);
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        setValidationError('Please enter a valid URL, format: http:// or https://');
+        return;
+      }
       setCurrentStep(2);
       startAnalysis();
+    } catch (error) {
+      setValidationError('Please enter a valid URL, format: http:// or https://');
+      return;
     }
   };
 
@@ -125,23 +141,26 @@ const OnboardingFlow = () => {
                 <Input
                   id="website"
                   type="url"
-                  placeholder="https://mvpagency.org/"
+                  placeholder="https://example.com"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   className="h-12 text-base"
+                  autoComplete="url"
                 />
                 <p className="text-sm text-gray-500">
-                  Enter your company website and we'll analyze it to set up your profile.
+                  Enter your company website (must start with http:// or https://). We'll analyze it to automatically set up your profile.
                 </p>
               </div>
               <Button 
                 onClick={handleWebsiteSubmit}
-                disabled={!website.trim()}
                 className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 Generate company profile
               </Button>
+              {validationError && (
+                <p className="text-red-500 text-sm mt-2">{validationError}</p>
+              )}
             </CardContent>
           </Card>
         )}
