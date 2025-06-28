@@ -81,7 +81,7 @@ const OnboardingFlow = () => {
     } catch (error) {
       console.error('Analysis failed:', error);
       setIsAnalyzing(false);
-      // You might want to show an error message to the user here
+      setCurrentStep(3);
     }
   };
 
