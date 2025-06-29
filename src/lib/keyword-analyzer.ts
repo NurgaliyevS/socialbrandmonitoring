@@ -24,39 +24,56 @@ export async function generateKeywords(scrapedData: ScrapedData, website: string
   });
   
   const prompt = `
-    Analyze this company website and suggest exactly 4 keywords for monitoring:
-    
-    Website: ${website}
-    Title: ${scrapedData.title}
-    Description: ${scrapedData.description}
-    Main headings: ${scrapedData.headings.slice(0, 5).join(', ')}
-    Content sample: ${scrapedData.bodyText.substring(0, 500)}
-    
-    Rules:
-    1. Include the company brand name as "Own Brand"
-    2. Include 2-3 main competitors as "Competitor" 
-    3. Estimate mentions as "low", "medium", or "high"
-    4. Assign colors: green for own brand, blue/purple/yellow for competitors
-    
-    Return ONLY valid JSON in this exact format (no markdown, no code blocks):
-    {
-      "companyName": "Company Name",
-      "keywords": [
-        {
-          "name": "brand name",
-          "type": "Own Brand",
-          "mentions": "low",
-          "color": "bg-green-500"
-        },
-        {
-          "name": "competitor1",
-          "type": "Competitor", 
-          "mentions": "medium",
-          "color": "bg-blue-500"
-        }
-      ]
-    }
-  `;
+  You are an expert marketing analyst. Your task is to analyze a company’s website content and extract **exactly 4 keywords** for monitoring.
+  
+  ### Context
+  - Website: ${website}
+  - Title: ${scrapedData.title}
+  - Meta description: ${scrapedData.description}
+  - Headings: ${scrapedData.headings.slice(0, 5).join(', ')}
+  - Body text sample: ${scrapedData.bodyText.substring(0, 500)}
+  
+  ### Instructions
+  1. Identify the **company’s brand name** and mark it as **"Own Brand"**.
+  2. Identify **2 or 3 realistic competitors** in the same space and mark each as a **"Competitor"**.
+  3. For each keyword, estimate the **level of online mentions**: "low", "medium", or "high".
+  4. Assign a background color:
+     - **Own Brand** → "bg-green-500"
+     - **Competitors** → Use one of: "bg-blue-500", "bg-purple-500", or "bg-yellow-500"
+  
+  ### Output Format
+  Return **only valid, minified JSON** (no markdown, no explanation, no code block). Use this exact structure:
+  
+  {
+    "companyName": "Acme Inc.",
+    "keywords": [
+      {
+        "name": "acme",
+        "type": "Own Brand",
+        "mentions": "medium",
+        "color": "bg-green-500"
+      },
+      {
+        "name": "competitor1",
+        "type": "Competitor",
+        "mentions": "high",
+        "color": "bg-blue-500"
+      },
+      {
+        "name": "competitor2",
+        "type": "Competitor",
+        "mentions": "low",
+        "color": "bg-yellow-500"
+      },
+      {
+        "name": "competitor3",
+        "type": "Competitor",
+        "mentions": "medium",
+        "color": "bg-purple-500"
+      }
+    ]
+  }
+  `;  
 
   try {
     console.log('[AI] Sending request to OpenAI...');
