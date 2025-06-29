@@ -18,7 +18,7 @@ const KeywordItem = ({
   onTypeChange,
   onNameChange
 }: KeywordItemProps) => (
-  <div className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+  <div className="flex items-center gap-4 p-4 rounded-lg transition-colors">
     <div className="flex items-center gap-3 flex-1">
       <div className={`w-3 h-3 rounded-full ${keyword.color}`} />
       <Input

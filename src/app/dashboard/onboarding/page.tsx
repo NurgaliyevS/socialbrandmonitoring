@@ -52,8 +52,11 @@ const OnboardingFlow = () => {
 
       if (result.data && result.data.analysis && result.data.analysis.keywords) {
         setKeywords(result.data.analysis.keywords);
+        setIsAnalyzing(false);
+        setCurrentStep(3);
+      } else {
+        throw new Error('No keywords generated');
       }
-
       setIsAnalyzing(false);
       setCurrentStep(3);
 
@@ -80,6 +83,18 @@ const OnboardingFlow = () => {
     router.push('/dashboard');
   };
 
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (keywords.length > 0 && currentStep !== 3) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1:
@@ -100,7 +115,6 @@ const OnboardingFlow = () => {
             onRemove={removeKeyword}
             onTypeChange={updateKeywordType}
             onNameChange={updateKeywordName}
-            onBack={() => setCurrentStep(2)}
             onComplete={handleOnboardingComplete}
           />
         );
@@ -112,7 +126,12 @@ const OnboardingFlow = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
-        <ProgressHeader currentStep={currentStep} />
+        <ProgressHeader 
+          currentStep={currentStep}
+          onBack={handleBack}
+          onNext={handleNext}
+          canGoNext={keywords.length > 0}
+        />
         {renderCurrentStep()}
       </div>
     </div>

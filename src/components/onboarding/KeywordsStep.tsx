@@ -10,7 +10,6 @@ interface KeywordsStepProps {
   onRemove: (id: string) => void;
   onTypeChange: (id: string, type: 'Own Brand' | 'Competitor') => void;
   onNameChange: (id: string, name: string) => void;
-  onBack: () => void;
   onComplete: () => void;
 }
 
@@ -19,48 +18,40 @@ const KeywordsStep = ({
   onRemove, 
   onTypeChange,
   onNameChange,
-  onBack, 
   onComplete 
 }: KeywordsStepProps) => (
   <Card className="backdrop-blur-sm bg-white/95 border-0 shadow-2xl animate-fade-in">
     <CardHeader className="pb-6">
-      <div className="flex items-center gap-3 mb-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onBack}
-          className="p-2 h-8 w-8"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-purple-600" />
-          <CardTitle className="text-xl font-bold text-gray-900">
-            Our AI suggests these keywords for you
-          </CardTitle>
-        </div>
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-5 w-5 text-purple-600" />
+        <CardTitle className="text-xl font-bold text-gray-900">
+          Our AI suggests these keywords for you
+        </CardTitle>
       </div>
-      <p className="text-gray-600 ml-11">
+      <p className="text-gray-600">
         You can change or edit them now, or anytime after onboarding.
       </p>
     </CardHeader>
-    <CardContent className="space-y-4">
+    <CardContent>
       {keywords.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>No keywords available. Please go back and try again.</p>
         </div>
       ) : (
-        keywords.map((keyword) => (
-          <KeywordItem
-            key={keyword.id}
-            keyword={keyword}
-            onRemove={onRemove}
-            onTypeChange={onTypeChange}
-            onNameChange={onNameChange}
-          />
-        ))
+        // <div className="border rounded-xl overflow-hidden">
+        <div className='border rounded-lg overflow-hidden'>
+          {keywords.map((keyword, idx) => (
+            <div key={keyword.id} className={idx !== keywords.length - 1 ? 'border-b' : ''}>
+              <KeywordItem
+                keyword={keyword}
+                onRemove={onRemove}
+                onTypeChange={onTypeChange}
+                onNameChange={onNameChange}
+              />
+            </div>
+          ))}
+        </div>
       )}
-      
       <Button 
         onClick={onComplete}
         className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium mt-8"
