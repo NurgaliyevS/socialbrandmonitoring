@@ -1,26 +1,31 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Edit, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { KeywordSuggestion } from './types';
 
 interface KeywordItemProps {
   keyword: KeywordSuggestion;
   onRemove: (id: string) => void;
   onTypeChange: (id: string, type: 'Own Brand' | 'Competitor') => void;
+  onNameChange: (id: string, name: string) => void;
 }
 
 const KeywordItem = ({ 
   keyword, 
   onRemove, 
-  onTypeChange 
+  onTypeChange,
+  onNameChange
 }: KeywordItemProps) => (
   <div className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
     <div className="flex items-center gap-3 flex-1">
-      <Edit className="h-4 w-4 text-gray-400" />
       <div className={`w-3 h-3 rounded-full ${keyword.color}`} />
-      <span className="font-medium text-gray-900">{keyword.name}</span>
-      <BarChart3 className="h-4 w-4 text-yellow-500" />
+      <Input
+        value={keyword.name}
+        onChange={(e) => onNameChange(keyword.id, e.target.value)}
+        className="w-3/4 h-8 text-sm font-medium"
+      />
     </div>
     <Select
       value={keyword.type}

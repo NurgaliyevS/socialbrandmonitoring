@@ -6,17 +6,19 @@ import KeywordItem from './KeywordItem';
 import { KeywordSuggestion } from './types';
 
 interface KeywordsStepProps {
-  keywords: KeywordSuggestion[];
+  keywords?: KeywordSuggestion[];
   onRemove: (id: string) => void;
   onTypeChange: (id: string, type: 'Own Brand' | 'Competitor') => void;
+  onNameChange: (id: string, name: string) => void;
   onBack: () => void;
   onComplete: () => void;
 }
 
 const KeywordsStep = ({ 
-  keywords, 
+  keywords = [], 
   onRemove, 
-  onTypeChange, 
+  onTypeChange,
+  onNameChange,
   onBack, 
   onComplete 
 }: KeywordsStepProps) => (
@@ -43,14 +45,21 @@ const KeywordsStep = ({
       </p>
     </CardHeader>
     <CardContent className="space-y-4">
-      {keywords?.map((keyword) => (
-        <KeywordItem
-          key={keyword.id}
-          keyword={keyword}
-          onRemove={onRemove}
-          onTypeChange={onTypeChange}
-        />
-      ))}
+      {keywords.length === 0 ? (
+        <div className="text-center py-8 text-gray-500">
+          <p>No keywords available. Please go back and try again.</p>
+        </div>
+      ) : (
+        keywords.map((keyword) => (
+          <KeywordItem
+            key={keyword.id}
+            keyword={keyword}
+            onRemove={onRemove}
+            onTypeChange={onTypeChange}
+            onNameChange={onNameChange}
+          />
+        ))
+      )}
       
       <Button 
         onClick={onComplete}
