@@ -50,6 +50,10 @@ const OnboardingFlow = () => {
         throw new Error(result.error || 'Analysis failed');
       }
 
+      if (result.data && result.data.analysis && result.data.analysis.keywords) {
+        setKeywords(result.data.analysis.keywords);
+      }
+
       setIsAnalyzing(false);
       setCurrentStep(3);
 
