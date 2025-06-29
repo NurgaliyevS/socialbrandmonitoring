@@ -43,7 +43,7 @@ const KeywordsStep = ({
       </p>
     </CardHeader>
     <CardContent className="space-y-4">
-      {keywords.map((keyword) => (
+      {keywords?.map((keyword) => (
         <KeywordItem
           key={keyword.id}
           keyword={keyword}

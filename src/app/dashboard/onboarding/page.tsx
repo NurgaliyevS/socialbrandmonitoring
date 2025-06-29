@@ -7,16 +7,16 @@ import WebsiteInputStep from '@/components/onboarding/WebsiteInputStep';
 import AnalysisStep from '@/components/onboarding/AnalysisStep';
 import KeywordsStep from '@/components/onboarding/KeywordsStep';
 import { KeywordSuggestion } from '@/components/onboarding/types';
-import { INITIAL_KEYWORDS, validateWebsite } from '@/components/onboarding/utils';
+import { validateWebsite } from '@/components/onboarding/utils';
 
 const OnboardingFlow = () => {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(3);
   const [website, setWebsite] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [validationError, setValidationError] = useState('');
-  const [keywords, setKeywords] = useState<KeywordSuggestion[]>(INITIAL_KEYWORDS);
+  const [keywords, setKeywords] = useState<KeywordSuggestion[]>();
 
   const handleWebsiteSubmit = () => {
     setValidationError('');
@@ -65,11 +65,11 @@ const OnboardingFlow = () => {
   };
 
   const removeKeyword = (id: string) => {
-    setKeywords(keywords.filter(k => k.id !== id));
+    setKeywords(keywords?.filter(k => k.id !== id));
   };
 
   const updateKeywordType = (id: string, type: 'Own Brand' | 'Competitor') => {
-    setKeywords(keywords.map(k => k.id === id ? { ...k, type } : k));
+    setKeywords(keywords?.map(k => k.id === id ? { ...k, type } : k));
   };
 
   const handleOnboardingComplete = () => {

@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart3, Edit, Trash2 } from 'lucide-react';
 import { KeywordSuggestion } from './types';
-import { getMentionsEstimate } from './utils';
 
 interface KeywordItemProps {
   keyword: KeywordSuggestion;
@@ -22,9 +21,6 @@ const KeywordItem = ({
       <div className={`w-3 h-3 rounded-full ${keyword.color}`} />
       <span className="font-medium text-gray-900">{keyword.name}</span>
       <BarChart3 className="h-4 w-4 text-yellow-500" />
-    </div>
-    <div className="text-xs text-gray-500">
-      {getMentionsEstimate(keyword.mentions)}
     </div>
     <Select
       value={keyword.type}
