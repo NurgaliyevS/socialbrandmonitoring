@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Users, Zap } from "lucide-react";
-import EmailCaptureModal from "./EmailCaptureModal";
 
 const Pricing = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -117,14 +116,6 @@ const Pricing = () => {
           </div>
         </div>
       </section>
-
-      <EmailCaptureModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Request Beta Access"
-        description="Join our exclusive beta program and help shape the future of Reddit monitoring."
-        source="pricing"
-      />
     </>
   );
 };
