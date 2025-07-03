@@ -66,7 +66,10 @@ const OnboardingFlow = () => {
       setCurrentStep(3);
 
     } catch (error) {
-      console.error('Analysis failed:', error);
+      // Handle scraping failure: allow manual entry
+      setKeywords([]);
+      setScrapedData(null);
+      setCompanyName('');
       setIsAnalyzing(false);
       setCurrentStep(3);
     }

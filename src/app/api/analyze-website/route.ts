@@ -13,7 +13,31 @@ export async function POST(request: Request) {
     
     // Step 1: Scrape the website
     console.log('[API] Starting website scraping...');
-    const scrapedData = await scrapeWebsite(website);
+    let scrapedData;
+    try {
+      scrapedData = await scrapeWebsite(website);
+      // Detect block or garbage scrape
+      if (
+        scrapedData.title?.toLowerCase().includes('just a moment') ||
+        scrapedData.bodyText?.toLowerCase().includes('verify you are human') ||
+        scrapedData.bodyText?.toLowerCase().includes('cloudflare')
+      ) {
+        scrapedData = {
+          title: '',
+          description: '',
+          headings: [],
+          bodyText: ''
+        };
+      }
+    } catch (e) {
+      // Scraping failed, use minimal data
+      scrapedData = {
+        title: '',
+        description: '',
+        headings: [],
+        bodyText: ''
+      };
+    }
     console.log('[API] Website scraping completed');
     
     // Step 2: Generate keywords using AI
