@@ -17,6 +17,9 @@ const OnboardingFlow = () => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [validationError, setValidationError] = useState('');
   const [keywords, setKeywords] = useState<KeywordSuggestion[]>([]);
+  const [scrapedData, setScrapedData] = useState(null);
+  const [companyName, setCompanyName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleWebsiteSubmit = () => {
     setValidationError('');
@@ -52,6 +55,8 @@ const OnboardingFlow = () => {
 
       if (result.data && result.data.analysis && result.data.analysis.keywords) {
         setKeywords(result.data.analysis.keywords);
+        setScrapedData(result.data.scrapedData);
+        setCompanyName(result.data.analysis.companyName);
         setIsAnalyzing(false);
         setCurrentStep(3);
       } else {
@@ -79,8 +84,23 @@ const OnboardingFlow = () => {
     setKeywords(keywords.map(k => k.id === id ? { ...k, name } : k));
   };
 
-  const handleOnboardingComplete = () => {
-    router.push('/dashboard');
+  const handleOnboardingComplete = async () => {
+    setIsSaving(true);
+    try {
+      await fetch('/api/onboarding/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          website,
+          keywords,
+          companyName,
+          scrapedData,
+        }),
+      });
+      router.push('/dashboard');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleBack = () => {
@@ -116,6 +136,7 @@ const OnboardingFlow = () => {
             onTypeChange={updateKeywordType}
             onNameChange={updateKeywordName}
             onComplete={handleOnboardingComplete}
+            isSaving={isSaving}
           />
         );
       default:

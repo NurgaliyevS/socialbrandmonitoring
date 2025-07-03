@@ -11,6 +11,7 @@ interface KeywordsStepProps {
   onTypeChange: (id: string, type: 'Own Brand' | 'Competitor' | 'Industry') => void;
   onNameChange: (id: string, name: string) => void;
   onComplete: () => void;
+  isSaving?: boolean;
 }
 
 const KeywordsStep = ({ 
@@ -18,7 +19,8 @@ const KeywordsStep = ({
   onRemove, 
   onTypeChange,
   onNameChange,
-  onComplete 
+  onComplete,
+  isSaving = false
 }: KeywordsStepProps) => (
   <Card className="backdrop-blur-sm bg-white/95 border-0 shadow-2xl animate-fade-in">
     <CardHeader className="pb-6">
@@ -55,8 +57,13 @@ const KeywordsStep = ({
       <Button 
         onClick={onComplete}
         className="w-full h-12 bg-black hover:bg-gray-800 text-white font-medium mt-8"
+        disabled={isSaving}
       >
-        Continue
+        {isSaving ? (
+          <span className="flex items-center justify-center"><span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white mr-2"></span>Saving...</span>
+        ) : (
+          'Continue'
+        )}
       </Button>
     </CardContent>
   </Card>
