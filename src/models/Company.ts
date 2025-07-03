@@ -18,6 +18,7 @@ export interface ICompany extends Document {
     headings: string[];
     bodyText: string;
   };
+  onboardingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,7 +40,8 @@ const CompanySchema = new Schema({
   scrapedData: {
     headings: [String],
     bodyText: String
-  }
+  },
+  onboardingComplete: { type: Boolean, default: false }
 }, {
   timestamps: true
 });
