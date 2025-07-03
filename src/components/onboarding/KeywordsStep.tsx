@@ -8,7 +8,7 @@ import { KeywordSuggestion } from './types';
 interface KeywordsStepProps {
   keywords?: KeywordSuggestion[];
   onRemove: (id: string) => void;
-  onTypeChange: (id: string, type: 'Own Brand' | 'Competitor') => void;
+  onTypeChange: (id: string, type: 'Own Brand' | 'Competitor' | 'Industry') => void;
   onNameChange: (id: string, name: string) => void;
   onComplete: () => void;
 }

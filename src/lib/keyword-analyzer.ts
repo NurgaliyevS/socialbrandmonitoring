@@ -24,56 +24,77 @@ export async function generateKeywords(scrapedData: ScrapedData, website: string
   });
   
   const prompt = `
-  You are an expert marketing analyst. Your task is to analyze a company’s website content and extract **exactly 4 keywords** for monitoring.
+  You are an expert marketing analyst. Analyze the provided website content and extract **exactly 5 keywords** for competitive monitoring.
   
-  ### Context
-  - Website: ${website}
-  - Title: ${scrapedData.title}
-  - Meta description: ${scrapedData.description}
-  - Headings: ${scrapedData.headings.slice(0, 5).join(', ')}
-  - Body text sample: ${scrapedData.bodyText.substring(0, 500)}
+  ### Website Data
+  - URL: ${website}
+  - Company: ${scrapedData.title}
+  - Description: ${scrapedData.description}
+  - Key Headings: ${scrapedData.headings.slice(0, 5).join(', ')}
+  - Content Sample: ${scrapedData.bodyText.substring(0, 500)}
   
-  ### Instructions
-  1. Identify the **company’s brand name** and mark it as **"Own Brand"**.
-  2. Identify **2 or 3 realistic competitors** in the same space and mark each as a **"Competitor"**.
-  3. For each keyword, estimate the **level of online mentions**: "low", "medium", or "high".
-  4. Assign a background color:
-     - **Own Brand** → "bg-green-500"
-     - **Competitors** → Use one of: "bg-blue-500", "bg-purple-500", or "bg-yellow-500"
+  ### Keyword Requirements
+  Extract exactly 5 keywords in this order:
+  1. **Own Brand** (1 keyword): The company's primary brand name or trademark
+  2. **Competitors** (2 keywords): Direct competitors offering similar products/services
+  3. **Industry Terms** (2 keywords): Relevant sector-specific terminology or product categories
   
-  ### Output Format
-  Return **only valid, minified JSON** (no markdown, no explanation, no code block). Use this exact structure:
+  ### Mention Volume Guidelines
+  Estimate online mention frequency based on market presence:
+  - **"high"**: Major brands, popular industry terms (1000+ monthly mentions)
+  - **medium"**: Established companies, common terms (100-1000 monthly mentions)  
+  - **"low"**: Niche players, specialized terms (<100 monthly mentions)
   
+  ### Color Coding Rules
+  - **Own Brand**: "bg-green-500"
+  - **Competitor 1**: "bg-blue-500"
+  - **Competitor 2**: "bg-purple-500"
+  - **Industry Term 1**: "bg-red-500"
+  - **Industry Term 2**: "bg-orange-500"
+  
+  ### Critical Instructions
+  - Return ONLY valid JSON (no markdown, explanations, or code blocks)
+  - Use lowercase for all keyword names
+  - Ensure keywords are realistic and monitorable
+  - Base competitor selection on actual market research
+  - Verify industry terms are commonly used in the sector
+  
+  ### Required JSON Structure
   {
-    "companyName": "Acme Inc.",
+    "companyName": "Company Name Here",
     "keywords": [
       {
-        "name": "acme",
+        "name": "brandname",
         "type": "Own Brand",
         "mentions": "medium",
         "color": "bg-green-500"
       },
       {
         "name": "competitor1",
-        "type": "Competitor",
+        "type": "Competitor", 
         "mentions": "high",
         "color": "bg-blue-500"
       },
       {
         "name": "competitor2",
         "type": "Competitor",
-        "mentions": "low",
-        "color": "bg-yellow-500"
+        "mentions": "medium", 
+        "color": "bg-purple-500"
       },
       {
-        "name": "competitor3",
-        "type": "Competitor",
+        "name": "industryterm1",
+        "type": "Industry",
+        "mentions": "high",
+        "color": "bg-red-500"
+      },
+      {
+        "name": "industryterm2", 
+        "type": "Industry",
         "mentions": "medium",
-        "color": "bg-purple-500"
+        "color": "bg-orange-500"
       }
     ]
-  }
-  `;  
+  }`;
 
   try {
     console.log('[AI] Sending request to OpenAI...');

@@ -71,7 +71,7 @@ const OnboardingFlow = () => {
     setKeywords(keywords.filter(k => k.id !== id));
   };
 
-  const updateKeywordType = (id: string, type: 'Own Brand' | 'Competitor') => {
+  const updateKeywordType = (id: string, type: 'Own Brand' | 'Competitor' | 'Industry') => {
     setKeywords(keywords.map(k => k.id === id ? { ...k, type } : k));
   };
 

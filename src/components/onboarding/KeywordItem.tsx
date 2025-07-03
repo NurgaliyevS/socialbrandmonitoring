@@ -8,7 +8,7 @@ import { KeywordSuggestion } from './types';
 interface KeywordItemProps {
   keyword: KeywordSuggestion;
   onRemove: (id: string) => void;
-  onTypeChange: (id: string, type: 'Own Brand' | 'Competitor') => void;
+  onTypeChange: (id: string, type: 'Own Brand' | 'Competitor' | 'Industry') => void;
   onNameChange: (id: string, name: string) => void;
 }
 
@@ -29,7 +29,7 @@ const KeywordItem = ({
     </div>
     <Select
       value={keyword.type}
-      onValueChange={(value: 'Own Brand' | 'Competitor') => 
+      onValueChange={(value: 'Own Brand' | 'Competitor' | 'Industry') => 
         onTypeChange(keyword.id, value)
       }
     >
@@ -39,6 +39,7 @@ const KeywordItem = ({
       <SelectContent>
         <SelectItem value="Own Brand">Own Brand</SelectItem>
         <SelectItem value="Competitor">Competitor</SelectItem>
+        <SelectItem value="Industry">Industry Keyword</SelectItem>
       </SelectContent>
     </Select>
     <Button
