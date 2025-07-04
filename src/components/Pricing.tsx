@@ -56,7 +56,8 @@ const Pricing = () => {
               )
             }
           >
-            Lock In Your Lifetime 50% Off
+            {/* Lock In Your Lifetime 50% Off */}
+            Get Lifetime Access
           </button>
 
           <p className="text-center text-sm text-zinc-500 mt-4">

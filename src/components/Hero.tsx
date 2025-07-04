@@ -15,7 +15,8 @@ const Hero = () => {
             Social Brand Monitoring for Reddit
           </h1>
           <p className="text-lg md:text-xl mb-8 text-gray-600 leading-relaxed">
-            Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis
+            Monitor discussions about your brand, competitors, and industry
+            keywords. Get clean data and sentiment analysis
           </p>
           <div className="flex flex-row gap-4 w-full">
             <button
@@ -27,12 +28,15 @@ const Hero = () => {
                 )
               }
             >
-              Start for free
+              Get Lifetime Access
             </button>
             <button
               className="btn-secondary"
               onClick={() => {
-                window.open("https://cal.com/sabyr-nurgaliyev/social-brand-monitoring-discovery-call", "_blank");
+                window.open(
+                  "https://cal.com/sabyr-nurgaliyev/social-brand-monitoring-discovery-call",
+                  "_blank"
+                );
               }}
             >
               Book a demo
@@ -49,7 +53,9 @@ const Hero = () => {
       </div>
       {/* Bottom center text */}
       <div className="w-full flex justify-center mt-36">
-        <p className="text-zinc-500 text-sm font-semibold">Only 10 spots left.</p>
+        <p className="text-zinc-500 text-sm font-semibold">
+          Only 10 spots left.
+        </p>
       </div>
     </section>
   );
