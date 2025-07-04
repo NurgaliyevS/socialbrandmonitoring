@@ -3,59 +3,53 @@
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
-
   return (
-    <>
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 text-white">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative container mx-auto px-4 py-20 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in leading-relaxed">
-              Social Brand Monitoring for{" "}
-              <span className="text-orange-400">Reddit</span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto leading-relaxed animate-fade-in">
+    <section className="bg-white text-gray-900 min-h-screen flex flex-col justify-center">
+      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-4 py-12 md:py-0 gap-8 w-full">
+        {/* Left column */}
+        <div className="flex-1 flex flex-col items-start justify-center max-w-xl w-full mx-auto md:mx-0">
+          <span className="inline-block mb-4 px-4 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold border border-blue-100">
+            Social Listening for B2B
+          </span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+            Social Brand Monitoring for Reddit
+          </h1>
+          <p className="text-lg md:text-xl mb-8 text-gray-600 leading-relaxed">
             Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis
-            </p>
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 md:p-8 mb-10 border border-white/20 animate-scale-in">
-              <h3 className="text-xl md:text-2xl font-semibold mb-4 text-yellow-300">
-                Here's the painful truth:
-              </h3>
-              <p className="text-blue-100 leading-relaxed">
-              You're throwing money every month at Brand24 and similar tools, hoping to catch meaningful customer feedback. Instead, you get thrown under the bus of irrelevant mentions, fake engagement, and social media junk that tells you nothing about what your customers actually think.
-              Meanwhile, Reddit is the place where people share their real, unfiltered opinions about your products.
-              </p>
-            </div>
-
-            <div className="bg-orange-500/20 backdrop-blur-sm rounded-xl p-6 mb-8 border border-orange-300/30">
-            <p className="text-orange-100 text-xl font-bold mb-3">
-              ⚡ Special Launch Offer: Lock in 50% Off Forever
-            </p>
-            <p className="text-orange-200 text-lg mb-2 leading-relaxed">
-              The first 100 businesses get lifetime access at half price. No tricks, no temporary discounts, just 50% off your subscription for life.
-            </p>
-            <p className="text-orange-100 text-sm font-semibold">
-              Only 100 spots left.
-            </p>
-          </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 text-lg font-semibold rounded-full transition-all duration-300 hover:scale-105 shadow-xl"
-                onClick={() => window.open('https://buy.stripe.com/4gMeVf0Jy6TN5W248waVa0g', '_blank')}
-              >
-                Lock In Your Lifetime 50% Off
-              </Button>
-            </div>
-            <p className="text-orange-100 text-sm font-semibold mt-2">
-              Only 100 spots left.
-            </p>
-            {/* <p className="mt-4 text-blue-200">Already {emailCount ? emailCount : ""} people on the waitlist</p> */}
+          </p>
+          <div className="flex flex-row gap-4 w-full">
+            <button
+              className="btn-primary"
+              onClick={() =>
+                window.open(
+                  "https://buy.stripe.com/4gMeVf0Jy6TN5W248waVa0g",
+                  "_blank"
+                )
+              }
+            >
+              Start for free
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => window.open("#", "_blank")}
+            >
+              Book a demo
+            </button>
           </div>
         </div>
-      </section>
-    </>
+        {/* Right column */}
+        <div className="flex-1 flex items-center justify-center w-full max-w-xl mx-auto md:mx-0">
+          <div className="w-full h-72 md:h-96 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 text-xl">
+            {/* Replace this with your image or illustration */}
+            Image/Illustration
+          </div>
+        </div>
+      </div>
+      {/* Bottom center text */}
+      <div className="w-full flex justify-center mt-36">
+        <p className="text-zinc-500 text-sm font-semibold">Only 10 spots left.</p>
+      </div>
+    </section>
   );
 };
 

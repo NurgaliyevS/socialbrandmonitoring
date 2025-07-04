@@ -66,4 +66,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-block rounded-lg bg-gradient-to-r from-zinc-700 to-zinc-900 px-6 py-3 text-base font-semibold text-zinc-100 shadow hover:from-zinc-900 hover:to-zinc-900 transition-all duration-200;
+  }
+  .btn-secondary {
+    @apply inline-block rounded-lg border border-zinc-300 bg-white px-6 py-3 text-base font-semibold text-zinc-900 shadow-sm hover:bg-zinc-50 transition-all duration-200;
+  }
 } 
