@@ -23,10 +23,10 @@ const Pricing = () => {
 
           <div className="flex items-center justify-center gap-4 mb-4">
             <span className="text-4xl font-bold text-zinc-900">
-              $497
+              $197
             </span>
             <div className="text-left">
-              <div className="text-lg text-gray-500 line-through">$994</div>
+              <div className="text-lg text-gray-500 line-through">$497</div>
               <div className="text-sm text-zinc-900 font-medium">
                 lifetime
               </div>
@@ -41,8 +41,8 @@ const Pricing = () => {
             <li>Priority support and direct feedback channel</li>
             <li>Influence product development and new features</li>
             <li>Exclusive early access to future updates</li>
-            <li>Market rate: $99-399/month</li>
-            <li>Your rate: $497 lifetime</li>
+            <li>Market rate: $59-119/month</li>
+            <li>Your rate: $197 lifetime</li>
             <li>No recurring bills ever</li>
           </ul>
 

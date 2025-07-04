@@ -23,7 +23,7 @@ const Hero = () => {
               className="btn-primary"
               onClick={() =>
                 window.open(
-                  "https://buy.stripe.com/4gMeVf0Jy6TN5W248waVa0g",
+                  "https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h",
                   "_blank"
                 )
               }
