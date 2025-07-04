@@ -45,9 +45,8 @@ const Hero = () => {
         </div>
         {/* Right column */}
         <div className="flex-1 flex items-center justify-center w-full max-w-xl mx-auto md:mx-0">
-          <div className="w-full h-72 md:h-96 bg-gray-100 border border-gray-200 rounded-xl flex items-center justify-center text-gray-400 text-xl">
-            {/* Replace this with your image or illustration */}
-            Image/Illustration
+          <div className="w-full h-72 md:h-96 rounded-xl flex items-center justify-center">
+            <img src="/social-listening-tool.webp" alt="SocialBrandMonitoring" className="h-48 md:h-72 object-contain" />
           </div>
         </div>
       </div>
