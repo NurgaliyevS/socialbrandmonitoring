@@ -51,7 +51,7 @@ const Pricing = () => {
             className="w-full btn-primary bg-black bg-gradient-to-r from-black to-zinc-900 text-white rounded-lg py-3 text-base font-semibold shadow hover:from-zinc-900 hover:to-zinc-900 transition-all duration-200"
             onClick={() =>
               window.open(
-                "https://buy.stripe.com/4gMeVf0Jy6TN5W248waVa0g",
+                "https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h",
                 "_blank"
               )
             }
