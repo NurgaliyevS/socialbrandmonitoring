@@ -31,7 +31,9 @@ const Hero = () => {
             </button>
             <button
               className="btn-secondary"
-              onClick={() => window.open("#", "_blank")}
+              onClick={() => {
+                window.open("https://cal.com/sabyr-nurgaliyev/social-brand-monitoring-discovery-call", "_blank");
+              }}
             >
               Book a demo
             </button>
