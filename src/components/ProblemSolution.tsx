@@ -31,8 +31,7 @@ const ProblemSolution = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            The Reddit Monitoring Challenge{" "}
-            <span className="text-purple-600">Solved</span>
+            The Reddit Monitoring Challenge{" "}Solved
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Every day, thousands of conversations about your brand happen on Reddit. Here's how we solve the biggest challenges in monitoring them effectively.

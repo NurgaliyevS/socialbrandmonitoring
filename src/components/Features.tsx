@@ -35,8 +35,7 @@ const Features = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Everything You Need to Monitor{" "}
-            <span className="text-purple-600">Reddit</span>
+            Everything You Need to Monitor{" "}Reddit
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Built specifically for marketers and PR agencies who need to stay on top of Reddit conversations.
