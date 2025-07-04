@@ -51,7 +51,7 @@ const Hero = () => {
         </div>
       </div>
       {/* Bottom center text */}
-      <div className="w-full flex justify-center mt-36">
+      <div className="w-full flex justify-center mt-0 md:mt-28">
         <p className="text-zinc-500 text-sm font-semibold">
           Only 10 spots left.
         </p>
