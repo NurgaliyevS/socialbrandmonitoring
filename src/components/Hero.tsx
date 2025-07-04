@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const Hero = () => {
   return (
-    <section className="bg-white text-gray-900 min-h-screen flex flex-col justify-center">
+    <section className="bg-white text-gray-900 py-12 md:py-20 lg:py-24 flex flex-col justify-center">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-4 py-12 md:py-0 gap-8 w-full">
         {/* Left column */}
         <div className="flex-1 flex flex-col items-start justify-center max-w-xl w-full mx-auto md:mx-0">
@@ -51,7 +51,7 @@ const Hero = () => {
         </div>
       </div>
       {/* Bottom center text */}
-      <div className="w-full flex justify-center mt-0 md:mt-28">
+      <div className="w-full flex justify-center mt-6 md:mt-12">
         <p className="text-zinc-500 text-sm font-semibold">
           Only 10 spots left.
         </p>
