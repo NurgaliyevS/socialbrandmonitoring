@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Sidebar from '@/components/SideBar';
 import Header from '@/components/Header';
 import MentionCard from '@/components/MentionCard';
+import FilterPanel from '@/components/FilterPanel';
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState('feed');
@@ -107,9 +108,7 @@ const Dashboard = () => {
 
       {/* Filter panel (right, 1/3 width) */}
       <div className="w-1/3 border-l border-gray-200 bg-gray-50 p-8">
-        {/* Placeholder for filter panel */}
-        <div className="text-lg font-semibold mb-4">Filters</div>
-        <div className="text-gray-500">(Filter options go here)</div>
+        <FilterPanel />
       </div>
     </div>
   );
