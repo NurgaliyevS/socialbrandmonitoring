@@ -79,7 +79,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white text-gray-900">
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
       
       <div className="flex-1">
