@@ -7,15 +7,18 @@ const NavigationHeader = () => {
       <div className="w-[900px] max-w-full mx-auto flex items-center justify-between bg-white rounded-lg border border-zinc-200 shadow-sm px-4 py-4 md:h-16 lg:h-16">
         <div className="shrink-0">
           <Link href="/">
-            <span className="text-lg font-semibold text-gray-900">SocialBrandMonitoring</span>
+            <span className="text-base sm:text-lg font-semibold text-gray-900">
+              <span className="sm:hidden">Social Listening</span>
+              <span className="hidden sm:inline">Social Brand Monitoring</span>
+            </span>
           </Link>
         </div>
         
         {/* Mobile: Only show CTA */}
         <div className="flex items-center gap-4 sm:hidden">
           <Link href="/dashboard">
-            <button className="inline-flex items-center justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2 btn-sm bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
-              Sign up
+            <button className="inline-flex items-center justify-center whitespace-nowrap text-sm sm:text-base ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2 btn-sm bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
+              Get Lifetime Access
             </button>
           </Link>
         </div>
@@ -103,7 +106,7 @@ const NavigationHeader = () => {
             <li>
               <Link href="/dashboard">
                 <button className="inline-flex items-center justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2 btn-sm bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
-                  Start for free
+                  Get Lifetime Access
                 </button>
               </Link>
             </li>
