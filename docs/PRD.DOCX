@@ -1,4 +1,4 @@
-Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with core logic implementation guidance tailored to your Next.js full-stack app with MongoDB. I’ll focus on multi-brand monitoring with simple sentiment analysis, email/Slack alerts, and lifetime-access user management.
+Detailed PRD for a Reddit brand monitoring platform with core logic implementation guidance tailored to your Next.js full-stack app with MongoDB. I'll focus on multi-brand monitoring with simple sentiment analysis, email/Slack alerts, and lifetime-access user management.
 
 
 # Reddit Brand Monitoring – PRD & Implementation Guide
@@ -11,15 +11,15 @@ Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with
 * **Keyword Tracking:** Allow users to define multiple brands and keywords. Each brand has its own list of terms. The backend searches for those terms in Reddit content (using API search or subreddit streams).
 * **Post & Comment Coverage:** Monitor both new posts and comments, since brand discussions may occur in either.
 * **Sentiment Analysis:** Perform simple sentiment classification (positive/negative/neutral) on each mention. Initially use a lexicon-based NLP library. For example, the AFINN lexicon approach (via Node.js packages like `natural` or `sentiment`) can assign a negative score for negative sentiment and positive for positive. Scores <0 = negative, >0 = positive, and 0 = neutral.
-* **Alerting:** When a brand mention is detected (especially if negative or viral), notify stakeholders. Send automated notifications via Slack and email. Use Slack’s Web API (`@slack/web-api`) to post messages to a channel, and use a Node email library (e.g. Nodemailer) to send emails.
+* **Alerting:** When a brand mention is detected (especially if negative or viral), notify stakeholders. Send automated notifications via Slack and email. Use Slack's Web API (`@slack/web-api`) to post messages to a channel, and use Resend to send emails.
 * **Analytics Dashboard:** Store mentions and metadata in MongoDB for querying. Provide a dashboard (Next.js pages) showing recent mentions, sentiment breakdown, and basic trends. Users should be able to generate simple reports of mentions and sentiment over time.
-* **Multi-brand Support:** Support multiple brands/accounts. Each brand’s keywords and data are isolated. In the database, tag each mention with its brand ID. Allow users (e.g. PR teams or agencies) to switch between brands to view their respective data.
+* **Multi-brand Support:** Support multiple brands/accounts. Each brand's keywords and data are isolated. In the database, tag each mention with its brand ID. Allow users (e.g. PR teams or agencies) to switch between brands to view their respective data.
 
 ## System Architecture & Data Flow
 
 1. **Data Ingestion (Reddit API):**
 
-   * **Best option:** Use Reddit’s official API with OAuth. The [official Reddit Data API](https://www.reddit.com/dev/api/) allows up to 100 queries/minute with authentication. This is a robust way to retrieve live data.
+   * **Best option:** Use Reddit's official API with OAuth. The [official Reddit Data API](https://www.reddit.com/dev/api/) allows up to 100 queries/minute with authentication. This is a robust way to retrieve live data.
    * **Implementation:** In a Next.js API route or a separate Node service, use a library like **snoowrap** (a JavaScript wrapper) to access Reddit. For example:
 
      ```js
@@ -28,25 +28,16 @@ Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with
      const subreddit = await reddit.getSubreddit('all');
      const newPosts = await subreddit.getNew({limit: 50});
      ```
-
-     This code (illustrated in the Snoowrap tutorial) fetches recent posts. Similar calls can get comments or top posts. Snoowrap handles OAuth setup and simplifies querying the API.
-   * **Pushshift Alternative:** For historical or broad searches (and to bootstrap data), the Pushshift API can be used. Pushshift indexes billions of Reddit comments and submissions. Its REST endpoints let you search comments or submissions by keyword, time range, subreddit, etc. For example:
-
-     ```
-     https://api.pushshift.io/reddit/comment/search/?q=YOUR_KEYWORD
-     ```
-
-     This can retrieve recent comments containing the keyword. Pushshift is free and can supplement official API calls (especially for backfilling old data), but it may lag real-time updates and has its own rate limits.
-
+     
 2. **Keyword Matching:**
 
    * **Configuration:** Allow the user to specify brands and associated keyword lists (via a UI stored in MongoDB). For each brand, keep a collection of terms to watch.
-   * **Filtering Logic:** As new Reddit content is fetched, check if any of the brand’s keywords appear in the post title, body, or comment text. This can be simple case-insensitive substring matching or regex matching. MongoDB can also support text indexes if doing server-side queries.
+   * **Filtering Logic:** As new Reddit content is fetched, check if any of the brand's keywords appear in the post title, body, or comment text. This can be simple case-insensitive substring matching or regex matching. MongoDB can also support text indexes if doing server-side queries.
    * **Posts vs Comments:** Run separate API calls for new posts and new comments. Snoowrap (or the Reddit API) can fetch `/r/subreddit/new` and `/r/subreddit/comments/new`. Alternatively, search for comments containing keywords via pushshift.
 
 3. **Sentiment Analysis (Simple Classification):**
 
-   * **Approach:** Use a Node NLP library like **`sentiment`** (AFINN-based) or **`natural`** with the AFINN lexicon. These assign each word a score (+/-) and sum them. The overall score’s sign indicates polarity. This yields a quick positive/negative/neutral label.
+   * **Approach:** Use a Node NLP library like **`sentiment`** (AFINN-based) or **`natural`** with the AFINN lexicon. These assign each word a score (+/-) and sum them. The overall score's sign indicates polarity. This yields a quick positive/negative/neutral label.
    * **Implementation:** Install and use, for example:
 
      ```js
@@ -57,12 +48,12 @@ Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with
      ```
 
      The `sentiment` npm package uses the AFINN-165 wordlist and returns a score and details.
-   * **Usage:** Apply this to each fetched mention. Store the numeric score and a categorical label (“positive”/“negative”/“neutral”) in MongoDB. In reporting, you can display the breakdown.
+   * **Usage:** Apply this to each fetched mention. Store the numeric score and a categorical label ("positive"/"negative"/"neutral") in MongoDB. In reporting, you can display the breakdown.
 
 4. **Database (MongoDB):**
 
    * **Schema:** In MongoDB, have a **mentions** collection. Each document might include: brand ID, keyword matched, subreddit, post/comment ID and URL, author, timestamp, content text, sentiment score, and sentiment label. Also store engagement metrics (like upvotes, comment count) if needed for context.
-   * **Brands & Users:** Have a **brands** collection for brand profiles (name, user owner, keywords, Slack/webhook config, etc.). Optionally a **users** collection for authentication. MongoDB’s flexible schema fits storing each mention’s fields.
+   * **Brands & Users:** Have a **brands** collection for brand profiles (name, user owner, keywords, Slack/webhook config, etc.). Optionally a **users** collection for authentication. MongoDB's flexible schema fits storing each mention's fields.
    * **Indexing:** Index on fields commonly queried (brand ID, timestamp) to efficiently retrieve brand-specific, recent mentions.
 
 5. **Notifications (Email & Slack):**
@@ -76,25 +67,24 @@ Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with
      ```
 
      This is straightforward and well-documented. You must first create a Slack app, get a token and channel ID. The cited guide describes installing `@slack/web-api` and posting messages.
-   * **Email Alerts:** Use **Nodemailer** (or a service like SendGrid via API) to send email notifications. Nodemailer is a zero-dependency Node module for sending mail. Configure SMTP or an email API, then on a new mention, send an email to the team with details. For example:
+   * **Email Alerts:** Use **Resend** (https://resend.com/) to send email notifications. Resend provides a simple API for sending transactional emails. Configure your Resend API key, then on a new mention, send an email to the team with details. For example:
 
      ```js
-     const nodemailer = require('nodemailer');
-     let transporter = nodemailer.createTransport({ /* SMTP settings */ });
-     await transporter.sendMail({
-       from: '"Brand Monitor" <no-reply@brand.com>',
+     import { Resend } from 'resend';
+     const resend = new Resend(process.env.RESEND_API_KEY);
+     await resend.emails.send({
+       from: 'Brand Monitor <onboarding@resend.dev>',
        to: 'team@example.com',
        subject: `BrandX Mention on Reddit`,
        text: `A user said: "${postText}" in /r/${subreddit}. View at ${url}`
      });
      ```
 
-     Nodemailer is reliable and widely used for Node apps.
+     Resend is reliable and easy to use for Node/Next.js apps.
 
 6. **Backend Scheduling:**
 
-   * **Continuous Scanning:** Since Reddit doesn’t push events, run periodic tasks. In a Next.js API route or separate worker, use `setInterval` or a job scheduler (e.g. `node-cron`) to poll Reddit every minute or few minutes. Ensure respect of rate limits. For example, every 30 seconds fetch the newest 25 posts from tracked subreddits or keyword searches.
-   * **Scaling:** For many brands or high volume, you might use a queue or separate service (e.g. an AWS Lambda or background Node process) to handle polling independently of the Next.js frontend.
+   * **Continuous Scanning:** Since Reddit doesn't push events, run periodic tasks. Use [Vercel Cron Jobs](https://vercel.com/docs/cron-jobs) to schedule your Next.js API routes to poll Reddit every minute or few minutes. Ensure you respect Reddit's rate limits. For example, every 30 seconds fetch the newest 25 posts from tracked subreddits or keyword searches.
 
 7. **Frontend & Reporting:**
 
@@ -116,7 +106,7 @@ Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with
 5. **Integrate Notifications:** Configure Slack (create workspace app) and Email (SMTP or service). In the polling logic, after saving a mention, call Slack API and send an email.
 6. **Frontend Development:** Create Next.js pages for: (a) Brand setup (name, keywords, notification settings); (b) Dashboard showing mentions and sentiment charts. Use React components and fetch from your own API routes.
 7. **Testing:** Verify that new posts/comments trigger events, sentiments are computed correctly (test with sample positive/negative phrases), and Slack/email messages are delivered.
-8. **Deployment:** Host the Next.js app on Vercel or similar. Host background worker (if separate) on Heroku/AWS or use serverless cron. Set environment variables (Reddit keys, Mongo URI, Slack token, etc.).
+8. **Deployment:** Host the Next.js app and all background jobs on Vercel. Set environment variables (Reddit keys, Mongo URI, Slack token, etc.) in the Vercel dashboard.
 
 ## Technical Notes & Best Practices
 
@@ -129,4 +119,4 @@ Thanks! I’ll create a detailed PRD for a Reddit brand monitoring platform with
 
 ## Summary
 
-This PRD outlines building a Reddit-focused social listening tool: scanning posts/comments, classifying sentiment (positive/negative/neutral), and alerting via Slack and email. Using Next.js and MongoDB, key steps are: connect to Reddit’s API (e.g. via [snoowrap](https://github.com/not-an-aardvark/snoowrap)), set up keyword-based monitoring, perform simple NLP sentiment analysis, and integrate notification channels. Supporting multiple brands means storing separate keyword profiles and tagging data accordingly. Over time, this MVP can be extended with richer analytics (trends, influencer ID, etc.), but even a basic positive/negative classifier and real-time alerts will provide valuable brand insight on Reddit discussions.
+This PRD outlines building a Reddit-focused social listening tool: scanning posts/comments, classifying sentiment (positive/negative/neutral), and alerting via Slack and email. Using Next.js and MongoDB, key steps are: connect to Reddit's API (e.g. via [snoowrap](https://github.com/not-an-aardvark/snoowrap)), set up keyword-based monitoring, perform simple NLP sentiment analysis, and integrate notification channels. Supporting multiple brands means storing separate keyword profiles and tagging data accordingly. Over time, this MVP can be extended with richer analytics (trends, influencer ID, etc.), but even a basic positive/negative classifier and real-time alerts will provide valuable brand insight on Reddit discussions.
