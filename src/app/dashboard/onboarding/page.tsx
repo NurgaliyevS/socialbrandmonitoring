@@ -148,8 +148,8 @@ const OnboardingFlow = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-2xl relative z-10">
         <ProgressHeader 
           currentStep={currentStep}
           onBack={handleBack}
