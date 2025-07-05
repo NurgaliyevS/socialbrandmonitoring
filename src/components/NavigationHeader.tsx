@@ -48,7 +48,7 @@ const NAV_ITEMS = [
 
 const NavigationHeader = () => {
   return (
-    <header className="sticky top-2 z-30 px-4">
+    <header className="sticky top-6 z-30 px-4">
       <div className="w-[900px] max-w-full mx-auto flex items-center justify-between bg-white rounded-lg border border-zinc-200 shadow-sm px-4 py-4 md:h-16 lg:h-16">
         <div className="shrink-0">
           <Link href="/">

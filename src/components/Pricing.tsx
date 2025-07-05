@@ -4,7 +4,7 @@ import { useState } from "react";
 
 const Pricing = () => {
   return (
-    <section className="py-20 bg-white">
+    <section id="pricing" className="py-20 bg-white">
       <div className="container mx-auto flex justify-center">
         <div className="relative flex flex-col justify-between bg-white p-4 shadow-sm sm:p-6 rounded-2xl border-2 border-primary border-gray-300 z-10 lg:scale-[1.02] w-full max-w-lg items-center">
           <div className="absolute -top-4 left-1/2 -translate-x-1/2">
