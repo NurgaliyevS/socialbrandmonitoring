@@ -80,29 +80,36 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-white text-gray-900">
-      <Sidebar activeView={activeView} onViewChange={setActiveView} />
-      
-      <div className="flex-1">
+      {/* Sidebar (left) */}
+      <div className="w-64 border-r border-gray-200 bg-white">
+        <Sidebar activeView={activeView} onViewChange={setActiveView} />
+      </div>
+
+      {/* MentionCard list (center, 2/3 width) */}
+      <div className="w-2/3 p-6">
         <Header
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onAddFilter={handleAddFilter}
           onExport={handleExport}
         />
-        
-        <div className="p-6">
-          <div className="space-y-4">
-            {filteredMentions.map((mention) => (
-              <MentionCard key={mention.id} mention={mention} />
-            ))}
-          </div>
-          
+        <div className="space-y-4 mt-6">
+          {filteredMentions.map((mention) => (
+            <MentionCard key={mention.id} mention={mention} />
+          ))}
           {filteredMentions.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500">No mentions found matching your search.</p>
             </div>
           )}
         </div>
+      </div>
+
+      {/* Filter panel (right, 1/3 width) */}
+      <div className="w-1/3 border-l border-gray-200 bg-gray-50 p-8">
+        {/* Placeholder for filter panel */}
+        <div className="text-lg font-semibold mb-4">Filters</div>
+        <div className="text-gray-500">(Filter options go here)</div>
       </div>
     </div>
   );
