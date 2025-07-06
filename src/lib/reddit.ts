@@ -62,6 +62,7 @@ export async function fetchNewPosts(subreddit: string = 'all', limit: number = 5
       created: new Date(post.created_utc * 1000),
       selftext: post.selftext || '',
       isSelf: post.is_self,
+      isPost: true
     }));
   } catch (error) {
     console.error('Error fetching new posts:', error);
@@ -72,17 +73,81 @@ export async function fetchNewPosts(subreddit: string = 'all', limit: number = 5
 /**
  * Keyword matching logic from PRD Step 1
  * Check if any keywords appear in post title, body, or comment text
+ * Uses word boundaries to avoid false matches
  */
 export function checkKeywordMatch(content: string, keywords: string[]): string | null {
   const lowerContent = content.toLowerCase();
   
   for (const keyword of keywords) {
-    if (lowerContent.includes(keyword.toLowerCase())) {
+    const lowerKeyword = keyword.toLowerCase();
+    
+    // Use word boundaries to avoid false matches (e.g., "AI" in "again")
+    const regex = new RegExp(`\\b${lowerKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+    
+    if (regex.test(lowerContent)) {
       return keyword;
     }
   }
   
   return null;
+}
+
+/**
+ * Fetch new comments from a subreddit
+ * Implementation from PRD Step 2 - Posts vs Comments
+ */
+export async function fetchNewComments(subreddit: string = 'all', limit: number = 50) {
+  try {
+    const reddit = getRedditClient();
+    const subredditInstance = await reddit.getSubreddit(subreddit);
+    const newComments = await subredditInstance.getNewComments({ limit });
+    
+    return newComments.map((comment: any) => ({
+      id: comment.id,
+      author: comment.author?.name || 'deleted',
+      subreddit: comment.subreddit.display_name,
+      body: comment.body,
+      url: comment.url,
+      permalink: comment.permalink,
+      score: comment.score,
+      created: new Date(comment.created_utc * 1000),
+      parentId: comment.parent_id,
+      linkId: comment.link_id,
+      isPost: false
+    }));
+  } catch (error) {
+    console.error('Error fetching new comments:', error);
+    throw error;
+  }
+}
+
+/**
+ * Fetch comments for a specific post
+ * Implementation from PRD Step 2 - Posts vs Comments
+ */
+export async function fetchPostComments(postId: string, limit: number = 100) {
+  try {
+    const reddit = getRedditClient();
+    const submission = await reddit.getSubmission(postId);
+    const comments = await submission.comments.fetchAll({ limit });
+    
+    return comments.map((comment: any) => ({
+      id: comment.id,
+      author: comment.author?.name || 'deleted',
+      subreddit: comment.subreddit.display_name,
+      body: comment.body,
+      url: comment.url,
+      permalink: comment.permalink,
+      score: comment.score,
+      created: new Date(comment.created_utc * 1000),
+      parentId: comment.parent_id,
+      linkId: comment.link_id,
+      isPost: false
+    }));
+  } catch (error) {
+    console.error('Error fetching post comments:', error);
+    throw error;
+  }
 }
 
 /**

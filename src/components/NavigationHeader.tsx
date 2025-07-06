@@ -36,14 +36,14 @@ const NAV_ITEMS = [
 //     className: 'hover:underline',
 //     external: false,
 //   },
-  {
-    label: 'Sign in',
-    href: '/dashboard',
-    isButton: true,
-    className:
-      'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-link hover:bg-link-100 hover:text-link h-10 px-4 py-2',
-    external: false,
-  },
+  // {
+  //   label: 'Sign in',
+  //   href: '/dashboard',
+  //   isButton: true,
+  //   className:
+  //     'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-link hover:bg-link-100 hover:text-link h-10 px-4 py-2',
+  //   external: false,
+  // },
 ];
 
 const NavigationHeader = () => {
