@@ -100,26 +100,3 @@ export async function sendSlackNotification(
     throw error;
   }
 }
-
-/**
- * Test Slack connection
- */
-export async function testSlackConnection(brandId: string): Promise<boolean> {
-  try {
-    const brand = await Company.findById(brandId);
-    if (!brand || !brand.slackConfig?.enabled || !brand.slackConfig?.webhookUrl) {
-      return false;
-    }
-
-    const slack = new WebClient(brand.slackConfig.webhookUrl);
-    await slack.chat.postMessage({
-      channel: brand.slackConfig.channel || '#monitoring',
-      text: '🧪 Test message from Reddit Brand Monitor'
-    });
-    
-    return true;
-  } catch (error) {
-    console.error('❌ Slack connection test failed:', error);
-    return false;
-  }
-} 
