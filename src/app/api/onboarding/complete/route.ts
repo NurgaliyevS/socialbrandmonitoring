@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       scrapedData: {
         headings: scrapedData.headings,
         bodyText: scrapedData.bodyText
-      }
+      },
+      onboardingComplete: true
     });
 
     await company.save();
