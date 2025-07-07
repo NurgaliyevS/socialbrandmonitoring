@@ -1,5 +1,6 @@
 import connectDB from './mongodb';
 import { fetchNewPosts, fetchNewComments, checkKeywordMatch } from './reddit';
+import { analyzeSentiment } from './polling-service';
 import Company from '@/models/Company';
 import Mention from '@/models/Mention';
 
@@ -64,11 +65,8 @@ export async function monitorRedditContent() {
             score: post.score,
             numComments: post.numComments,
             created: post.created,
-            sentiment: {
-              score: 0, // Will be calculated in Step 4
-              label: 'neutral' as const
-            },
-            isProcessed: false
+            sentiment: analyzeSentiment(post.selftext || post.title),
+            isProcessed: true
           };
           
           newMentions.push(mention);
@@ -99,11 +97,8 @@ export async function monitorRedditContent() {
             score: comment.score,
             numComments: 0,
             created: comment.created,
-            sentiment: {
-              score: 0, // Will be calculated in Step 4
-              label: 'neutral' as const
-            },
-            isProcessed: false
+            sentiment: analyzeSentiment(comment.body),
+            isProcessed: true
           };
           
           newMentions.push(mention);
