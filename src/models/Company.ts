@@ -18,6 +18,16 @@ export interface ICompany extends Document {
     headings: string[];
     bodyText: string;
   };
+  // Notification settings from PRD Step 4.2
+  slackConfig?: {
+    webhookUrl?: string;
+    channel?: string;
+    enabled: boolean;
+  };
+  emailConfig?: {
+    recipients: string[];
+    enabled: boolean;
+  };
   onboardingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +50,16 @@ const CompanySchema = new Schema({
   scrapedData: {
     headings: [String],
     bodyText: String
+  },
+  // Notification settings from PRD Step 4.2
+  slackConfig: {
+    webhookUrl: { type: String },
+    channel: { type: String, default: '#monitoring' },
+    enabled: { type: Boolean, default: false }
+  },
+  emailConfig: {
+    recipients: [{ type: String }],
+    enabled: { type: Boolean, default: false }
   },
   onboardingComplete: { type: Boolean, default: false }
 }, {
