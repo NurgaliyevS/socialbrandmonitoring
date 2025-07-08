@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { 
   BarChart3, 
   Bookmark, 
@@ -13,11 +14,16 @@ import {
 } from 'lucide-react';
 
 interface SidebarProps {
-  activeView: string;
-  onViewChange: (view: string) => void;
+  activeView?: string;
+  onViewChange?: (view: string) => void;
 }
 
 const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  // Determine active view from pathname
+  const currentActiveView = activeView || (pathname?.includes('/settings') ? 'settings' : 'feed');
   const menuItems = [
     { id: 'feed', label: 'Feed', icon: MessageSquare },
     // { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark },
@@ -49,9 +55,17 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => onViewChange(item.id)}
+            onClick={() => {
+              if (onViewChange) {
+                onViewChange(item.id);
+              } else if (item.id === 'settings') {
+                router.push('/dashboard/settings');
+              } else if (item.id === 'feed') {
+                router.push('/dashboard');
+              }
+            }}
             className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-              activeView === item.id
+              currentActiveView === item.id
                 ? 'bg-blue-50 text-blue-700 font-medium'
                 : 'text-gray-700 hover:bg-gray-100'
             }`}

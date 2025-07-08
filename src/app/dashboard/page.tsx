@@ -1,11 +1,13 @@
 "use client";
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/SideBar';
 import Header from '@/components/Header';
 import MentionCard from '@/components/MentionCard';
 import FilterPanel from '@/components/FilterPanel';
 
 const Dashboard = () => {
+  const router = useRouter();
   const [activeView, setActiveView] = useState('feed');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -79,11 +81,19 @@ const Dashboard = () => {
     console.log('Export clicked');
   };
 
+  const handleViewChange = (view: string) => {
+    if (view === 'settings') {
+      router.push('/dashboard/settings');
+    } else {
+      setActiveView(view);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-white text-gray-900">
       {/* Sidebar (left) */}
       <div className="w-64 border-r border-gray-200 bg-white">
-        <Sidebar activeView={activeView} onViewChange={setActiveView} />
+        <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       </div>
 
       {/* MentionCard list (center, 2/3 width) */}

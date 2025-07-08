@@ -1,0 +1,30 @@
+Step 7: Frontend & Reporting – Breakdown Plan
+7.1 Brand Setup UI
+Allow users to add/edit brands (name, website, etc.)
+Allow users to add/edit keywords for each brand
+Allow users to configure notification settings (Slack, email)
+Use your existing onboarding and keyword components as a starting point
+7.2 Mentions Dashboard
+Display a list/table of recent mentions for the selected brand
+Show key info: content snippet, subreddit, sentiment, timestamp, etc.
+Allow filtering by date, sentiment, and keyword
+Use your existing dashboard and mention card components as a base
+7.3 Sentiment & Trends Visualization
+Show sentiment breakdown (positive/negative/neutral) as a chart
+Show trends over time (e.g., mentions per day/week)
+Use a charting library (e.g., Chart.js, Recharts) and your existing chart components
+7.4 Brand Switching & Multi-Tenant Support
+Allow users to switch between brands (if they have access to more than one)
+Ensure all queries and UI are scoped to the selected brand
+7.5 Export & Reporting
+Allow users to export mention data (CSV, PDF)
+(Optional for MVP) Schedule periodic email reports
+7.6 UI/UX Polish & Error Handling
+Loading states, error messages, empty states
+Responsive design and accessibility
+How to Proceed
+Review your existing mockups and components (onboarding, dashboard, mention card, etc.)
+Decide which sub-step to tackle first (e.g., Mentions Dashboard or Brand Setup UI)
+For each sub-step:
+Reuse and adapt your existing components where possible
+Only build new UI where needed
