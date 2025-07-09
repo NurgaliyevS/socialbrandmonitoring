@@ -5,6 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Bell, Mail, MessageSquare } from 'lucide-react';
 import { Brand, Keyword, NotificationSettings } from './types';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
+import { settingsService } from '@/lib/settings-service';
 
 interface NotificationSettingsProps {
   brands: Brand[];
@@ -17,6 +20,44 @@ const NotificationSettingsComponent = ({
   setBrands,
   handleUpdateNotifications
 }: NotificationSettingsProps) => {
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [localEmail, setLocalEmail] = React.useState('');
+  const [localSlack, setLocalSlack] = React.useState('');
+  const [localEmailEnabled, setLocalEmailEnabled] = React.useState(false);
+  const [localSlackEnabled, setLocalSlackEnabled] = React.useState(false);
+
+  const startEdit = (brand: Brand) => {
+    setEditingId(brand.id);
+    setLocalEmail(brand.notifications.emailAddress || '');
+    setLocalSlack(brand.notifications.slackWebhook || '');
+    setLocalEmailEnabled(brand.notifications.email);
+    setLocalSlackEnabled(brand.notifications.slack);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setLocalEmail('');
+    setLocalSlack('');
+    setLocalEmailEnabled(false);
+    setLocalSlackEnabled(false);
+  };
+
+  const saveEdit = async (brand: Brand) => {
+    try {
+      const updated = await settingsService.updateNotifications(brand.id, {
+        email: localEmailEnabled,
+        slack: localSlackEnabled,
+        emailAddress: localEmail,
+        slackWebhook: localSlack,
+      });
+      setBrands(brands.map(b => b.id === brand.id ? updated : b));
+      toast({ title: 'Notifications updated', description: 'Notification settings saved.' });
+      cancelEdit();
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save notifications' });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -27,9 +68,18 @@ const NotificationSettingsComponent = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {brands.map((brand) => (
-          <div key={brand.id} className="border rounded-lg p-4">
-            <h3 className="font-semibold text-lg mb-4">{brand.name}</h3>
-            
+          <form key={brand.id} onSubmit={e => { e.preventDefault(); saveEdit(brand); }} className="border rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-lg">{brand.name}</h3>
+              <div className="flex gap-2">
+                <Button size="sm" type="submit">
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" type="button" onClick={cancelEdit}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
             <div className="space-y-4">
               {/* Email Notifications */}
               <div className="flex items-center justify-between">
@@ -46,28 +96,22 @@ const NotificationSettingsComponent = ({
                 </div>
                 <Switch
                   id={`email-${brand.id}`}
-                  checked={brand.notifications.email}
-                  onCheckedChange={(checked) => 
-                    handleUpdateNotifications(brand.id, { email: checked })
-                  }
+                  checked={localEmailEnabled}
+                  onCheckedChange={setLocalEmailEnabled}
                 />
               </div>
-
-              {brand.notifications.email && (
-                <div className="ml-8">
-                  <Label htmlFor={`email-address-${brand.id}`}>Email Address</Label>
-                  <Input
-                    id={`email-address-${brand.id}`}
-                    value={brand.notifications.emailAddress || ''}
-                    onChange={(e) => 
-                      handleUpdateNotifications(brand.id, { emailAddress: e.target.value })
-                    }
-                    placeholder="Enter email address"
-                    className="mt-1"
-                  />
-                </div>
-              )}
-
+              <div className="ml-8">
+                <Label htmlFor={`email-address-${brand.id}`}>Email Address</Label>
+                <Input
+                  id={`email-address-${brand.id}`}
+                  value={localEmail}
+                  onChange={e => setLocalEmail(e.target.value)}
+                  placeholder="Enter email address"
+                  className="mt-1"
+                  type="email"
+                  required
+                />
+              </div>
               {/* Slack Notifications */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -83,29 +127,24 @@ const NotificationSettingsComponent = ({
                 </div>
                 <Switch
                   id={`slack-${brand.id}`}
-                  checked={brand.notifications.slack}
-                  onCheckedChange={(checked) => 
-                    handleUpdateNotifications(brand.id, { slack: checked })
-                  }
+                  checked={localSlackEnabled}
+                  onCheckedChange={setLocalSlackEnabled}
                 />
               </div>
-
-              {brand.notifications.slack && (
-                <div className="ml-8">
-                  <Label htmlFor={`slack-webhook-${brand.id}`}>Slack Webhook URL</Label>
-                  <Input
-                    id={`slack-webhook-${brand.id}`}
-                    value={brand.notifications.slackWebhook || ''}
-                    onChange={(e) => 
-                      handleUpdateNotifications(brand.id, { slackWebhook: e.target.value })
-                    }
-                    placeholder="https://hooks.slack.com/services/..."
-                    className="mt-1"
-                  />
-                </div>
-              )}
+              <div className="ml-8">
+                <Label htmlFor={`slack-webhook-${brand.id}`}>Slack Webhook URL</Label>
+                <Input
+                  id={`slack-webhook-${brand.id}`}
+                  value={localSlack}
+                  onChange={e => setLocalSlack(e.target.value)}
+                  placeholder="https://hooks.slack.com/services/..."
+                  className="mt-1"
+                  type="url"
+                  required
+                />
+              </div>
             </div>
-          </div>
+          </form>
         ))}
       </CardContent>
     </Card>
