@@ -141,7 +141,6 @@ const NotificationSettingsComponent = ({
                     placeholder="https://hooks.slack.com/services/..."
                     className="mt-1"
                     type="url"
-                    required
                   />
                 </div>
               </div>

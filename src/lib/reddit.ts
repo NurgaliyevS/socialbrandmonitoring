@@ -44,7 +44,7 @@ export function getRedditClient(): Snoowrap {
  * Fetch new posts from a subreddit
  * Implementation from PRD Step 1
  */
-export async function fetchNewPosts(subreddit: string = 'all', limit: number = 50) {
+export async function fetchNewPosts(subreddit: string = 'all', limit: number = 100) {
   try {
     const reddit = getRedditClient();
     const subredditInstance = await reddit.getSubreddit(subreddit);
@@ -96,7 +96,7 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
  * Fetch new comments from a subreddit
  * Implementation from PRD Step 2 - Posts vs Comments
  */
-export async function fetchNewComments(subreddit: string = 'all', limit: number = 50) {
+export async function fetchNewComments(subreddit: string = 'all', limit: number = 100) {
   try {
     const reddit = getRedditClient();
     const subredditInstance = await reddit.getSubreddit(subreddit);
@@ -153,43 +153,36 @@ export async function fetchPostComments(postId: string, limit: number = 100) {
 /**
  * Search for posts containing specific keywords
  */
-export async function searchPosts(query: string, subreddit?: string, limit: number = 25) {
+export async function searchPosts(query: string, limit: number = 1000, subreddit?: string) {
   try {
     const reddit = getRedditClient();
-    const searchOptions: any = { limit };
     
-    if (subreddit) {
-      const subredditInstance = await reddit.getSubreddit(subreddit);
-      const posts = await subredditInstance.search(query, searchOptions);
-      return posts.map((post: any) => ({
-        id: post.id,
-        title: post.title,
-        author: post.author?.name || 'deleted',
-        subreddit: post.subreddit.display_name,
-        url: post.url,
-        permalink: post.permalink,
-        score: post.score,
-        numComments: post.num_comments,
-        created: new Date(post.created_utc * 1000),
-        selftext: post.selftext || '',
-        isSelf: post.is_self,
-      }));
-    } else {
-      const posts = await reddit.search(query, searchOptions);
-      return posts.map((post: any) => ({
-        id: post.id,
-        title: post.title,
-        author: post.author?.name || 'deleted',
-        subreddit: post.subreddit.display_name,
-        url: post.url,
-        permalink: post.permalink,
-        score: post.score,
-        numComments: post.num_comments,
-        created: new Date(post.created_utc * 1000),
-        selftext: post.selftext || '',
-        isSelf: post.is_self,
-      }));
-    }
+    console.log(`Searching for: "${query}"`);
+    
+    const posts = await reddit.search({
+      query: `"${query}"`,  // Exact phrase matching
+      sort: 'new',
+      limit,
+      syntax: 'lucene',  // Use Lucene for better control
+      time: 'month',
+      restrictSr: false
+    });
+    
+    console.log(`Found ${posts.length} posts for "${query}"`);
+    
+    return posts.map((post: any) => ({
+      id: post.id,
+      title: post.title,
+      author: post.author?.name || 'deleted',
+      subreddit: post.subreddit.display_name,
+      url: post.url,
+      permalink: post.permalink,
+      score: post.score,
+      numComments: post.num_comments,
+      created: new Date(post.created_utc * 1000),
+      selftext: post.selftext || '',
+      isSelf: post.is_self,
+    }));
   } catch (error) {
     console.error('Error searching posts:', error);
     throw error;

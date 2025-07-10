@@ -1,5 +1,5 @@
 import connectDB from "./mongodb";
-import { fetchNewPosts, fetchNewComments, checkKeywordMatch } from "./reddit";
+import { fetchNewPosts, fetchNewComments, checkKeywordMatch, searchPosts } from "./reddit";
 import { analyzeSentiment } from "./polling-service";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
@@ -9,15 +9,19 @@ import Mention from "@/models/Mention";
  */
 export async function getBrandsAndKeywords() {
   await connectDB();
-  const companies = await Company.find({ onboardingComplete: true });
+  // Include brands that have keywords configured, regardless of onboarding status
+  const companies = await Company.find({ 
+    keywords: { $exists: true, $ne: [] } 
+  });
 
   return companies.map((company) => {
     console.log("company name", company?.name);
     console.log("company website", company?.website);
+    console.log("keywords", company.keywords.map((k: any) => k.name));
     return {
       brandId: company._id,
       brandName: company.name,
-      keywords: company.keywords.map((k) => k.name),
+      keywords: company.keywords.map((k: any) => k.name),
     };
   });
 }
@@ -39,18 +43,34 @@ export async function monitorRedditContent() {
 
     console.log(`📊 Monitoring ${brands.length} brands with keywords`);
 
-    // Fetch new posts and comments
-    const posts = await fetchNewPosts("all", 25);
-    const comments = await fetchNewComments("all", 25);
+    // Search for posts containing brand keywords
+    const allPosts = [];
+    const allComments = [];
+    
+    for (const brand of brands) {
+      console.log(`🔍 Searching for mentions of "${brand.brandName}" with keywords: ${brand.keywords.join(', ')}`);
+      
+      for (const keyword of brand.keywords) {
+        try {
+          // Search for posts containing the keyword
+          const posts = await searchPosts(keyword, 1000);
+          allPosts.push(...posts);
+          
+          console.log(`📝 Found ${posts.length} posts for keyword "${keyword}"`);
+        } catch (error) {
+          console.error(`❌ Error searching for keyword "${keyword}":`, error);
+        }
+      }
+    }
 
     console.log(
-      `📝 Fetched ${posts.length} posts and ${comments.length} comments`
+      `📝 Total posts found: ${allPosts.length}`
     );
 
     const newMentions = [];
 
     // Check posts for keyword matches
-    for (const post of posts) {
+    for (const post of allPosts) {
       const content = `${post.title} ${post.selftext}`;
 
       for (const brand of brands) {
@@ -85,44 +105,8 @@ export async function monitorRedditContent() {
       }
     }
 
-    // Check comments for keyword matches
-    for (const comment of comments) {
-      const content = comment.body;
-
-      for (const brand of brands) {
-        const matchedKeyword = checkKeywordMatch(content, brand.keywords);
-
-        if (matchedKeyword) {
-          const mention = {
-            brandId: brand.brandId,
-            keywordMatched: matchedKeyword,
-            redditId: comment.id,
-            redditType: "comment",
-            subreddit: comment.subreddit,
-            author: comment.author,
-            title: undefined,
-            content: comment.body,
-            url: comment.url,
-            permalink: comment.permalink,
-            score: comment.score,
-            numComments: 0,
-            created: comment.created,
-            sentiment: analyzeSentiment(comment.body),
-            isProcessed: true,
-          };
-
-          newMentions.push(mention);
-          console.log(
-            `✅ Found mention: ${
-              brand.brandName
-            } (${matchedKeyword}) in comment: ${comment.body.substring(
-              0,
-              50
-            )}...`
-          );
-        }
-      }
-    }
+    // Note: We're only searching for posts now, not comments
+    // Comments can be added later if needed
 
     // Save mentions to database
     if (newMentions.length > 0) {

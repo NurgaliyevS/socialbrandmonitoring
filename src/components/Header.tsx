@@ -7,9 +7,15 @@ interface HeaderProps {
   onSearchChange: (query: string) => void;
   onAddFilter: () => void;
   onExport: () => void;
+  activeFilters?: Array<{
+    key: string;
+    label: string;
+    value: string;
+  }>;
+  onRemoveFilter?: (key: string) => void;
 }
 
-const Header = ({ searchQuery, onSearchChange, onAddFilter, onExport }: HeaderProps) => {
+const Header = ({ searchQuery, onSearchChange, onAddFilter, onExport, activeFilters = [], onRemoveFilter }: HeaderProps) => {
   return (
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between mb-4">
@@ -36,10 +42,23 @@ const Header = ({ searchQuery, onSearchChange, onAddFilter, onExport }: HeaderPr
           Add filter
         </button>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">bubble</span>
-          <button className="px-2 py-1 text-xs text-gray-600 bg-gray-100 rounded">×</button>
-        </div>
+        {activeFilters.length > 0 && (
+          <div className="flex items-center gap-2">
+            {activeFilters.map((filter) => (
+              <div key={filter.key} className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                <span>{filter.label}: {filter.value}</span>
+                {onRemoveFilter && (
+                  <button 
+                    onClick={() => onRemoveFilter(filter.key)}
+                    className="ml-1 hover:bg-blue-200 rounded-full w-4 h-4 flex items-center justify-center"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         <label className="flex items-center gap-2 text-sm text-gray-600 ml-4">
           <input type="checkbox" className="rounded" />

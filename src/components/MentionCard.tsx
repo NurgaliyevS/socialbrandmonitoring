@@ -15,6 +15,9 @@ interface MentionCardProps {
     timestamp: string;
     sentiment: 'positive' | 'negative' | 'neutral';
     keywords: string[];
+    brandName?: string;
+    permalink?: string;
+    redditType?: 'post' | 'comment';
   };
 }
 
@@ -41,6 +44,9 @@ const MentionCard = ({ mention }: MentionCardProps) => {
     }
   };
 
+  console.log(mention.permalink, 'mention permalink')
+  console.log(mention.url, 'mention url')
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
@@ -51,6 +57,12 @@ const MentionCard = ({ mention }: MentionCardProps) => {
           <span className="font-medium text-gray-900">r/{mention.subreddit}</span>
           <span className="text-gray-500">•</span>
           <span className="text-gray-500 text-sm">u/{mention.author}</span>
+          {mention.brandName && (
+            <>
+              <span className="text-gray-500">•</span>
+              <span className="text-blue-600 text-sm font-medium">{mention.brandName}</span>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getSentimentColor(mention.sentiment)}`}>
@@ -59,7 +71,10 @@ const MentionCard = ({ mention }: MentionCardProps) => {
               <span className="capitalize">{mention.sentiment}</span>
             </div>
           </div>
-          <button className="text-gray-400 hover:text-gray-600">
+          <button 
+            className="text-gray-400 hover:text-gray-600"
+            onClick={() => window.open(mention.url, '_blank')}
+          >
             <ExternalLink className="w-4 h-4" />
           </button>
         </div>
