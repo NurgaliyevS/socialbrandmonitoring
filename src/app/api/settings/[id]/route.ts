@@ -6,9 +6,10 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const { id } = await params;
   try {
     await connectDB();
-    const company = await Company.findById(params.id);
+    const company = await Company.findById(id);
     
     if (!company) {
       return Response.json({
@@ -34,12 +35,13 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const { id } = await params;
   try {
     await connectDB();
     const updateData = await request.json();
     
     const company = await Company.findByIdAndUpdate(
-      params.id,
+      id,
       updateData,
       { new: true, runValidators: true }
     );
@@ -68,9 +70,10 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  const { id } = await params;
   try {
     await connectDB();
-    const company = await Company.findByIdAndDelete(params.id);
+    const company = await Company.findByIdAndDelete(id);
     
     if (!company) {
       return Response.json({
