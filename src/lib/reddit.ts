@@ -1,4 +1,5 @@
 import Snoowrap from 'snoowrap';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 // Reddit API client configuration
 let redditClient: Snoowrap | null = null;
@@ -63,6 +64,21 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 }
 
 /**
+ * Get a list of working proxy servers
+ */
+function getProxyList(): string[] {
+  return [
+    // Free proxy servers - you can add more working ones
+    'http://103.149.162.194:80',
+    'http://103.149.162.195:80',
+    'http://103.149.162.196:80',
+    'http://103.149.162.197:80',
+    'http://103.149.162.198:80',
+    // Add more proxies here as needed
+  ];
+}
+
+/**
  * Fetch new comments from all subreddits using direct API call without auth
  * Uses the /r/all/comments.json endpoint for real-time comment data
  */
@@ -71,58 +87,98 @@ export async function fetchAllNewComments(limit: number = 100) {
     const url = `https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`;
     console.log(`🔗 Making request to: ${url}`);
     
-    const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-      'Accept': 'application/json'
-    };
+    // Get list of proxies
+    const proxyList = getProxyList();
     
-    console.log(`📤 Request headers:`, JSON.stringify(headers, null, 2));
+    // Try direct connection first, then proxies
+    const connectionMethods = [
+      { name: 'Direct', config: {} },
+      ...proxyList.map((proxy, index) => ({
+        name: `Proxy${index + 1} (${proxy})`,
+        config: { 
+          agent: new HttpsProxyAgent(proxy)
+        }
+      }))
+    ];
     
-    // Use fetch to make a direct request without authentication
-    const response = await fetch(url, { headers });
+    let lastError: Error | null = null;
     
-    console.log(`📥 Response status: ${response.status} ${response.statusText}`);
-    console.log(`📥 Response headers:`, JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`❌ Response body:`, errorText);
-      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!data.data || !data.data.children) {
-      console.error('❌ Invalid response structure:', JSON.stringify(data, null, 2));
-      throw new Error('Invalid response format from Reddit API');
-    }
-    
-    console.log(`📊 Found ${data.data.children.length} comments in response`);
+    for (const method of connectionMethods) {
+      try {
+        console.log(`🔄 Trying connection method: ${method.name}`);
+        
+        const headers = {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+          'Accept': 'application/json',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive'
+        };
+        
+        console.log(`📤 Request headers:`, JSON.stringify(headers, null, 2));
+        
+        // Use fetch with proxy configuration
+        const response = await fetch(url, { 
+          headers,
+          ...method.config
+        });
+        
+        console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📥 Response headers:`, JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`❌ Response body:`, errorText);
+          lastError = new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+          continue; // Try next proxy
+        }
+        
+        const data = await response.json();
+        
+        if (!data.data || !data.data.children) {
+          console.error('❌ Invalid response structure:', JSON.stringify(data, null, 2));
+          throw new Error('Invalid response format from Reddit API');
+        }
+        
+        console.log(`📊 Found ${data.data.children.length} comments in response`);
+        console.log(`✅ Successfully fetched comments using ${method.name}`);
 
-    return data.data.children.map((commentData: any) => {
-      const comment = commentData.data;
-      console.log(`💬 Comment ID: ${comment.id}, Author: ${comment.author}, Body: ${comment.body?.substring(0, 50)}...`);
-      return {
-        id: comment.id,
-        author: comment.author || 'deleted',
-        subreddit: comment.subreddit,
-        body: comment.body,
-        url: comment.url,
-        permalink: comment.permalink,
-        score: comment.score,
-        created: new Date(comment.created_utc * 1000),
-        parentId: comment.parent_id,
-        linkId: comment.link_id,
-        isPost: false,
-        // Additional fields available from the API
-        gilded: comment.gilded,
-        edited: comment.edited,
-        stickied: comment.stickied,
-        distinguished: comment.distinguished,
-        controversiality: comment.controversiality,
-        depth: comment.depth
-      };
-    });
+        return data.data.children.map((commentData: any) => {
+          const comment = commentData.data;
+          console.log(`💬 Comment ID: ${comment.id}, Author: ${comment.author}, Body: ${comment.body?.substring(0, 50)}...`);
+          return {
+            id: comment.id,
+            author: comment.author || 'deleted',
+            subreddit: comment.subreddit,
+            body: comment.body,
+            url: comment.url,
+            permalink: comment.permalink,
+            score: comment.score,
+            created: new Date(comment.created_utc * 1000),
+            parentId: comment.parent_id,
+            linkId: comment.link_id,
+            isPost: false,
+            // Additional fields available from the API
+            gilded: comment.gilded,
+            edited: comment.edited,
+            stickied: comment.stickied,
+            distinguished: comment.distinguished,
+            controversiality: comment.controversiality,
+            depth: comment.depth
+          };
+        });
+        
+      } catch (error) {
+        console.error(`❌ Failed with ${method.name}:`, error);
+        lastError = error as Error;
+        continue; // Try next proxy
+      }
+    }
+    
+    // If we get here, all methods failed
+    console.error('❌ All connection methods failed');
+    throw lastError || new Error('All connection methods failed');
+    
   } catch (error) {
     console.error('❌ Error fetching all new comments:', error);
     console.error('❌ Error details:', {
