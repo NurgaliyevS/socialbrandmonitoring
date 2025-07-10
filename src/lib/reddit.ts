@@ -47,7 +47,7 @@ export function getRedditClient(): Snoowrap {
 export async function fetchNewPosts(subreddit: string = 'all', limit: number = 100) {
   try {
     const reddit = getRedditClient();
-    const subredditInstance = await reddit.getSubreddit(subreddit);
+    const subredditInstance = reddit.getSubreddit(subreddit);
     const newPosts = await subredditInstance.getNew({ limit });
     
     return newPosts.map((post: any) => ({
@@ -99,7 +99,7 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 export async function fetchNewComments(subreddit: string = 'all', limit: number = 100) {
   try {
     const reddit = getRedditClient();
-    const subredditInstance = await reddit.getSubreddit(subreddit);
+    const subredditInstance = reddit.getSubreddit(subreddit);
     const newComments = await subredditInstance.getNewComments({ limit });
     
     return newComments.map((comment: any) => ({
@@ -128,8 +128,8 @@ export async function fetchNewComments(subreddit: string = 'all', limit: number 
 export async function fetchPostComments(postId: string, limit: number = 100) {
   try {
     const reddit = getRedditClient();
-    const submission = await reddit.getSubmission(postId);
-    const comments = await submission.comments.fetchAll({ limit });
+    const submission = reddit.getSubmission(postId);
+    const comments = await submission.comments.fetchAll();
     
     return comments.map((comment: any) => ({
       id: comment.id,
