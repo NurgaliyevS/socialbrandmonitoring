@@ -4,7 +4,7 @@ import Company from '@/models/Company';
 // GET - Fetch a specific company by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
@@ -33,7 +33,7 @@ export async function GET(
 // PUT - Update a company
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {
@@ -68,7 +68,7 @@ export async function PUT(
 // DELETE - Delete a company
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   try {

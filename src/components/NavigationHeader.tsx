@@ -1,7 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
 
-const NAV_ITEMS = [
+type NavItem = {
+  label: string;
+  href?: string;
+  className: string;
+  external?: boolean;
+  isButton?: boolean;
+  dropdown?: Array<{ label: string; href: string }>;
+};
+
+const NAV_ITEMS: NavItem[] = [
   {
     label: 'Pricing',
     href: '#pricing',
@@ -88,7 +97,7 @@ const NavigationHeader = () => {
                   </li>
                 );
               }
-              if (item.isButton) {
+              if (item.isButton && item.href) {
                 return (
                   <li key={item.label}>
                     <Link href={item.href}>
@@ -97,15 +106,22 @@ const NavigationHeader = () => {
                   </li>
                 );
               }
+              if (item.href) {
+                return (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className={item.className}
+                      {...(item.external ? { target: '_blank' } : {})}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              }
               return (
                 <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className={item.className}
-                    {...(item.external ? { target: '_blank' } : {})}
-                  >
-                    {item.label}
-                  </Link>
+                  <span className={item.className}>{item.label}</span>
                 </li>
               );
             })}
