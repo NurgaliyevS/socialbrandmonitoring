@@ -41,36 +41,6 @@ export function getRedditClient(): Snoowrap {
 }
 
 /**
- * Fetch new posts from a subreddit
- * Implementation from PRD Step 1
- */
-export async function fetchNewPosts(subreddit: string = 'all', limit: number = 100) {
-  try {
-    const reddit = getRedditClient();
-    const subredditInstance = reddit.getSubreddit(subreddit);
-    const newPosts = await subredditInstance.getNew({ limit });
-    
-    return newPosts.map((post: any) => ({
-      id: post.id,
-      title: post.title,
-      author: post.author?.name || 'deleted',
-      subreddit: post.subreddit.display_name,
-      url: post.url,
-      permalink: post.permalink,
-      score: post.score,
-      numComments: post.num_comments,
-      created: new Date(post.created_utc * 1000),
-      selftext: post.selftext || '',
-      isSelf: post.is_self,
-      isPost: true
-    }));
-  } catch (error) {
-    console.error('Error fetching new posts:', error);
-    throw error;
-  }
-}
-
-/**
  * Keyword matching logic from PRD Step 1
  * Check if any keywords appear in post title, body, or comment text
  * Uses word boundaries to avoid false matches
@@ -93,59 +63,52 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 }
 
 /**
- * Fetch new comments from a subreddit
- * Implementation from PRD Step 2 - Posts vs Comments
+ * Fetch new comments from all subreddits using direct API call
+ * Uses the /r/all/comments.json endpoint for real-time comment data
  */
-export async function fetchNewComments(subreddit: string = 'all', limit: number = 100) {
+export async function fetchAllNewComments(limit: number = 100) {
   try {
     const reddit = getRedditClient();
-    const subredditInstance = reddit.getSubreddit(subreddit);
-    const newComments = await subredditInstance.getNewComments({ limit });
     
-    return newComments.map((comment: any) => ({
-      id: comment.id,
-      author: comment.author?.name || 'deleted',
-      subreddit: comment.subreddit.display_name,
-      body: comment.body,
-      url: comment.url,
-      permalink: comment.permalink,
-      score: comment.score,
-      created: new Date(comment.created_utc * 1000),
-      parentId: comment.parent_id,
-      linkId: comment.link_id,
-      isPost: false
-    }));
-  } catch (error) {
-    console.error('Error fetching new comments:', error);
-    throw error;
-  }
-}
-
-/**
- * Fetch comments for a specific post
- * Implementation from PRD Step 2 - Posts vs Comments
- */
-export async function fetchPostComments(postId: string, limit: number = 100) {
-  try {
-    const reddit = getRedditClient();
-    const submission = reddit.getSubmission(postId);
-    const comments = await submission.comments.fetchAll();
+    // Use the direct API endpoint for all new comments
+    const response = await reddit.oauthRequest({
+      uri: 'https://oauth.reddit.com/r/all/comments.json',
+      method: 'GET',
+      qs: {
+        limit,
+        raw_json: 1
+      }
+    });
     
-    return comments.map((comment: any) => ({
-      id: comment.id,
-      author: comment.author?.name || 'deleted',
-      subreddit: comment.subreddit.display_name,
-      body: comment.body,
-      url: comment.url,
-      permalink: comment.permalink,
-      score: comment.score,
-      created: new Date(comment.created_utc * 1000),
-      parentId: comment.parent_id,
-      linkId: comment.link_id,
-      isPost: false
-    }));
+    if (!response.data || !response.data.children) {
+      throw new Error('Invalid response format from Reddit API');
+    }
+    
+    return response.data.children.map((commentData: any) => {
+      const comment = commentData.data;
+      return {
+        id: comment.id,
+        author: comment.author || 'deleted',
+        subreddit: comment.subreddit,
+        body: comment.body,
+        url: comment.url,
+        permalink: comment.permalink,
+        score: comment.score,
+        created: new Date(comment.created_utc * 1000),
+        parentId: comment.parent_id,
+        linkId: comment.link_id,
+        isPost: false,
+        // Additional fields available from the API
+        gilded: comment.gilded,
+        edited: comment.edited,
+        stickied: comment.stickied,
+        distinguished: comment.distinguished,
+        controversiality: comment.controversiality,
+        depth: comment.depth
+      };
+    });
   } catch (error) {
-    console.error('Error fetching post comments:', error);
+    console.error('Error fetching all new comments:', error);
     throw error;
   }
 }

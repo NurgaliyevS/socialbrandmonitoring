@@ -1,5 +1,5 @@
 import connectDB from "./mongodb";
-import { fetchNewPosts, fetchNewComments, checkKeywordMatch, searchPosts } from "./reddit";
+import { checkKeywordMatch, searchPosts } from "./reddit";
 import { analyzeSentiment } from "./polling-service";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
