@@ -71,18 +71,29 @@ export async function updateCommentMentionSentiments() {
 export async function runCommentsPollingService() {
   try {
     console.log('🔄 Starting comments polling service...');
+    console.log('⏰ Service started at:', new Date().toISOString());
     
     // Step 1: Monitor Reddit comments and find mentions
+    console.log('📋 Step 1: Starting Reddit comments monitoring...');
     const mentionsFound = await monitorRedditComments();
-    console.log(`📝 Found ${mentionsFound || 0} new comment mentions`);
+    console.log(`📝 Step 1 completed: Found ${mentionsFound || 0} new comment mentions`);
     
     // Step 2: Perform sentiment analysis on new comment mentions
+    console.log('📋 Step 2: Starting sentiment analysis...');
     await updateCommentMentionSentiments();
+    console.log('📝 Step 2 completed: Sentiment analysis finished');
     
-    console.log('✅ Comments polling service completed');
+    console.log('✅ Comments polling service completed successfully');
+    console.log('⏰ Service completed at:', new Date().toISOString());
     
   } catch (error) {
     console.error('❌ Error in comments polling service:', error);
+    console.error('❌ Error details:', {
+      name: (error as Error).name,
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    });
+    console.error('⏰ Error occurred at:', new Date().toISOString());
     throw error;
   }
 }

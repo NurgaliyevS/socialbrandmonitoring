@@ -148,24 +148,28 @@ export async function monitorRedditContent() {
 export async function monitorRedditComments() {
   try {
     console.log("🔍 Starting Reddit comments monitoring...");
+    console.log("⏰ Monitoring started at:", new Date().toISOString());
 
     // Get brands and keywords from MongoDB
+    console.log("📋 Step 1: Fetching brands and keywords from database...");
     const brands = await getBrandsAndKeywords();
     if (brands.length === 0) {
       console.log("⚠️ No brands found in database");
-      return;
+      return 0;
     }
 
-    console.log(`📊 Monitoring ${brands.length} brands for comment mentions`);
+    console.log(`📊 Step 1 completed: Monitoring ${brands.length} brands for comment mentions`);
 
     // Fetch new comments from all subreddits
+    console.log("📋 Step 2: Fetching new comments from Reddit API...");
     const allComments = await fetchAllNewComments(100);
     
-    console.log(`📝 Total comments fetched: ${allComments.length}`);
+    console.log(`📝 Step 2 completed: Total comments fetched: ${allComments.length}`);
 
     const newMentions = [];
 
     // Check comments for keyword matches
+    console.log("📋 Step 3: Analyzing comments for keyword matches...");
     for (const comment of allComments) {
       const content = comment.body || '';
 
@@ -210,8 +214,11 @@ export async function monitorRedditComments() {
       }
     }
 
+    console.log(`📝 Step 3 completed: Found ${newMentions.length} keyword matches`);
+
     // Save mentions to database
     if (newMentions.length > 0) {
+      console.log("📋 Step 4: Saving mentions to database...");
       await connectDB();
 
       // Check for duplicates before saving
@@ -227,19 +234,26 @@ export async function monitorRedditComments() {
       if (uniqueMentions.length > 0) {
         await Mention.insertMany(uniqueMentions);
         console.log(
-          `💾 Saved ${uniqueMentions.length} new comment mentions to database`
+          `💾 Step 4 completed: Saved ${uniqueMentions.length} new comment mentions to database`
         );
       } else {
-        console.log("ℹ️ All comment mentions already exist in database");
+        console.log("ℹ️ Step 4 completed: All comment mentions already exist in database");
       }
     } else {
-      console.log("ℹ️ No new comment mentions found");
+      console.log("ℹ️ Step 4 skipped: No new comment mentions to save");
     }
 
-    console.log("✅ Reddit comments monitoring completed");
+    console.log("✅ Reddit comments monitoring completed successfully");
+    console.log("⏰ Monitoring completed at:", new Date().toISOString());
     return newMentions.length;
   } catch (error) {
     console.error("❌ Error monitoring Reddit comments:", error);
+    console.error("❌ Error details:", {
+      name: (error as Error).name,
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    });
+    console.error("⏰ Error occurred at:", new Date().toISOString());
     throw error;
   }
 }

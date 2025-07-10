@@ -68,31 +68,40 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
  */
 export async function fetchAllNewComments(limit: number = 100) {
   try {
+    const url = `https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`;
+    console.log(`🔗 Making request to: ${url}`);
+    
+    const headers = {
+      'User-Agent': 'RedditSocialListening/1.0.0',
+      'Accept': 'application/json'
+    };
+    
+    console.log(`📤 Request headers:`, JSON.stringify(headers, null, 2));
+    
     // Use fetch to make a direct request without authentication
-    const response = await fetch(`https://www.reddit.com/r/all/comments.json?limit=100&raw_json=1`, {
-      headers: {
-        'User-Agent': 'RedditSocialListening/1.0.0',
-        'Accept': 'application/json'
-      }
-    });
+    const response = await fetch(url, { headers });
+    
+    console.log(`📥 Response status: ${response.status} ${response.statusText}`);
+    console.log(`📥 Response headers:`, JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`❌ Response body:`, errorText);
+      throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
     }
     
     const data = await response.json();
     
     if (!data.data || !data.data.children) {
-      console.error('Response structure:', JSON.stringify(data, null, 2));
+      console.error('❌ Invalid response structure:', JSON.stringify(data, null, 2));
       throw new Error('Invalid response format from Reddit API');
     }
     
-    console.log(data.data.children.length, 'data.data.children.length')
+    console.log(`📊 Found ${data.data.children.length} comments in response`);
 
     return data.data.children.map((commentData: any) => {
       const comment = commentData.data;
-      console.log(comment.body, 'comment body')
-      console.log(comment.author, 'comment author')
+      console.log(`💬 Comment ID: ${comment.id}, Author: ${comment.author}, Body: ${comment.body?.substring(0, 50)}...`);
       return {
         id: comment.id,
         author: comment.author || 'deleted',
@@ -115,7 +124,12 @@ export async function fetchAllNewComments(limit: number = 100) {
       };
     });
   } catch (error) {
-    console.error('Error fetching all new comments:', error);
+    console.error('❌ Error fetching all new comments:', error);
+    console.error('❌ Error details:', {
+      name: (error as Error).name,
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    });
     throw error;
   }
 }

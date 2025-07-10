@@ -6,11 +6,13 @@ export async function POST() {
   
   try {
     console.log('🔄 Comments polling service started at:', new Date().toISOString());
+    console.log('📋 API Route: Starting comments polling service execution...');
     
     await runCommentsPollingService();
     
     const duration = Date.now() - startTime;
     console.log('✅ Comments polling service completed in', duration, 'ms');
+    console.log('📋 API Route: Service execution completed successfully');
     
     return NextResponse.json({ 
       success: true, 
@@ -21,6 +23,12 @@ export async function POST() {
   } catch (error) {
     const duration = Date.now() - startTime;
     console.error('❌ Error in comments-polling-service endpoint:', error);
+    console.error('❌ Error details:', {
+      name: (error as Error).name,
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    });
+    console.error('⏰ Error occurred at:', new Date().toISOString());
     console.error('Duration:', duration, 'ms');
     
     return NextResponse.json({ 
