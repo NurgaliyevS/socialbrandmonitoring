@@ -44,10 +44,10 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
     <div className="w-64 bg-gray-50 border-r border-gray-200 min-h-screen p-4">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-          <Search className="w-4 h-4 text-white" />
+        <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+          <img src="/icon.svg" alt="Logo" className="w-8 h-8" />
         </div>
-        <span className="font-semibold text-gray-900">RedditLens</span>
+        <span className="font-semibold text-gray-900">Social Brand Monitoring</span>
       </div>
 
       {/* Main Menu */}

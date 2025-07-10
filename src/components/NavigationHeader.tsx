@@ -1,5 +1,5 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
 type NavItem = {
   label: string;
@@ -12,39 +12,39 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    label: 'Pricing',
-    href: '#pricing',
-    className: 'mr-4 hover:underline',
+    label: "Pricing",
+    href: "#pricing",
+    className: "mr-4 hover:underline",
     external: false,
   },
-//   {
-//     label: 'Platforms',
-//     dropdown: [
-//       { label: 'X (Twitter)', href: '/twitter-monitoring' },
-//       { label: 'LinkedIn', href: '/linkedin-monitoring' },
-//       { label: 'Reddit', href: '/reddit-monitoring' },
-//       { label: 'Bluesky', href: '/bluesky-monitoring' },
-//       { label: 'GitHub', href: '/github-monitoring' },
-//       { label: 'YouTube', href: '/youtube-monitoring' },
-//       { label: 'DEV', href: '/dev-monitoring' },
-//       { label: 'HackerNews', href: '/hackernews-monitoring' },
-//       { label: 'Stack Overflow', href: '/stackoverflow-monitoring' },
-//       { label: 'Newsletters', href: '/newsletter-monitoring' },
-//     ],
-//     className: 'mr-4 hover:underline',
-//   },
-//   {
-//     label: 'Docs',
-//     href: '/docs',
-//     className: 'mr-4 hover:underline',
-//     external: true,
-//   },
-//   {
-//     label: 'Blog',
-//     href: '/blog',
-//     className: 'hover:underline',
-//     external: false,
-//   },
+  //   {
+  //     label: 'Platforms',
+  //     dropdown: [
+  //       { label: 'X (Twitter)', href: '/twitter-monitoring' },
+  //       { label: 'LinkedIn', href: '/linkedin-monitoring' },
+  //       { label: 'Reddit', href: '/reddit-monitoring' },
+  //       { label: 'Bluesky', href: '/bluesky-monitoring' },
+  //       { label: 'GitHub', href: '/github-monitoring' },
+  //       { label: 'YouTube', href: '/youtube-monitoring' },
+  //       { label: 'DEV', href: '/dev-monitoring' },
+  //       { label: 'HackerNews', href: '/hackernews-monitoring' },
+  //       { label: 'Stack Overflow', href: '/stackoverflow-monitoring' },
+  //       { label: 'Newsletters', href: '/newsletter-monitoring' },
+  //     ],
+  //     className: 'mr-4 hover:underline',
+  //   },
+  //   {
+  //     label: 'Docs',
+  //     href: '/docs',
+  //     className: 'mr-4 hover:underline',
+  //     external: true,
+  //   },
+  //   {
+  //     label: 'Blog',
+  //     href: '/blog',
+  //     className: 'hover:underline',
+  //     external: false,
+  //   },
   // {
   //   label: 'Sign in',
   //   href: '/dashboard',
@@ -63,14 +63,22 @@ const NavigationHeader = () => {
           <Link href="/">
             <span className="text-base sm:text-lg font-semibold text-gray-900">
               <span className="sm:hidden">Social Listening</span>
-              <span className="hidden sm:inline">Social Brand Monitoring</span>
+              <span className="hidden sm:inline">
+                <p className="flex items-center gap-2">
+                  <img src="/icon.svg" alt="Logo" className="w-8 h-8" />
+                  Social Brand Monitoring
+                </p>
+              </span>
             </span>
           </Link>
         </div>
-        
+
         {/* Mobile: Only show CTA */}
         <div className="flex items-center gap-4 sm:hidden">
-          <Link href="https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h" target="_blank">
+          <Link
+            href="https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h"
+            target="_blank"
+          >
             <button className="inline-flex items-center justify-center whitespace-nowrap text-sm sm:text-base ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2 btn-sm bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
               Get Lifetime Access
             </button>
@@ -81,18 +89,23 @@ const NavigationHeader = () => {
         <nav className="hidden sm:flex">
           <ul className="flex items-center gap-4 text-sm">
             {NAV_ITEMS.map((item, idx) => {
-              if ('dropdown' in item && item.dropdown) {
+              if ("dropdown" in item && item.dropdown) {
                 return (
                   <li className="group relative" key={item.label}>
                     <button className={item.className}>{item.label}</button>
                     <ul className="absolute left-0 hidden w-48 border border-gray-200 bg-white group-hover:block z-10">
-                      {item.dropdown && Array.isArray(item.dropdown) && item.dropdown.map((drop: any) => (
-                        <li key={drop.href}>
-                          <Link href={drop.href} className="block items-center whitespace-nowrap px-4 py-2 hover:bg-gray-100">
-                            {drop.label}
-                          </Link>
-                        </li>
-                      ))}
+                      {item.dropdown &&
+                        Array.isArray(item.dropdown) &&
+                        item.dropdown.map((drop: any) => (
+                          <li key={drop.href}>
+                            <Link
+                              href={drop.href}
+                              className="block items-center whitespace-nowrap px-4 py-2 hover:bg-gray-100"
+                            >
+                              {drop.label}
+                            </Link>
+                          </li>
+                        ))}
                     </ul>
                   </li>
                 );
@@ -112,7 +125,7 @@ const NavigationHeader = () => {
                     <Link
                       href={item.href}
                       className={item.className}
-                      {...(item.external ? { target: '_blank' } : {})}
+                      {...(item.external ? { target: "_blank" } : {})}
                     >
                       {item.label}
                     </Link>
@@ -127,7 +140,10 @@ const NavigationHeader = () => {
             })}
             {/* Get Lifetime Access CTA (not in NAV_ITEMS) */}
             <li>
-              <Link href="https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h" target="_blank">
+              <Link
+                href="https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h"
+                target="_blank"
+              >
                 <button className="inline-flex items-center justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2 btn-sm bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
                   Get Lifetime Access
                 </button>
@@ -140,4 +156,4 @@ const NavigationHeader = () => {
   );
 };
 
-export default NavigationHeader; 
+export default NavigationHeader;
