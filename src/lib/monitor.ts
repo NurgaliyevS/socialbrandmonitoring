@@ -1,5 +1,5 @@
 import connectDB from "./mongodb";
-import { checkKeywordMatch, searchPosts } from "./reddit";
+import { checkKeywordMatch, searchPosts, fetchAllNewComments } from "./reddit";
 import { analyzeSentiment } from "./polling-service";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
@@ -137,6 +137,109 @@ export async function monitorRedditContent() {
     return newMentions.length;
   } catch (error) {
     console.error("❌ Error monitoring Reddit content:", error);
+    throw error;
+  }
+}
+
+/**
+ * Monitor Reddit comments for brand mentions
+ * Implementation for comments-specific monitoring
+ */
+export async function monitorRedditComments() {
+  try {
+    console.log("🔍 Starting Reddit comments monitoring...");
+
+    // Get brands and keywords from MongoDB
+    const brands = await getBrandsAndKeywords();
+    if (brands.length === 0) {
+      console.log("⚠️ No brands found in database");
+      return;
+    }
+
+    console.log(`📊 Monitoring ${brands.length} brands for comment mentions`);
+
+    // Fetch new comments from all subreddits
+    const allComments = await fetchAllNewComments(100);
+    
+    console.log(`📝 Total comments fetched: ${allComments.length}`);
+
+    const newMentions = [];
+
+    // Check comments for keyword matches
+    for (const comment of allComments) {
+      const content = comment.body || '';
+
+      for (const brand of brands) {
+        const matchedKeyword = checkKeywordMatch(content, brand.keywords);
+
+        if (matchedKeyword) {
+          const mention = {
+            brandId: brand.brandId,
+            keywordMatched: matchedKeyword,
+            redditId: comment.id,
+            redditType: "comment",
+            subreddit: comment.subreddit,
+            author: comment.author,
+            title: null, // Comments don't have titles
+            content: comment.body,
+            url: comment.url,
+            permalink: comment.permalink,
+            score: comment.score,
+            numComments: null, // Comments don't have comment counts
+            created: comment.created,
+            sentiment: null, // Will be processed later
+            isProcessed: false,
+            // Additional comment-specific fields
+            parentId: comment.parentId,
+            linkId: comment.linkId,
+            depth: comment.depth,
+            gilded: comment.gilded,
+            edited: comment.edited,
+            stickied: comment.stickied,
+            distinguished: comment.distinguished,
+            controversiality: comment.controversiality
+          };
+
+          newMentions.push(mention);
+          console.log(
+            `✅ Found comment mention: ${
+              brand.brandName
+            } (${matchedKeyword}) in comment: ${comment.body.substring(0, 50)}...`
+          );
+        }
+      }
+    }
+
+    // Save mentions to database
+    if (newMentions.length > 0) {
+      await connectDB();
+
+      // Check for duplicates before saving
+      const existingIds = await Mention.find({
+        redditId: { $in: newMentions.map((m) => m.redditId) },
+        redditType: 'comment'
+      }).distinct("redditId");
+
+      const uniqueMentions = newMentions.filter(
+        (mention) => !existingIds.includes(mention.redditId)
+      );
+
+      if (uniqueMentions.length > 0) {
+        await Mention.insertMany(uniqueMentions);
+        console.log(
+          `💾 Saved ${uniqueMentions.length} new comment mentions to database`
+        );
+      } else {
+        console.log("ℹ️ All comment mentions already exist in database");
+      }
+    } else {
+      console.log("ℹ️ No new comment mentions found");
+    }
+
+    console.log("✅ Reddit comments monitoring completed");
+    return newMentions.length;
+  } catch (error) {
+    console.error("❌ Error monitoring Reddit comments:", error);
     throw error;
   }
 }

@@ -63,28 +63,33 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 }
 
 /**
- * Fetch new comments from all subreddits using direct API call
+ * Fetch new comments from all subreddits using direct API call without auth
  * Uses the /r/all/comments.json endpoint for real-time comment data
  */
 export async function fetchAllNewComments(limit: number = 100) {
   try {
-    const reddit = getRedditClient();
-    
-    // Use the direct API endpoint for all new comments
-    const response = await reddit.oauthRequest({
-      uri: 'https://oauth.reddit.com/r/all/comments.json',
-      method: 'GET',
-      qs: {
-        limit,
-        raw_json: 1
+    // Use fetch to make a direct request without authentication
+    const response = await fetch(`https://www.reddit.com/r/all/comments.json?limit=100&raw_json=1`, {
+      headers: {
+        'User-Agent': 'RedditSocialListening/1.0.0',
+        'Accept': 'application/json'
       }
     });
     
-    if (!response.data || !response.data.children) {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.data || !data.data.children) {
+      console.error('Response structure:', JSON.stringify(data, null, 2));
       throw new Error('Invalid response format from Reddit API');
     }
     
-    return response.data.children.map((commentData: any) => {
+    console.log(data.data.children.length, 'data.data.children.length')
+
+    return data.data.children.map((commentData: any) => {
       const comment = commentData.data;
       return {
         id: comment.id,
