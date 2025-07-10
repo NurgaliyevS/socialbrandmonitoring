@@ -91,6 +91,8 @@ export async function fetchAllNewComments(limit: number = 100) {
 
     return data.data.children.map((commentData: any) => {
       const comment = commentData.data;
+      console.log(comment.body, 'comment body')
+      console.log(comment.author, 'comment author')
       return {
         id: comment.id,
         author: comment.author || 'deleted',
