@@ -13,6 +13,7 @@ export interface Mention {
   brandName: string;
   permalink: string;
   redditType: 'post' | 'comment';
+  unread: boolean;
 }
 
 export interface MentionsResponse {
@@ -30,6 +31,7 @@ export interface MentionsFilters {
   sentiment?: 'positive' | 'negative' | 'neutral';
   subreddit?: string;
   keyword?: string;
+  unread?: boolean;
   page?: number;
   limit?: number;
 }
@@ -44,6 +46,7 @@ class MentionsService {
     if (filters.sentiment) params.append('sentiment', filters.sentiment);
     if (filters.subreddit) params.append('subreddit', filters.subreddit);
     if (filters.keyword) params.append('keyword', filters.keyword);
+    if (filters.unread !== undefined) params.append('unread', filters.unread.toString());
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.limit) params.append('limit', filters.limit.toString());
 
@@ -60,6 +63,42 @@ class MentionsService {
 
   async getMentionsByBrand(brandId: string, filters: Omit<MentionsFilters, 'brandId'> = {}): Promise<MentionsResponse> {
     return this.getMentions({ ...filters, brandId });
+  }
+
+  async markAsRead(mentionIds: string[]): Promise<{ updatedCount: number }> {
+    const response = await fetch(this.baseUrl, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mentionIds }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to mark mentions as read');
+    }
+
+    const data = await response.json();
+    return data.data;
+  }
+
+  async markAsUnread(mentionIds: string[]): Promise<{ updatedCount: number }> {
+    const response = await fetch(this.baseUrl, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mentionIds, action: 'markAsUnread' }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to mark mentions as unread');
+    }
+
+    const data = await response.json();
+    return data.data;
   }
 }
 

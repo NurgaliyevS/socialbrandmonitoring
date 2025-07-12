@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const sentiment = searchParams.get('sentiment');
     const subreddit = searchParams.get('subreddit');
     const keyword = searchParams.get('keyword');
+    const unread = searchParams.get('unread');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
@@ -34,6 +35,10 @@ export async function GET(request: Request) {
     
     if (keyword) {
       filter.keywordMatched = { $regex: keyword, $options: 'i' };
+    }
+
+    if (unread !== null) {
+      filter.unread = unread === 'true';
     }
 
     // Fetch mentions with pagination
@@ -61,7 +66,8 @@ export async function GET(request: Request) {
       keywords: [mention.keywordMatched],
       brandName: (mention.brandId as any)?.name || 'Unknown Brand',
       permalink: mention.permalink,
-      redditType: mention.redditType
+      redditType: mention.redditType,
+      unread: mention.unread
     }));
 
     return Response.json({
@@ -78,6 +84,44 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Error fetching mentions:', error);
+    return Response.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+// PATCH - Mark mentions as read or unread
+export async function PATCH(request: Request) {
+  try {
+    await connectDB();
+    const body = await request.json();
+    const { mentionIds, action = 'markAsRead' } = body;
+
+    if (!mentionIds || !Array.isArray(mentionIds) || mentionIds.length === 0) {
+      return Response.json({
+        success: false,
+        error: 'mentionIds array is required'
+      }, { status: 400 });
+    }
+
+    // Determine the unread value based on action
+    const unreadValue = action === 'markAsUnread' ? true : false;
+
+    // Update mentions to mark them as read or unread
+    const result = await Mention.updateMany(
+      { _id: { $in: mentionIds } },
+      { $set: { unread: unreadValue } }
+    );
+
+    return Response.json({
+      success: true,
+      data: {
+        updatedCount: result.modifiedCount
+      }
+    });
+  } catch (error) {
+    console.error('Error marking mentions as read/unread:', error);
     return Response.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

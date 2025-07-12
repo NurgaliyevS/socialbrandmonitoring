@@ -19,6 +19,7 @@ export interface IMention extends Document {
     label: 'positive' | 'negative' | 'neutral';
   };
   isProcessed: boolean;
+  unread: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -96,6 +97,10 @@ const MentionSchema = new Schema({
   isProcessed: { 
     type: Boolean, 
     default: false 
+  },
+  unread: { 
+    type: Boolean, 
+    default: true 
   }
 }, {
   timestamps: true

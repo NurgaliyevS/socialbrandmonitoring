@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock } from 'lucide-react';
+import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check } from 'lucide-react';
+import { mentionsService } from '@/lib/mentions-service';
 
 interface MentionCardProps {
   mention: {
@@ -18,10 +19,13 @@ interface MentionCardProps {
     brandName?: string;
     permalink?: string;
     redditType?: 'post' | 'comment';
+    unread: boolean;
   };
+  onMentionRead?: (mentionId: string) => void;
+  onMentionUnread?: (mentionId: string) => void;
 }
 
-const MentionCard = ({ mention }: MentionCardProps) => {
+const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardProps) => {
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
@@ -44,11 +48,38 @@ const MentionCard = ({ mention }: MentionCardProps) => {
     }
   };
 
+  const handleCardClick = async () => {
+    window.open(mention.url, '_blank');
+  };
+
+  const handleMarkAsUnread = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await mentionsService.markAsUnread([mention.id]);
+      onMentionUnread?.(mention.id);
+    } catch (error) {
+      console.error('Error marking mention as unread:', error);
+    }
+  };
+
+  const handleMarkAsRead = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await mentionsService.markAsRead([mention.id]);
+      onMentionRead?.(mention.id);
+    } catch (error) {
+      console.error('Error marking mention as read:', error);
+    }
+  };
+
   console.log(mention.permalink, 'mention permalink')
   console.log(mention.url, 'mention url')
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full">
+    <div 
+      className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full cursor-pointer ${mention.unread ? 'border-l-4 border-l-blue-500' : ''}`}
+      onClick={handleCardClick}
+    >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0 w-full">
           <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
@@ -63,6 +94,15 @@ const MentionCard = ({ mention }: MentionCardProps) => {
               <span className="text-blue-600 text-sm font-medium block md:inline mt-1 md:mt-0">{mention.brandName}</span>
             </>
           )}
+          {mention.unread && (
+            <>
+              <span className="text-gray-500 hidden md:inline">•</span>
+              <div className="flex items-center gap-1">
+                <Circle className="w-2 h-2 fill-blue-500 text-blue-500" />
+                <span className="text-blue-600 text-sm font-medium">New</span>
+              </div>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2 mt-2 sm:mt-0">
           <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getSentimentColor(mention.sentiment)}`}>
@@ -71,17 +111,38 @@ const MentionCard = ({ mention }: MentionCardProps) => {
               <span className="capitalize">{mention.sentiment}</span>
             </div>
           </div>
+          {!mention.unread && (
+            <button 
+              className="text-gray-400 hover:text-blue-600 transition-colors"
+              onClick={handleMarkAsUnread}
+              title="Mark as unread"
+            >
+              <Circle className="w-4 h-4" />
+            </button>
+          )}
+          {mention.unread && (
+            <button 
+              className="text-gray-400 hover:text-blue-600 transition-colors"
+              onClick={handleMarkAsRead}
+              title="Mark as read"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+          )}
           <button 
             className="text-gray-400 hover:text-gray-600"
-            onClick={() => window.open(mention.url, '_blank')}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.open(mention.url, '_blank');
+            }}
           >
             <ExternalLink className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 w-full md:line-clamp-none">{mention.title}</h3>
-      <p className="text-gray-700 text-sm mb-3 line-clamp-3 w-full md:line-clamp-none">{mention.content}</p>
+      <h3 className={`font-medium text-gray-900 mb-2 line-clamp-2 w-full md:line-clamp-none ${mention.unread ? 'font-semibold' : ''}`}>{mention.title}</h3>
+      <p className={`text-gray-700 text-sm mb-3 line-clamp-3 w-full md:line-clamp-none ${mention.unread ? 'font-medium' : ''}`}>{mention.content}</p>
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-500 gap-2 w-full">
         <div className="flex flex-wrap items-center gap-4 min-w-0 w-full">

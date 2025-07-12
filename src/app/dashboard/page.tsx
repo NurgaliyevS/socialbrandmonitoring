@@ -20,7 +20,8 @@ const Dashboard = () => {
   const [brands, setBrands] = useState<any[]>([]);
   const [filters, setFilters] = useState<MentionsFilters>({
     page: 1,
-    limit: 20
+    limit: 20,
+    unread: true
   });
   const [totalPages, setTotalPages] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -115,6 +116,26 @@ const Dashboard = () => {
       delete newFilters[filterKey as keyof MentionsFilters];
       return { ...newFilters, page: 1 };
     });
+  };
+
+  const handleMentionRead = (mentionId: string) => {
+    setMentions(prev => 
+      prev.map(mention => 
+        mention.id === mentionId 
+          ? { ...mention, unread: false }
+          : mention
+      )
+    );
+  };
+
+  const handleMentionUnread = (mentionId: string) => {
+    setMentions(prev => 
+      prev.map(mention => 
+        mention.id === mentionId 
+          ? { ...mention, unread: true }
+          : mention
+      )
+    );
   };
 
   // Convert filters to active filter chips
@@ -224,7 +245,7 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 gap-4 mt-6 w-full">
               {filteredMentions.map((mention) => (
-                <div className="w-full"><MentionCard key={mention.id} mention={mention} /></div>
+                <div className="w-full"><MentionCard key={mention.id} mention={mention} onMentionRead={handleMentionRead} onMentionUnread={handleMentionUnread} /></div>
               ))}
               {filteredMentions.length === 0 && !loading && (
                 <div className="col-span-1 text-center py-12">
