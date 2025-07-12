@@ -71,6 +71,8 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 export async function fetchAllNewComments(limit: number = 100) {
   try {
     const proxy: string = process.env.PROXY_URL || '';
+    console.log(proxy, 'proxy')
+    console.log(process.env.PROXY_URL, 'process.env.PROXY_URL')
     const agent = new HttpsProxyAgent(proxy);
     
     const headers: Record<string, string> = {
