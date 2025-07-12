@@ -48,23 +48,23 @@ const MentionCard = ({ mention }: MentionCardProps) => {
   console.log(mention.url, 'mention url')
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
+    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
+        <div className="flex flex-wrap items-center gap-2 min-w-0 w-full">
           <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
             <span className="text-xs font-bold text-white">r/</span>
           </div>
           <span className="font-medium text-gray-900">r/{mention.subreddit}</span>
-          <span className="text-gray-500">•</span>
-          <span className="text-gray-500 text-sm">u/{mention.author}</span>
+          <span className="text-gray-500 hidden md:inline">•</span>
+          <span className="text-gray-500 text-sm block md:inline mt-1 md:mt-0">u/{mention.author}</span>
           {mention.brandName && (
             <>
-              <span className="text-gray-500">•</span>
-              <span className="text-blue-600 text-sm font-medium">{mention.brandName}</span>
+              <span className="text-gray-500 hidden md:inline">•</span>
+              <span className="text-blue-600 text-sm font-medium block md:inline mt-1 md:mt-0">{mention.brandName}</span>
             </>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-2 sm:mt-0">
           <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getSentimentColor(mention.sentiment)}`}>
             <div className="flex items-center gap-1">
               {getSentimentIcon(mention.sentiment)}
@@ -80,11 +80,11 @@ const MentionCard = ({ mention }: MentionCardProps) => {
         </div>
       </div>
 
-      <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">{mention.title}</h3>
-      <p className="text-gray-700 text-sm mb-3 line-clamp-3">{mention.content}</p>
+      <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 w-full md:line-clamp-none">{mention.title}</h3>
+      <p className="text-gray-700 text-sm mb-3 line-clamp-3 w-full md:line-clamp-none">{mention.content}</p>
 
-      <div className="flex items-center justify-between text-sm text-gray-500">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-500 gap-2 w-full">
+        <div className="flex flex-wrap items-center gap-4 min-w-0 w-full">
           <div className="flex items-center gap-1">
             <ArrowUp className="w-4 h-4" />
             <span>{mention.score}</span>
@@ -99,9 +99,9 @@ const MentionCard = ({ mention }: MentionCardProps) => {
           </div>
         </div>
         
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1 w-full sm:w-auto">
           {mention.keywords.map((keyword, index) => (
-            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs max-w-full">
               {keyword}
             </span>
           ))}

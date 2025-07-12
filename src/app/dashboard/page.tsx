@@ -22,6 +22,8 @@ const Dashboard = () => {
     page: 1,
     limit: 20
   });
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // Load brands on component mount
   useEffect(() => {
@@ -122,15 +124,53 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-white text-gray-900">
-      {/* Sidebar (left) */}
-      <div className="w-64 border-r border-gray-200 bg-white">
+      {/* Sidebar (left) - hidden on mobile, visible on md+ */}
+      <div className="w-64 border-r border-gray-200 bg-white hidden md:block">
         <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       </div>
 
+      {/* Mobile sidebar drawer */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="w-64 bg-white border-r border-gray-200 h-full">
+            <Sidebar activeView={activeView} onViewChange={(view) => { setSidebarOpen(false); handleViewChange(view); }} />
+          </div>
+          <div
+            className="flex-1 bg-black bg-opacity-30"
+            onClick={() => setSidebarOpen(false)}
+          />
+        </div>
+      )}
+
       {/* Main content area */}
-      <div className="flex-1 flex">
-        {/* MentionCard list (center, 2/3 width) */}
-        <div className="w-2/3 p-6">
+      <div className="flex-1 flex w-full">
+        {/* MentionCard list (center, grid layout) */}
+        <div className="flex-1 p-6">
+          {/* Mobile menu and filter buttons */}
+          <div className="md:hidden mb-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <button
+                className="p-2 mr-2"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open menu"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <span className="font-semibold text-lg">Menu</span>
+            </div>
+            <button
+              className="p-2"
+              onClick={() => setFilterOpen(true)}
+              aria-label="Open filters"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-6.414 6.414A1 1 0 0013 13.414V19a1 1 0 01-1.447.894l-4-2A1 1 0 017 17v-3.586a1 1 0 00-.293-.707L3.293 6.707A1 1 0 013 6V4z" />
+              </svg>
+              <span className="ml-2">Filters</span>
+            </button>
+          </div>
           {/* Brand selector */}
           <div className="mb-6">
             <label htmlFor="brand-select" className="block text-sm font-medium text-gray-700 mb-2">
@@ -180,12 +220,12 @@ const Dashboard = () => {
               <span className="ml-3 text-gray-600">Loading mentions...</span>
             </div>
           ) : (
-            <div className="space-y-4 mt-6">
+            <div className="grid grid-cols-1 gap-4 mt-6 w-full">
               {filteredMentions.map((mention) => (
-                <MentionCard key={mention.id} mention={mention} />
+                <div className="w-full"><MentionCard key={mention.id} mention={mention} /></div>
               ))}
               {filteredMentions.length === 0 && !loading && (
-                <div className="text-center py-12">
+                <div className="col-span-1 text-center py-12">
                   <p className="text-gray-500">
                     {selectedBrand 
                       ? 'No mentions found for this brand.' 
@@ -198,8 +238,8 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Filter panel (right, 1/3 width) */}
-        <div className="w-1/3 border-l border-gray-200 bg-gray-50 p-8">
+        {/* Filter panel (right, fixed width) - hidden on mobile */}
+        <div className="w-[400px] border-l border-gray-200 bg-gray-50 p-8 hidden md:block">
           <FilterPanel 
             filters={filters}
             onFilterChange={handleFilterChange}
@@ -207,6 +247,23 @@ const Dashboard = () => {
           />
         </div>
       </div>
+
+      {/* Mobile filter drawer */}
+      {filterOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="w-80 bg-white border-l border-gray-200 h-full p-6">
+            <FilterPanel
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              selectedBrand={selectedBrand}
+            />
+          </div>
+          <div
+            className="flex-1 bg-black bg-opacity-30"
+            onClick={() => setFilterOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 };
