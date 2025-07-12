@@ -70,7 +70,7 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
  */
 export async function fetchAllNewComments(limit: number = 100) {
   try {
-    const proxy: string = process.env.PROXY_URL || '';
+    const proxy: string = process.env.HTTP_PROXY || '';
     const agent = new HttpsProxyAgent(proxy);
     
     const headers: Record<string, string> = {
