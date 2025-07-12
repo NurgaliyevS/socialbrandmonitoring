@@ -41,7 +41,7 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
   ];
 
   return (
-    <div className="w-64 bg-gray-50 border-r border-gray-200 min-h-screen p-4">
+    <div className="w-64 bg-gray-50 border-r border-gray-200 fixed top-0 left-0 h-screen p-4 overflow-y-auto z-40">
       {/* Logo */}
       <div className="flex items-center gap-2 mb-8">
         <div className="w-10 h-10 rounded-lg flex items-center justify-center">
