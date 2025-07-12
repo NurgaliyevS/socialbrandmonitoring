@@ -71,8 +71,6 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 export async function fetchAllNewComments(limit: number = 100) {
   try {
     const proxy: string = process.env.PROXY_URL || '';
-    console.log(proxy, 'proxy')
-    console.log(process.env.PROXY_URL, 'process.env.PROXY_URL')
     const agent = new HttpsProxyAgent(proxy);
     
     const headers: Record<string, string> = {
@@ -80,7 +78,7 @@ export async function fetchAllNewComments(limit: number = 100) {
       'User-Agent': 'RedditSocialListening/1.0.0 (via Evomi Proxy)'
     }
 
-    // Use axios to make a direct request without authentication
+    // Use axios to make a direct request without authentication (fetch doesn't support proxy agent)
     const response = await axios.get(`https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`, {
       headers: headers,
       httpsAgent: agent,
