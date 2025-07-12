@@ -143,7 +143,7 @@ const Dashboard = () => {
       )}
 
       {/* Main content area */}
-      <div className="flex-1 flex w-full">
+      <div className="flex-1 flex w-full md:pr-[400px]">
         {/* MentionCard list (center, grid layout) */}
         <div className="flex-1 p-6">
           {/* Mobile menu and filter buttons */}
@@ -237,15 +237,15 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+      </div>
 
-        {/* Filter panel (right, fixed width) - hidden on mobile */}
-        <div className="w-[400px] border-l border-gray-200 bg-gray-50 p-8 hidden md:block">
-          <FilterPanel 
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            selectedBrand={selectedBrand}
-          />
-        </div>
+      {/* Filter panel (right, fixed width) - hidden on mobile, fixed on desktop */}
+      <div className="w-[400px] border-l border-gray-200 bg-gray-50 p-8 hidden md:block fixed top-0 right-0 h-screen overflow-y-auto z-40">
+        <FilterPanel 
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          selectedBrand={selectedBrand}
+        />
       </div>
 
       {/* Mobile filter drawer */}
