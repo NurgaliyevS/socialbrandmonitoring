@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check } from 'lucide-react';
+import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check, MailCheck, MailQuestion } from 'lucide-react';
 import { mentionsService } from '@/lib/mentions-service';
 
 interface MentionCardProps {
@@ -88,15 +88,8 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
           <span className="font-medium text-gray-900">r/{mention.subreddit}</span>
           <span className="text-gray-500 hidden md:inline">•</span>
           <span className="text-gray-500 text-sm block md:inline mt-1 md:mt-0">u/{mention.author}</span>
-          {mention.brandName && (
-            <>
-              <span className="text-gray-500 hidden md:inline">•</span>
-              <span className="text-blue-600 text-sm font-medium block md:inline mt-1 md:mt-0">{mention.brandName}</span>
-            </>
-          )}
           {mention.unread && (
             <>
-              <span className="text-gray-500 hidden md:inline">•</span>
               <div className="flex items-center gap-1">
                 <Circle className="w-2 h-2 fill-blue-500 text-blue-500" />
                 <span className="text-blue-600 text-sm font-medium">New</span>
@@ -113,20 +106,22 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
           </div>
           {!mention.unread && (
             <button 
-              className="text-gray-400 hover:text-blue-600 transition-colors"
+              className="text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1"
               onClick={handleMarkAsUnread}
               title="Mark as unread"
             >
-              <Circle className="w-4 h-4" />
+              <MailQuestion className="w-4 h-4" />
+              <span className="text-blue-600 text-sm font-medium text-nowrap">Mark as Unread</span>
             </button>
           )}
           {mention.unread && (
             <button 
-              className="text-gray-400 hover:text-blue-600 transition-colors"
+              className="text-gray-400 hover:text-blue-600 transition-colors flex items-center gap-1"
               onClick={handleMarkAsRead}
               title="Mark as read"
             >
-              <Check className="w-4 h-4" />
+              <MailCheck className="w-4 h-4" />
+              <span className="text-blue-600 text-sm font-medium text-nowrap">Mark as Read</span>
             </button>
           )}
           <button 
