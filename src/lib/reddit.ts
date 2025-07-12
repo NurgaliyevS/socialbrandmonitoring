@@ -95,28 +95,19 @@ export async function fetchAllNewComments(limit: number = 100) {
 
     return data.data.children.map((commentData: any) => {
       const comment = commentData.data;
-      console.log(comment.body, 'comment.body');
-      console.log(comment.author, 'comment.author');
-      console.log(comment, 'comment')
       return {
         id: comment.id,
+        title: comment.link_title, // parent post title 
         author: comment.author || 'deleted',
         subreddit: comment.subreddit,
-        body: comment.body,
-        url: comment.url,
+        url: `https://www.reddit.com${comment.permalink}`,
         permalink: comment.permalink,
         score: comment.score,
+        numComments: comment.num_comments,
         created: new Date(comment.created_utc * 1000),
-        parentId: comment.parent_id,
-        linkId: comment.link_id,
-        isPost: false,
-        // Additional fields available from the API
-        gilded: comment.gilded,
-        edited: comment.edited,
-        stickied: comment.stickied,
-        distinguished: comment.distinguished,
-        controversiality: comment.controversiality,
-        depth: comment.depth
+        body: comment.body,
+        linkTitle: comment.link_title, // parent post title
+        linkUrl: comment.link_url, // parent post url
       };
     });
   } catch (error) {

@@ -9,7 +9,7 @@ const sentiment = new Sentiment();
 /**
  * Perform sentiment analysis on text
  */
-export function analyzeSentiment(text: string): { score: number; label: 'positive' | 'negative' | 'neutral' } {
+export function analyzeCommentSentiment(text: string): { score: number; label: 'positive' | 'negative' | 'neutral' } {
   const result = sentiment.analyze(text);
   
   // Determine sentiment label based on score
@@ -45,7 +45,7 @@ export async function updateCommentMentionSentiments() {
     
     for (const mention of unprocessedMentions) {
       const content = mention.content || '';
-      const sentimentResult = analyzeSentiment(content);
+      const sentimentResult = analyzeCommentSentiment(content);
       
       // Update mention with sentiment analysis
       await Mention.findByIdAndUpdate(mention._id, {
