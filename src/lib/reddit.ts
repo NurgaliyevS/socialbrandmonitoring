@@ -1,4 +1,6 @@
 import Snoowrap from 'snoowrap';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+import axios from 'axios';
 
 // Reddit API client configuration
 let redditClient: Snoowrap | null = null;
@@ -68,19 +70,21 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
  */
 export async function fetchAllNewComments(limit: number = 100) {
   try {
-    // Use fetch to make a direct request without authentication
-    const response = await fetch(`https://www.reddit.com/r/all/comments.json?limit=100&raw_json=1`, {
-      headers: {
-        'User-Agent': 'RedditSocialListening/1.0.0',
-        'Accept': 'application/json'
-      }
+    const proxy: string = process.env.PROXY_URL || '';
+    const agent = new HttpsProxyAgent(proxy);
+    
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      'User-Agent': 'RedditSocialListening/1.0.0 (via Evomi Proxy)'
+    }
+
+    // Use axios to make a direct request without authentication
+    const response = await axios.get(`https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`, {
+      headers: headers,
+      httpsAgent: agent,
     });
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
+    const data = response.data;
     
     if (!data.data || !data.data.children) {
       console.error('Response structure:', JSON.stringify(data, null, 2));
