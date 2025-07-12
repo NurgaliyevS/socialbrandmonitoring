@@ -22,6 +22,7 @@ const Dashboard = () => {
     page: 1,
     limit: 20
   });
+  const [totalPages, setTotalPages] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -62,6 +63,7 @@ const Dashboard = () => {
       
       const response = await mentionsService.getMentionsByBrand(selectedBrand, filters);
       setMentions(response.mentions);
+      setTotalPages(response.pagination?.pages || 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mentions');
       toast({ 
@@ -236,6 +238,24 @@ const Dashboard = () => {
               )}
             </div>
           )}
+          {/* Pagination controls */}
+          <div className="flex justify-center items-center mt-6 gap-2">
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-50"
+              onClick={() => setFilters(f => ({ ...f, page: Math.max(1, (f.page ?? 1) - 1) }))}
+              disabled={filters.page === 1}
+            >
+              Previous
+            </button>
+            <span>Page {filters.page} of {totalPages}</span>
+            <button
+              className="px-3 py-1 border rounded disabled:opacity-50"
+              onClick={() => setFilters(f => ({ ...f, page: Math.min(totalPages, (f.page ?? 1) + 1) }))}
+              disabled={filters.page === totalPages}
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 
