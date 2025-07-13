@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Sidebar from '@/components/SideBar';
+import { DashboardProvider } from '@/contexts/DashboardContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -29,52 +30,54 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-white text-gray-900">
-      {/* Sidebar (left) - hidden on mobile, visible on md+ */}
-      <div className="w-64 border-r border-gray-200 bg-white hidden md:block">
-        <Sidebar activeView={getActiveView()} onViewChange={handleViewChange} />
-      </div>
+    <DashboardProvider>
+      <div className="flex min-h-screen bg-white text-gray-900">
+        {/* Sidebar (left) - hidden on mobile, visible on md+ */}
+        <div className="w-64 border-r border-gray-200 bg-white hidden md:block">
+          <Sidebar activeView={getActiveView()} onViewChange={handleViewChange} />
+        </div>
 
-      {/* Mobile sidebar drawer */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="w-64 bg-white border-r border-gray-200 h-full">
-            <Sidebar 
-              activeView={getActiveView()} 
-              onViewChange={(view) => { 
-                setSidebarOpen(false); 
-                handleViewChange(view); 
-              }} 
+        {/* Mobile sidebar drawer */}
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 flex">
+            <div className="w-64 bg-white border-r border-gray-200 h-full">
+              <Sidebar 
+                activeView={getActiveView()} 
+                onViewChange={(view) => { 
+                  setSidebarOpen(false); 
+                  handleViewChange(view); 
+                }} 
+              />
+            </div>
+            <div
+              className="flex-1 bg-black bg-opacity-30"
+              onClick={() => setSidebarOpen(false)}
             />
           </div>
-          <div
-            className="flex-1 bg-black bg-opacity-30"
-            onClick={() => setSidebarOpen(false)}
-          />
-        </div>
-      )}
+        )}
 
-      {/* Main content area */}
-      <div className="flex-1 flex w-full">
-        {/* Mobile menu button */}
-        <div className="md:hidden fixed top-4 left-4 z-40">
-          <button
-            className="p-2 bg-white rounded-lg shadow-md"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open menu"
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
+        {/* Main content area */}
+        <div className="flex-1 flex w-full">
+          {/* Mobile menu button */}
+          <div className="md:hidden fixed top-4 left-4 z-40">
+            <button
+              className="p-2 bg-white rounded-lg shadow-md"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open menu"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
 
-        {/* Page content */}
-        <div className="flex-1 w-full">
-          {children}
+          {/* Page content */}
+          <div className="flex-1 w-full">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardProvider>
   );
 };
 

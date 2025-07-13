@@ -132,7 +132,7 @@ const Dashboard = () => {
   ].filter(Boolean) as Array<{ key: string; label: string; value: string }>;
 
   return (
-    <div className="flex min-h-screen bg-white text-gray-900">
+    <>
       {/* Main content area */}
       <div className="flex-1 flex w-full md:pr-[400px]">
         {/* MentionCard list (center, grid layout) */}
@@ -262,7 +262,7 @@ const Dashboard = () => {
           />
         </div>
       )}
-    </div>
+    </>
   );
 };
 

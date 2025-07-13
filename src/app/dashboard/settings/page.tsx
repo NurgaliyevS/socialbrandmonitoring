@@ -149,7 +149,7 @@ const Settings = () => {
 
   return (
     <div className="flex-1 p-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-8">
             <SettingsIcon className="h-6 w-6 text-gray-600" />
             <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
