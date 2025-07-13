@@ -2,16 +2,10 @@
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
-  BarChart3, 
-  Bookmark, 
-  Bell, 
   Settings, 
-  Search,
-  TrendingUp,
-  Users,
   MessageSquare,
-  AlertTriangle
 } from 'lucide-react';
+import { useDashboard } from '@/contexts/DashboardContext';
 
 interface SidebarProps {
   activeView?: string;
@@ -21,6 +15,7 @@ interface SidebarProps {
 const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
   const router = useRouter();
   const pathname = usePathname();
+  const { brands, loading } = useDashboard();
   
   // Determine active view from pathname
   const currentActiveView = activeView || (pathname?.includes('/settings') ? 'settings' : 'feed');
@@ -32,13 +27,15 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
-  const keywords = [
-    { id: 'reddit-brand', label: 'reddit brand', color: 'bg-green-500' },
-    { id: 'social-monitoring', label: 'social monitoring', color: 'bg-orange-500' },
-    { id: 'competitor-analysis', label: 'competitor analysis', color: 'bg-blue-500' },
-    { id: 'brand-sentiment', label: 'brand sentiment', color: 'bg-purple-500' },
-    { id: 'reddit-api', label: 'reddit api', color: 'bg-red-500' },
-  ];
+  // Get all keywords from all brands
+  const allKeywords = brands.flatMap(brand => 
+    brand.keywords.map(keyword => ({
+      id: keyword.id,
+      label: keyword.name,
+      color: keyword.color,
+      brandName: brand.name
+    }))
+  );
 
   return (
     <div className="w-64 bg-gray-50 border-r border-gray-200 fixed top-0 left-0 h-screen p-4 overflow-y-auto z-40">
@@ -80,27 +77,23 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">Keywords</h3>
-          <button className="text-blue-600 hover:text-blue-700">
-            <span className="text-xs">+ Add keyword</span>
-          </button>
         </div>
         <div className="space-y-2">
-          {keywords.map((keyword) => (
-            <div key={keyword.id} className="flex items-center gap-2 px-2 py-1 text-sm text-gray-700">
-              <div className={`w-2 h-2 rounded-full ${keyword.color}`}></div>
-              <span className="flex-1 truncate">{keyword.label}</span>
-              <button className="text-gray-400 hover:text-gray-600">
-                <span className="text-xs">•••</span>
-              </button>
-            </div>
-          ))}
+          {loading ? (
+            <div className="text-xs text-gray-500">Loading keywords...</div>
+          ) : allKeywords.length > 0 ? (
+            allKeywords.map((keyword) => (
+              <div key={keyword.id} className="flex items-center gap-2 px-2 py-1 text-sm text-gray-700">
+                <div className={`w-2 h-2 rounded-full ${keyword.color}`}></div>
+                <span className="flex-1 truncate">{keyword.label}</span>
+                <button className="text-gray-400 hover:text-gray-600">
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="text-xs text-gray-500">No keywords found</div>
+          )}
         </div>
-      </div>
-
-      {/* Trial Info */}
-      <div className="mt-8 p-3 bg-blue-50 rounded-lg">
-        <p className="text-xs text-blue-700 font-medium mb-1">Free Trial</p>
-        <p className="text-xs text-blue-600 mb-2">Trial ends in 4 days. Upgrade now</p>
       </div>
     </div>
   );

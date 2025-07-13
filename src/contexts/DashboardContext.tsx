@@ -1,8 +1,13 @@
 "use client";
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { settingsService } from '@/lib/settings-service';
+import { Brand } from '@/components/settings/types';
 
 interface DashboardContextType {
-  // Empty state for future use
+  brands: Brand[];
+  loading: boolean;
+  error: string | null;
+  refreshBrands: () => Promise<void>;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -12,9 +17,37 @@ interface DashboardProviderProps {
 }
 
 export const DashboardProvider = ({ children }: DashboardProviderProps) => {
-  // Empty state for future use
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadBrands = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const fetchedBrands = await settingsService.getBrands();
+      setBrands(fetchedBrands);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load brands');
+      console.error('Error loading brands:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshBrands = async () => {
+    await loadBrands();
+  };
+
+  useEffect(() => {
+    loadBrands();
+  }, []);
+
   const value: DashboardContextType = {
-    // Empty state for future use
+    brands,
+    loading,
+    error,
+    refreshBrands
   };
 
   return (
