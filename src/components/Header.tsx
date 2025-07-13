@@ -51,11 +51,6 @@ const Header = ({ searchQuery, onSearchChange, onExport, activeFilters = [], onR
             ))}
           </div>
         )}
-
-        <label className="flex items-center gap-2 text-sm text-gray-600 ml-4">
-          <input type="checkbox" className="rounded" />
-          Only unread
-        </label>
       </div>
     </div>
   );
