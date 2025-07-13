@@ -31,7 +31,6 @@ export interface MentionsFilters {
   sentiment?: 'positive' | 'negative' | 'neutral';
   subreddit?: string;
   keyword?: string;
-  unread?: boolean;
   page?: number;
   limit?: number;
 }
@@ -46,7 +45,6 @@ class MentionsService {
     if (filters.sentiment) params.append('sentiment', filters.sentiment);
     if (filters.subreddit) params.append('subreddit', filters.subreddit);
     if (filters.keyword) params.append('keyword', filters.keyword);
-    if (filters.unread !== undefined) params.append('unread', filters.unread.toString());
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.limit) params.append('limit', filters.limit.toString());
 

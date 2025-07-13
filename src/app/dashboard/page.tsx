@@ -20,8 +20,7 @@ const Dashboard = () => {
   const [brands, setBrands] = useState<any[]>([]);
   const [filters, setFilters] = useState<MentionsFilters>({
     page: 1,
-    limit: 20,
-    unread: true
+    limit: 20
   });
   const [totalPages, setTotalPages] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
