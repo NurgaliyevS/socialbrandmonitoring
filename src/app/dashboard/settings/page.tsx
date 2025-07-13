@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/SideBar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings as SettingsIcon } from 'lucide-react';
 import BrandManagement from '@/components/settings/BrandManagement';
@@ -13,7 +12,6 @@ import { toast } from '@/components/ui/use-toast';
 
 const Settings = () => {
   const router = useRouter();
-  const [activeView, setActiveView] = useState('settings');
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -149,23 +147,8 @@ const Settings = () => {
     }
   };
 
-  const handleViewChange = (view: string) => {
-    if (view === 'feed') {
-      router.push('/dashboard');
-    } else {
-      setActiveView(view);
-    }
-  };
-
   return (
-    <div className="flex min-h-screen bg-white text-gray-900">
-      {/* Sidebar */}
-      <div className="w-64 border-r border-gray-200 bg-white">
-        <Sidebar activeView={activeView} onViewChange={handleViewChange} />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-8">
+    <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-3 mb-8">
             <SettingsIcon className="h-6 w-6 text-gray-600" />
@@ -231,8 +214,7 @@ const Settings = () => {
               />
             </TabsContent>
           </Tabs>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

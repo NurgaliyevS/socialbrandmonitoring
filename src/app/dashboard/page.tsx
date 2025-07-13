@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/SideBar';
 import Header from '@/components/Header';
 import MentionCard from '@/components/MentionCard';
 import FilterPanel from '@/components/FilterPanel';
@@ -11,7 +10,6 @@ import { toast } from '@/components/ui/use-toast';
 
 const Dashboard = () => {
   const router = useRouter();
-  const [activeView, setActiveView] = useState('feed');
   const [searchQuery, setSearchQuery] = useState('');
   const [mentions, setMentions] = useState<Mention[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +21,6 @@ const Dashboard = () => {
     limit: 20
   });
   const [totalPages, setTotalPages] = useState(1);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
 
   // Load brands on component mount
@@ -88,13 +85,7 @@ const Dashboard = () => {
     console.log('Export clicked');
   };
 
-  const handleViewChange = (view: string) => {
-    if (view === 'settings') {
-      router.push('/dashboard/settings');
-    } else {
-      setActiveView(view);
-    }
-  };
+
 
   const handleBrandChange = (brandId: string) => {
     setSelectedBrand(brandId);
@@ -142,42 +133,12 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-white text-gray-900">
-      {/* Sidebar (left) - hidden on mobile, visible on md+ */}
-      <div className="w-64 border-r border-gray-200 bg-white hidden md:block">
-        <Sidebar activeView={activeView} onViewChange={handleViewChange} />
-      </div>
-
-      {/* Mobile sidebar drawer */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="w-64 bg-white border-r border-gray-200 h-full">
-            <Sidebar activeView={activeView} onViewChange={(view) => { setSidebarOpen(false); handleViewChange(view); }} />
-          </div>
-          <div
-            className="flex-1 bg-black bg-opacity-30"
-            onClick={() => setSidebarOpen(false)}
-          />
-        </div>
-      )}
-
       {/* Main content area */}
       <div className="flex-1 flex w-full md:pr-[400px]">
         {/* MentionCard list (center, grid layout) */}
         <div className="flex-1 p-6">
-          {/* Mobile menu and filter buttons */}
-          <div className="md:hidden mb-4 flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                className="p-2 mr-2"
-                onClick={() => setSidebarOpen(true)}
-                aria-label="Open menu"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-              <span className="font-semibold text-lg">Menu</span>
-            </div>
+          {/* Mobile filter button */}
+          <div className="md:hidden mb-4 flex items-center justify-end">
             <button
               className="p-2"
               onClick={() => setFilterOpen(true)}
