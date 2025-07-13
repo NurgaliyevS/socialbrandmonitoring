@@ -239,7 +239,9 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 gap-4 mt-6 w-full">
               {filteredMentions.map((mention) => (
-                <div className="w-full"><MentionCard key={mention.id} mention={mention} onMentionRead={handleMentionRead} onMentionUnread={handleMentionUnread} /></div>
+                <div key={mention.id} className="w-full">
+                  <MentionCard mention={mention} onMentionRead={handleMentionRead} onMentionUnread={handleMentionUnread} />
+                </div>
               ))}
               {filteredMentions.length === 0 && !loading && (
                 <div className="col-span-1 text-center py-12">
