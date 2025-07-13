@@ -85,10 +85,6 @@ const Dashboard = () => {
     mention.brandName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddFilter = () => {
-    console.log('Add filter clicked');
-  };
-
   const handleExport = () => {
     console.log('Export clicked');
   };
@@ -217,7 +213,6 @@ const Dashboard = () => {
           <Header
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            onAddFilter={handleAddFilter}
             onExport={handleExport}
             activeFilters={activeFilters}
             onRemoveFilter={handleRemoveFilter}

@@ -5,7 +5,6 @@ import { Search, Filter, Plus, Download, MoreVertical } from 'lucide-react';
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  onAddFilter: () => void;
   onExport: () => void;
   activeFilters?: Array<{
     key: string;
@@ -15,7 +14,7 @@ interface HeaderProps {
   onRemoveFilter?: (key: string) => void;
 }
 
-const Header = ({ searchQuery, onSearchChange, onAddFilter, onExport, activeFilters = [], onRemoveFilter }: HeaderProps) => {
+const Header = ({ searchQuery, onSearchChange, onExport, activeFilters = [], onRemoveFilter }: HeaderProps) => {
   return (
     <div className="bg-white border-b border-gray-200 p-4">
       <div className="flex items-center justify-between mb-4">
@@ -34,13 +33,6 @@ const Header = ({ searchQuery, onSearchChange, onAddFilter, onExport, activeFilt
           />
         </div>
         
-        <button
-          onClick={onAddFilter}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add filter
-        </button>
 
         {activeFilters.length > 0 && (
           <div className="flex items-center gap-2">
