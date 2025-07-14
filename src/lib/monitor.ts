@@ -6,6 +6,52 @@ import Company from "@/models/Company";
 import Mention from "@/models/Mention";
 
 /**
+ * Extract the sentence containing the keyword match
+ * Returns the sentence with the keyword, or a truncated version if no sentence boundaries found
+ */
+function extractSentenceWithKeyword(content: string, keyword: string): string {
+  if (!content || !keyword) return content;
+  
+  const lowerContent = content.toLowerCase();
+  const lowerKeyword = keyword.toLowerCase();
+  
+  // Find the position of the keyword
+  const keywordIndex = lowerContent.indexOf(lowerKeyword);
+  if (keywordIndex === -1) return content;
+  
+  // Find sentence boundaries (period, exclamation mark, question mark)
+  const sentenceEndings = ['.', '!', '?', '\n'];
+  
+  // Find the start of the sentence (look backwards for sentence endings)
+  let sentenceStart = 0;
+  for (let i = keywordIndex; i >= 0; i--) {
+    if (sentenceEndings.includes(content[i])) {
+      sentenceStart = i + 1;
+      break;
+    }
+  }
+  
+  // Find the end of the sentence (look forwards for sentence endings)
+  let sentenceEnd = content.length;
+  for (let i = keywordIndex; i < content.length; i++) {
+    if (sentenceEndings.includes(content[i])) {
+      sentenceEnd = i + 1;
+      break;
+    }
+  }
+  
+  // Extract the sentence and trim whitespace
+  const sentence = content.slice(sentenceStart, sentenceEnd).trim();
+  
+  // If sentence is too long (more than 300 chars), truncate it
+  if (sentence.length > 300) {
+    return sentence.substring(0, 297) + '...';
+  }
+  
+  return sentence || content.substring(0, 200) + '...';
+}
+
+/**
  * Get all brands and their keywords from MongoDB
  */
 export async function getBrandsAndKeywords() {
@@ -85,6 +131,9 @@ export async function monitorRedditContent() {
         const matchedKeyword = checkKeywordMatch(content, brand.keywords);
 
         if (matchedKeyword) {
+          const fullContent = post.selftext || post.title;
+          const extractedContent = extractSentenceWithKeyword(fullContent, matchedKeyword);
+          
           const mention = {
             brandId: brand.brandId,
             keywordMatched: matchedKeyword,
@@ -93,13 +142,13 @@ export async function monitorRedditContent() {
             subreddit: post.subreddit,
             author: post.author,
             title: post.title,
-            content: post.selftext || post.title,
+            content: extractedContent,
             url: post.url,
             permalink: post.permalink,
             score: post.score,
             numComments: post.numComments,
             created: post.created,
-            sentiment: analyzeSentiment(post.selftext || post.title),
+            sentiment: analyzeSentiment(fullContent),
             isProcessed: true,
           };
 
@@ -181,6 +230,9 @@ export async function monitorRedditComments() {
         const matchedKeyword = checkKeywordMatch(content, brand.keywords);
 
         if (matchedKeyword) {
+          const fullContent = comment.body || "";
+          const extractedContent = extractSentenceWithKeyword(fullContent, matchedKeyword);
+          
           const mention = {
             brandId: brand.brandId,
             keywordMatched: matchedKeyword,
@@ -189,13 +241,13 @@ export async function monitorRedditComments() {
             subreddit: comment.subreddit,
             author: comment.author,
             title: comment.linkTitle, // Parent post title
-            content: comment.body,
+            content: extractedContent,
             url: comment.url,
             permalink: comment.permalink,
             score: comment.score,
             numComments: comment.numComments, // Comments on parent post
             created: comment.created,
-            sentiment: analyzeCommentSentiment(comment.body),
+            sentiment: analyzeCommentSentiment(fullContent),
             isProcessed: true,
           };
           newMentions.push(mention);
