@@ -139,6 +139,7 @@ export async function monitorRedditContent() {
         if (matchedKeyword) {
           const fullContent = post.selftext || post.title;
           const extractedContent = extractSentenceWithKeyword(fullContent, matchedKeyword);
+          const boldTitle = extractSentenceWithKeyword(post.title, matchedKeyword);
           
           const mention = {
             brandId: brand.brandId,
@@ -147,7 +148,7 @@ export async function monitorRedditContent() {
             redditType: "post",
             subreddit: post.subreddit,
             author: post.author,
-            title: post.title,
+            title: boldTitle,
             content: extractedContent,
             url: post.url,
             permalink: post.permalink,
@@ -238,6 +239,7 @@ export async function monitorRedditComments() {
         if (matchedKeyword) {
           const fullContent = comment.body || "";
           const extractedContent = extractSentenceWithKeyword(fullContent, matchedKeyword);
+          const boldTitle = extractSentenceWithKeyword(comment.linkTitle, matchedKeyword);
           
           const mention = {
             brandId: brand.brandId,
@@ -246,7 +248,7 @@ export async function monitorRedditComments() {
             redditType: "comment",
             subreddit: comment.subreddit,
             author: comment.author,
-            title: comment.linkTitle, // Parent post title
+            title: boldTitle, // Parent post title with bold keywords
             content: extractedContent,
             url: comment.url,
             permalink: comment.permalink,
