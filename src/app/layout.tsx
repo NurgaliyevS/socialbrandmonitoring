@@ -33,7 +33,7 @@ export default function RootLayout({
           src="https://datafa.st/js/script.js"
         />
       </head>
-      <body className={inter.className}>
+      <body className={inter.className} suppressHydrationWarning={true}>
           <TooltipProvider>
             <Toaster />
             <Sonner />
