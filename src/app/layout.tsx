@@ -1,27 +1,28 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Script from 'next/script'
+import Script from "next/script";
+import AuthClientProvider from "./AuthClientProvider";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Social Brand Monitoring',
-  description: 'Get real-time alerts for Reddit opportunities',
+  title: "Social Brand Monitoring",
+  description: "Get real-time alerts for Reddit opportunities",
   icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
-    apple: '/icon.svg',
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -34,12 +35,14 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className} suppressHydrationWarning={true}>
+        <AuthClientProvider>
           <TooltipProvider>
             <Toaster />
             <Sonner />
             {children}
           </TooltipProvider>
+        </AuthClientProvider>
       </body>
     </html>
-  )
-} 
+  );
+}

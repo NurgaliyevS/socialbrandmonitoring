@@ -55,3 +55,21 @@ export async function sendEmailAlert(
     throw error;
   }
 }
+
+export async function sendPasswordResetEmail(email: string, token: string) {
+  const resetUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
+  const subject = 'Reset your password';
+  const html = `
+    <h2>Password Reset Request</h2>
+    <p>We received a request to reset your password. Click the link below to set a new password:</p>
+    <p><a href="${resetUrl}">Reset Password</a></p>
+    <p>If you did not request this, you can safely ignore this email.</p>
+  `;
+
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || 'no-reply@yourdomain.com',
+    to: email,
+    subject,
+    html,
+  });
+}

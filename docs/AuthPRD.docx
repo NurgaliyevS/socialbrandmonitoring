@@ -1,0 +1,118 @@
+Phase 3: Database Models
+3.1 Create User Model (src/models/User.ts)
+User schema with email, password, name, image
+Embedded Account and Session schemas for OAuth
+Indexes for email and providerAccountId
+TypeScript interfaces for type safety
+3.2 Create Verification Token Model (src/models/VerificationToken.ts)
+For email verification functionality
+Token, identifier, and expiration fields
+Compound index for efficient lookups
+Phase 4: NextAuth Configuration
+4.1 Create MongoDB Adapter (src/lib/mongodb-adapter.ts)
+MongoDB client promise for NextAuth adapter
+Connection configuration
+4.2 Create NextAuth API Route (src/app/api/auth/[...nextauth]/route.ts)
+Configure Google OAuth provider
+Configure Credentials provider for email/password
+Set up JWT session strategy
+Add callbacks for user ID handling
+Configure custom pages for signin/signup
+Phase 5: Authentication Pages
+5.1 Sign In Page (src/app/auth/signin/page.tsx)
+Email/password form
+Google OAuth button
+Form validation with react-hook-form
+Error handling and loading states
+5.2 Sign Up Page (src/app/auth/signup/page.tsx)
+Registration form with name, email, password
+Password confirmation
+Email validation
+Link to sign in page
+5.3 Auth Layout (src/app/auth/layout.tsx)
+Common layout for auth pages
+Consistent styling
+Phase 6: API Routes for Registration
+6.1 Registration API (src/app/api/auth/register/route.ts)
+Handle user registration
+Password hashing with bcrypt
+Email validation
+Duplicate email checking
+User creation in database
+6.2 Password Reset API (src/app/api/auth/reset-password/route.ts)
+Password reset functionality
+Email sending for reset links
+Phase 7: Authentication Components
+7.1 Auth Provider (src/contexts/AuthContext.tsx)
+NextAuth SessionProvider wrapper
+Custom auth context for additional state
+7.2 Protected Route Component (src/components/ProtectedRoute.tsx)
+Route protection middleware
+Redirect to signin if not authenticated
+7.3 Auth Status Component (src/components/AuthStatus.tsx)
+Display current user info
+Sign out functionality
+Phase 8: Integration with Existing App
+8.1 Update Root Layout (src/app/layout.tsx)
+Wrap with SessionProvider
+Add auth context
+8.2 Update Dashboard Layout (src/app/dashboard/layout.tsx)
+Add route protection
+User-specific data loading
+8.3 Update Company Model (src/models/Company.ts)
+Add user reference field
+User-company relationship
+Phase 9: Google OAuth Setup
+9.1 Google Cloud Console Setup
+Create OAuth 2.0 credentials
+Configure authorized redirect URIs
+Get client ID and secret
+9.2 Environment Configuration
+Add Google credentials to environment variables
+Phase 10: Testing & Validation
+10.1 Test Email/Password Flow
+Registration process
+Login/logout functionality
+Password validation
+10.2 Test Google OAuth Flow
+Google sign-in button
+OAuth callback handling
+Account linking
+10.3 Test Session Management
+Session persistence
+Route protection
+User data access
+Phase 11: Security & Best Practices
+11.1 Security Headers
+CSRF protection
+Secure cookie settings
+Rate limiting
+11.2 Password Security
+Password strength validation
+Secure password hashing
+Password reset flow
+11.3 Error Handling
+Proper error messages
+Logging for debugging
+User-friendly error pages
+Phase 12: Deployment Considerations
+12.1 Environment Variables
+Production environment setup
+Secure secret generation
+Database connection strings
+12.2 OAuth Redirect URIs
+Update Google OAuth settings for production
+Configure correct callback URLs
+Implementation Order:
+Install dependencies
+Set up environment variables
+Create database models
+Configure NextAuth API route
+Create authentication pages
+Build registration API
+Create auth components
+Integrate with existing app
+Set up Google OAuth
+Test all flows
+Add security measures
+Deploy and configure
