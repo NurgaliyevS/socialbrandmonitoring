@@ -29,6 +29,7 @@ export interface ICompany extends Document {
     enabled: boolean;
   };
   onboardingComplete: boolean;
+  user: mongoose.Types.ObjectId; // Required user reference
   createdAt: Date;
   updatedAt: Date;
 }
@@ -62,7 +63,7 @@ const CompanySchema = new Schema({
     enabled: { type: Boolean, default: false }
   },
   onboardingComplete: { type: Boolean, default: false },
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: false }, // <-- Added user reference
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // <-- Required user reference
 }, {
   timestamps: true
 });
