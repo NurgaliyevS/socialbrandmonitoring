@@ -137,7 +137,10 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
       </div>
 
       <h3 className={`font-medium text-gray-900 mb-2 line-clamp-2 w-full md:line-clamp-none ${mention.unread ? 'font-semibold' : ''}`}>{mention.title}</h3>
-      <p className={`text-gray-700 text-sm mb-3 line-clamp-3 w-full md:line-clamp-none ${mention.unread ? 'font-medium' : ''}`}>{mention.content}</p>
+      <div 
+        className={`text-gray-700 text-sm mb-3 line-clamp-3 w-full md:line-clamp-none ${mention.unread ? 'font-medium' : ''}`}
+        dangerouslySetInnerHTML={{ __html: mention.content }}
+      />
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-500 gap-2 w-full">
         <div className="flex flex-wrap items-center gap-4 min-w-0 w-full">

@@ -43,12 +43,18 @@ function extractSentenceWithKeyword(content: string, keyword: string): string {
   // Extract the sentence and trim whitespace
   const sentence = content.slice(sentenceStart, sentenceEnd).trim();
   
+  // Make the keyword bold by wrapping it in HTML tags
+  const boldSentence = sentence.replace(
+    new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'),
+    '<strong>$1</strong>'
+  );
+  
   // If sentence is too long (more than 300 chars), truncate it
-  if (sentence.length > 300) {
-    return sentence.substring(0, 297) + '...';
+  if (boldSentence.length > 300) {
+    return boldSentence.substring(0, 297) + '...';
   }
   
-  return sentence || content.substring(0, 200) + '...';
+  return boldSentence || content.substring(0, 200) + '...';
 }
 
 /**
