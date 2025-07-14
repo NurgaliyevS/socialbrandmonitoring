@@ -79,14 +79,14 @@ const AccountSchema = new Schema({
   scope: { type: String },
   id_token: { type: String },
   session_state: { type: String }
-});
+}, { _id: false });
 
 const SessionSchema = new Schema({
   id: { type: String, required: true },
-  sessionToken: { type: String, required: true, unique: true },
+  sessionToken: { type: String, required: true },
   userId: { type: String, required: true },
   expires: { type: Date, required: true }
-});
+}, { _id: false });
 
 const StripeSubscriptionSchema = new Schema({
   id: { type: String, required: true },
@@ -107,7 +107,7 @@ const StripeSubscriptionSchema = new Schema({
   interval: { type: String, enum: ['month', 'year'], required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
-});
+}, { _id: false });
 
 const StripeOneTimePaymentSchema = new Schema({
   id: { type: String, required: true },
@@ -123,7 +123,7 @@ const StripeOneTimePaymentSchema = new Schema({
   description: { type: String, required: true },
   metadata: { type: Schema.Types.Mixed },
   createdAt: { type: Date, default: Date.now }
-});
+}, { _id: false });
 
 const UserSchema = new Schema({
   name: { type: String, required: true },
