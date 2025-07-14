@@ -44,10 +44,11 @@ export async function sendEmailAlert(
 
     // Send email via Resend
     await resend.emails.send({
-      from: `Brand Monitor <onboarding@resend.dev>`,
+      from: `Social Brand Monitoring <alerts@socialbrandmonitoring.com>`,
       to: brand.emailConfig.recipients,
       subject,
-      html: body
+      html: body,
+      replyTo: "nurgasab@gmail.com"
     });
     console.log(`✅ Email alert sent for ${brand.name} mention`);
   } catch (error) {
@@ -67,9 +68,10 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   `;
 
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL || 'no-reply@yourdomain.com',
+    from: `Social Brand Monitoring <noreply@socialbrandmonitoring.com>`,
     to: email,
     subject,
     html,
+    replyTo: "nurgasab@gmail.com"
   });
 }
