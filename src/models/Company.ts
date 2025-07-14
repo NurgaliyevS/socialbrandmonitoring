@@ -61,7 +61,8 @@ const CompanySchema = new Schema({
     recipients: [{ type: String }],
     enabled: { type: Boolean, default: false }
   },
-  onboardingComplete: { type: Boolean, default: false }
+  onboardingComplete: { type: Boolean, default: false },
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: false }, // <-- Added user reference
 }, {
   timestamps: true
 });
