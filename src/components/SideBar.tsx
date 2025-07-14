@@ -30,6 +30,7 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
       id: keyword.id,
       label: keyword.name,
       color: keyword.color,
+      type: keyword.type,
       brandName: brand.name,
     }))
   );
@@ -91,7 +92,7 @@ const Sidebar = ({ activeView, onViewChange }: SidebarProps) => {
                 key={keyword.id}
                 className="flex items-center gap-2 px-2 py-1 text-sm text-gray-700"
               >
-                <div className={`w-2 h-2 rounded-full ${keyword.color}`}></div>
+                <div className={`w-2 h-2 rounded-full ${keyword.type === 'Own Brand' ? 'bg-blue-500' : keyword.type === 'Competitor' ? 'bg-red-500' : 'bg-green-500'}`}></div>
                 <span className="flex-1 truncate">{keyword.label}</span>
                 <button className="text-gray-400 hover:text-gray-600"></button>
               </div>

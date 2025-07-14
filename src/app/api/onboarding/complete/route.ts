@@ -1,105 +1,182 @@
 import connectDB from '@/lib/mongodb';
 import Company from '@/models/Company';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export const POST = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const { website, keywords, companyName, scrapedData } = await request.json();
 
+    // Validate required fields
+    if (!website || !companyName) {
+      return NextResponse.json({
+        success: false,
+        error: 'Website and company name are required'
+      }, { status: 400 });
+    }
+
+    // Check if user already has a company with this website
+    const existingCompany = await Company.findOne({ 
+      website,
+      user: request.user!.id 
+    });
+    
+    if (existingCompany) {
+      return NextResponse.json({
+        success: false,
+        error: 'You already have a company with this website'
+      }, { status: 409 });
+    }
+
+    // Check if website is already used by another user
+    const websiteExists = await Company.findOne({ website });
+    if (websiteExists) {
+      return NextResponse.json({
+        success: false,
+        error: 'This website is already registered by another user'
+      }, { status: 409 });
+    }
+
     const company = new Company({
       name: companyName,
       website,
-      title: scrapedData.title,
-      description: scrapedData.description,
-      keywords,
+      user: request.user!.id, // Associate with authenticated user
+      title: scrapedData?.title,
+      description: scrapedData?.description,
+      keywords: keywords || [],
       scrapedData: {
-        headings: scrapedData.headings,
-        bodyText: scrapedData.bodyText
+        headings: scrapedData?.headings || [],
+        bodyText: scrapedData?.bodyText || ''
       },
       onboardingComplete: true
     });
 
     await company.save();
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       companyId: company._id
     });
   } catch (error) {
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});
 
-export async function GET(request: Request) {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const { searchParams } = new URL(request.url);
     const website = searchParams.get('website');
+    
     if (!website) {
-      return Response.json({ success: false, error: 'Missing website parameter' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Missing website parameter' 
+      }, { status: 400 });
     }
-    const company = await Company.findOne({ website });
+    
+    // Only allow users to access their own companies
+    const company = await Company.findOne({ 
+      website,
+      user: request.user!.id 
+    });
+    
     if (!company) {
-      return Response.json({ success: false, error: 'Company not found' }, { status: 404 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Company not found or you do not have access to it' 
+      }, { status: 404 });
     }
-    return Response.json({ success: true, data: company });
+    
+    return NextResponse.json({ success: true, data: company });
   } catch (error) {
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});
 
-export async function PUT(request: Request) {
+export const PUT = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const { website, keywords, companyName, scrapedData } = await request.json();
+    
     if (!website) {
-      return Response.json({ success: false, error: 'Missing website parameter' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Missing website parameter' 
+      }, { status: 400 });
     }
-    const company = await Company.findOne({ website });
+    
+    // Only allow users to update their own companies
+    const company = await Company.findOne({ 
+      website,
+      user: request.user!.id 
+    });
+    
     if (!company) {
-      return Response.json({ success: false, error: 'Company not found' }, { status: 404 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Company not found or you do not have access to it' 
+      }, { status: 404 });
     }
+    
+    // Update company fields
     company.name = companyName;
-    company.title = scrapedData.title;
-    company.description = scrapedData.description;
-    company.keywords = keywords;
+    company.title = scrapedData?.title;
+    company.description = scrapedData?.description;
+    company.keywords = keywords || [];
     company.scrapedData = {
-      headings: scrapedData.headings,
-      bodyText: scrapedData.bodyText
+      headings: scrapedData?.headings || [],
+      bodyText: scrapedData?.bodyText || ''
     };
+    
     await company.save();
-    return Response.json({ success: true, data: company });
+    return NextResponse.json({ success: true, data: company });
   } catch (error) {
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const { searchParams } = new URL(request.url);
     const website = searchParams.get('website');
+    
     if (!website) {
-      return Response.json({ success: false, error: 'Missing website parameter' }, { status: 400 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Missing website parameter' 
+      }, { status: 400 });
     }
-    const result = await Company.deleteOne({ website });
+    
+    // Only allow users to delete their own companies
+    const result = await Company.deleteOne({ 
+      website,
+      user: request.user!.id 
+    });
+    
     if (result.deletedCount === 0) {
-      return Response.json({ success: false, error: 'Company not found' }, { status: 404 });
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Company not found or you do not have access to it' 
+      }, { status: 404 });
     }
-    return Response.json({ success: true });
+    
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-} 
+}); 

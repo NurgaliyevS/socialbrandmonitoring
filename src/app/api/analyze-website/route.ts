@@ -1,7 +1,9 @@
 import { scrapeWebsite } from '@/lib/scraper';
 import { generateKeywords } from '@/lib/keyword-analyzer';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export const POST = withAuth(async (request: AuthenticatedRequest) => {
   try {
     const { website } = await request.json();
     
@@ -11,8 +13,30 @@ export async function POST(request: Request) {
       throw new Error('Invalid URL protocol');
     }
     
+    // Basic rate limiting: Check if user has analyzed recently
+    const userEmail = request.user!.email;
+    const rateLimitKey = `analyze_website:${userEmail}`;
+    
+    // Simple in-memory rate limiting (in production, use Redis)
+    const now = Date.now();
+    const lastRequest = (global as any).rateLimit?.[rateLimitKey] || 0;
+    const timeWindow = 60 * 1000; // 1 minute
+    
+    if (now - lastRequest < timeWindow) {
+      return NextResponse.json({
+        success: false,
+        error: 'Rate limit exceeded. Please wait before analyzing another website.'
+      }, { status: 429 });
+    }
+    
+    // Update rate limit
+    if (!(global as any).rateLimit) {
+      (global as any).rateLimit = {};
+    }
+    (global as any).rateLimit[rateLimitKey] = now;
+    
     // Step 1: Scrape the website
-    console.log('[API] Starting website scraping...');
+    console.log('[API] Starting website scraping for user:', userEmail);
     let scrapedData;
     try {
       scrapedData = await scrapeWebsite(website);
@@ -38,14 +62,14 @@ export async function POST(request: Request) {
         bodyText: ''
       };
     }
-    console.log('[API] Website scraping completed');
+    console.log('[API] Website scraping completed for user:', userEmail);
     
     // Step 2: Generate keywords using AI
-    console.log('[API] Starting AI keyword analysis...');
+    console.log('[API] Starting AI keyword analysis for user:', userEmail);
     const analysisResult = await generateKeywords(scrapedData, website);
-    console.log('[API] AI keyword analysis completed');
+    console.log('[API] AI keyword analysis completed for user:', userEmail);
     
-    return Response.json({
+    return NextResponse.json({
       success: true,
       data: {
         scrapedData,
@@ -55,9 +79,9 @@ export async function POST(request: Request) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     console.error('[API] Error:', errorMessage);
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: errorMessage
     }, { status: 400 });
   }
-} 
+}); 

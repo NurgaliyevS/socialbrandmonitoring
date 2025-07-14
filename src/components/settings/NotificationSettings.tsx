@@ -107,7 +107,7 @@ const NotificationSettingsComponent = ({
                     id={`email-address-${brand.id}`}
                     value={localEmail}
                     onChange={e => setLocalEmail(e.target.value)}
-                    placeholder="Enter email address"
+                    placeholder="sherlock.holmes@bakerstreet.com"
                     className="mt-1"
                     type="email"
                     required
@@ -138,7 +138,7 @@ const NotificationSettingsComponent = ({
                     id={`slack-webhook-${brand.id}`}
                     value={localSlack}
                     onChange={e => setLocalSlack(e.target.value)}
-                    placeholder="https://hooks.slack.com/services/..."
+                    placeholder="https://hooks.slack.com/services/T221B/H0LM3S/pipe-smoking-detective-x42"
                     className="mt-1"
                     type="url"
                   />
@@ -149,7 +149,7 @@ const NotificationSettingsComponent = ({
             <div key={brand.id} className="border rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-lg">{brand.name}</h3>
-                <Button size="sm" variant="outline" onClick={() => startEdit(brand)}>
+                <Button size="sm" type="submit" onClick={() => startEdit(brand)}>
                   Edit
                 </Button>
               </div>
@@ -179,6 +179,7 @@ const NotificationSettingsComponent = ({
                     id={`email-address-${brand.id}`}
                     value={brand.notifications.emailAddress || ''}
                     readOnly
+                    placeholder='Email address is not set'
                     className="mt-1"
                     type="text"
                   />
@@ -208,6 +209,7 @@ const NotificationSettingsComponent = ({
                     id={`slack-webhook-${brand.id}`}
                     value={brand.notifications.slackWebhook || ''}
                     readOnly
+                    placeholder='Slack webhook is not set'
                     className="mt-1"
                     type="text"
                   />

@@ -1,9 +1,12 @@
 import connectDB from '@/lib/mongodb';
 import Mention from '@/models/Mention';
 import Company from '@/models/Company';
+import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
+import { getUserCompanyIds } from '@/lib/user-helpers';
+import { NextResponse } from 'next/server';
 
 // GET - Fetch mentions with filtering and pagination
-export async function GET(request: Request) {
+export const GET = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const { searchParams } = new URL(request.url);
@@ -17,11 +20,32 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
 
-    // Build filter object
-    const filter: any = {};
+    // Get user's company IDs to filter mentions
+    const userCompanyIds = await getUserCompanyIds(request.user!.id);
     
-    if (brandId) {
-      filter.brandId = brandId;
+    if (userCompanyIds.length === 0) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          mentions: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            pages: 0
+          }
+        }
+      });
+    }
+
+    // Build filter object - ALWAYS filter by user's companies
+    const filter: any = {
+      brandId: { $in: userCompanyIds }
+    };
+    
+    // Additional filters
+    if (brandId && userCompanyIds.includes(brandId)) {
+      filter.brandId = brandId; // Override with specific company if user owns it
     }
     
     if (sentiment && ['positive', 'negative', 'neutral'].includes(sentiment)) {
@@ -47,7 +71,7 @@ export async function GET(request: Request) {
     const total = await Mention.countDocuments(filter);
 
     // Transform mentions to match frontend interface
-    const transformedMentions = mentions.map(mention => ({
+    const transformedMentions = mentions.map((mention: any) => ({
       id: mention._id.toString(),
       subreddit: mention.subreddit,
       author: mention.author,
@@ -65,7 +89,7 @@ export async function GET(request: Request) {
       unread: mention.unread
     }));
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       data: {
         mentions: transformedMentions,
@@ -79,37 +103,43 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error('Error fetching mentions:', error);
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});
 
 // PATCH - Mark mentions as read or unread
-export async function PATCH(request: Request) {
+export const PATCH = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const body = await request.json();
     const { mentionIds, action = 'markAsRead' } = body;
 
     if (!mentionIds || !Array.isArray(mentionIds) || mentionIds.length === 0) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         error: 'mentionIds array is required'
       }, { status: 400 });
     }
 
+    // Get user's company IDs to ensure they can only update their own mentions
+    const userCompanyIds = await getUserCompanyIds(request.user!.id);
+
     // Determine the unread value based on action
     const unreadValue = action === 'markAsUnread' ? true : false;
 
-    // Update mentions to mark them as read or unread
+    // Update mentions to mark them as read or unread - ONLY for user's companies
     const result = await Mention.updateMany(
-      { _id: { $in: mentionIds } },
+      { 
+        _id: { $in: mentionIds },
+        brandId: { $in: userCompanyIds } // Only update mentions for user's companies
+      },
       { $set: { unread: unreadValue } }
     );
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       data: {
         updatedCount: result.modifiedCount
@@ -117,12 +147,12 @@ export async function PATCH(request: Request) {
     });
   } catch (error) {
     console.error('Error marking mentions as read/unread:', error);
-    return Response.json({
+    return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-}
+});
 
 // Helper function to format timestamp
 function formatTimestamp(date: Date): string {
