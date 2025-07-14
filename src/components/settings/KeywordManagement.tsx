@@ -117,7 +117,7 @@ const KeywordManagement = ({
                   key={keyword.id}
                   className="flex items-center gap-3 p-3 border rounded-lg"
                 >
-                  <div className={`w-3 h-3 rounded-full ${keyword.color}`} />
+                  <div className={`w-3 h-3 rounded-full ${keyword.type === 'Own Brand' ? 'bg-blue-500' : keyword.type === 'Competitor' ? 'bg-red-500' : 'bg-green-500'}`} />
                   <Input
                     value={keyword.name}
                     onChange={(e) =>

@@ -17,10 +17,11 @@ const KeywordItem = ({
   onRemove, 
   onTypeChange,
   onNameChange
-}: KeywordItemProps) => (
+}: KeywordItemProps) => {
+  return(
   <div className="flex items-center gap-4 p-4 rounded-lg transition-colors">
     <div className="flex items-center gap-3 flex-1">
-      <div className={`w-3 h-3 rounded-full ${keyword.color}`} />
+      <div className={`w-3 h-3 rounded-full ${keyword.type === 'Own Brand' ? 'bg-blue-500' : keyword.type === 'Competitor' ? 'bg-red-500' : 'bg-green-500'}`} />
       <Input
         value={keyword.name}
         onChange={(e) => onNameChange(keyword.id, e.target.value)}
@@ -51,6 +52,6 @@ const KeywordItem = ({
       <Trash2 className="h-4 w-4" />
     </Button>
   </div>
-);
+)};
 
 export default KeywordItem; 
