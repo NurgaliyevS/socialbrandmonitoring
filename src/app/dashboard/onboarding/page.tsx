@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ProgressHeader from '@/components/onboarding/ProgressHeader';
 import WebsiteInputStep from '@/components/onboarding/WebsiteInputStep';
@@ -24,6 +24,25 @@ const OnboardingFlow = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   const { refreshBrands } = useDashboard()
+
+  // Check if onboarding is already complete on component mount
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        const response = await fetch('/api/auth/onboarding-status');
+        const data = await response.json();
+        
+        if (data.success && data.onboardingComplete) {
+          router.push('/dashboard');
+          return;
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [router]);
 
   const handleWebsiteSubmit = () => {
     setValidationError('');
@@ -51,6 +70,8 @@ const OnboardingFlow = () => {
         body: JSON.stringify({ website }),
       });
 
+      // throw error to test the error handling
+      throw new Error('Test error');
       const result = await response.json();
       
       if (!result.success) {
@@ -70,8 +91,31 @@ const OnboardingFlow = () => {
       setCurrentStep(3);
 
     } catch (error) {
-      // Handle scraping failure: allow manual entry
-      setKeywords([]);
+      // Handle scraping failure: provide default empty keywords for manual entry
+      const defaultKeywords: KeywordSuggestion[] = [
+        {
+          id: 'default-1',
+          name: '',
+          type: 'Own Brand',
+          mentions: 'medium',
+          color: 'bg-green-500'
+        },
+        {
+          id: 'default-2',
+          name: '',
+          type: 'Competitor',
+          mentions: 'medium',
+          color: 'bg-blue-500'
+        },
+        {
+          id: 'default-3',
+          name: '',
+          type: 'Industry',
+          mentions: 'medium',
+          color: 'bg-purple-500'
+        }
+      ];
+      setKeywords(defaultKeywords);
       setScrapedData(null);
       setCompanyName('');
       setIsAnalyzing(false);
@@ -123,7 +167,7 @@ const OnboardingFlow = () => {
   };
 
   const handleNext = () => {
-    if (keywords.length > 0 && currentStep !== 3) {
+    if (currentStep !== 3) {
       setCurrentStep(currentStep + 1);
     }
   };
