@@ -24,83 +24,13 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
     };
     
     // Try to use puppeteer with minimal options
-    try {
-      browser = await puppeteer.launch(launchOptions);
-      console.log('[SCRAPER] Browser launched successfully');
-    } catch (launchError) {
-      console.error('[SCRAPER] Failed to launch browser:', launchError);
-      console.log('[SCRAPER] Falling back to HTTP request scraping...');
-      
-      // Fallback to basic HTTP request scraping
-      try {
-        const response = await axios.get(url, {
-          timeout: 10000,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-          }
-        });
-        
-        const html = response.data;
-        
-        // Basic HTML parsing (very simple)
-        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-        const title = titleMatch ? titleMatch[1].trim() : '';
-        
-        const descriptionMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
-        const description = descriptionMatch ? descriptionMatch[1].trim() : '';
-        
-        const keywordsMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']+)["']/i);
-        const keywords = keywordsMatch ? keywordsMatch[1].trim() : '';
-        
-        // Extract headings (very basic)
-        const headingMatches = html.match(/<h[1-6][^>]*>([^<]+)<\/h[1-6]>/gi);
-        const headings = headingMatches ? headingMatches.slice(0, 10).map((h: string) => h.replace(/<[^>]+>/g, '').trim()) : [];
-        
-        // Extract body text (very basic)
-        const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        const bodyText = bodyMatch ? bodyMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 2000) : '';
-        
-        console.log('[SCRAPER] HTTP fallback scraping completed');
-        console.log(`[SCRAPER] Title: ${title}`);
-        console.log(`[SCRAPER] Description: ${description}`);
-        console.log(`[SCRAPER] Keywords: ${keywords}`);
-        console.log(`[SCRAPER] Headings: ${headings}`);
-        console.log(`[SCRAPER] Body Text: ${bodyText}`);
-        return {
-          title,
-          description,
-          keywords,
-          headings,
-          bodyText
-        };
-      } catch (httpError) {
-        console.error('[SCRAPER] HTTP fallback also failed:', httpError);
-        return {
-          title: '',
-          description: '',
-          keywords: '',
-          headings: [],
-          bodyText: ''
-        };
-      }
-    }
-
+    browser = await puppeteer.launch(launchOptions);
+    console.log('[SCRAPER] Browser launched successfully');
+    
     // Add proxy if provided
     if (proxyUrl && browser) {
       console.log(`[SCRAPER] Using proxy: ${proxyUrl}`);
       // Note: Proxy configuration would need to be handled differently in serverless
-    }
-    
-    // If no browser was launched (e.g., in Vercel), return minimal data
-    if (!browser) {
-      console.log('[SCRAPER] No browser available, returning minimal data');
-      return {
-        title: '',
-        description: '',
-        keywords: '',
-        headings: [],
-        bodyText: ''
-      };
     }
     
     const page = await browser.newPage();
@@ -191,24 +121,89 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
     return scrapedData;
     
   } catch (error: unknown) {
-    console.error('[SCRAPER] Error during scraping:', error);
+    console.error('[SCRAPER] Browser launch failed, falling back to HTTP scraping:', error);
     
-    // Provide more specific error information
-    let errorMessage = 'Unknown error occurred';
-    if (error instanceof Error) {
-      errorMessage = error.message;
+    // Fallback to basic HTTP request scraping
+    try {
+      console.log('[SCRAPER] Starting HTTP fallback scraping...');
+      const response = await axios.get(url, {
+        timeout: 30000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.5',
+          'Accept-Encoding': 'gzip, deflate',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1'
+        }
+      });
       
-      // Check for specific browser-related errors
-      if (errorMessage.includes('Browser was not found')) {
-        errorMessage = 'Browser executable not found. This may be a deployment environment issue.';
-      } else if (errorMessage.includes('Failed to launch')) {
-        errorMessage = 'Failed to launch browser. This may be due to missing dependencies or permissions.';
-      } else if (errorMessage.includes('timeout')) {
-        errorMessage = 'Request timed out. The website may be slow or blocking requests.';
+      const html = response.data;
+      console.log('[SCRAPER] HTTP response received, parsing HTML...');
+      
+      // Basic HTML parsing (very simple)
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      const title = titleMatch ? titleMatch[1].trim() : '';
+      
+      const descriptionMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+      const description = descriptionMatch ? descriptionMatch[1].trim() : '';
+      
+      const keywordsMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']+)["']/i);
+      const keywords = keywordsMatch ? keywordsMatch[1].trim() : '';
+      
+      // Extract headings (very basic)
+      const headingMatches = html.match(/<h[1-2][^>]*>([^<]+)<\/h[1-2]>/gi);
+      const headings = headingMatches ? headingMatches.slice(0, 10).map((h: string) => h.replace(/<[^>]+>/g, '').trim()) : [];
+      
+      // Extract body text (very basic)
+      const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+      let bodyText = '';
+      if (bodyMatch) {
+        // Remove script and style tags
+        const cleanBody = bodyMatch[1]
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        bodyText = cleanBody.substring(0, 2000);
       }
+      
+      console.log('[SCRAPER] HTTP fallback scraping completed');
+      console.log(`[SCRAPER] Title: ${title}`);
+      console.log(`[SCRAPER] Description: ${description}`);
+      console.log(`[SCRAPER] Keywords: ${keywords}`);
+      console.log(`[SCRAPER] Headings: ${headings}`);
+      console.log(`[SCRAPER] Body Text Length: ${bodyText.length}`);
+      
+      return {
+        title,
+        description,
+        keywords,
+        headings,
+        bodyText
+      };
+    } catch (httpError) {
+      console.error('[SCRAPER] HTTP fallback also failed:', httpError);
+      
+      // Provide more specific error information
+      let errorMessage = 'Unknown error occurred';
+      if (httpError instanceof Error) {
+        errorMessage = httpError.message;
+        
+        if (errorMessage.includes('timeout')) {
+          errorMessage = 'Request timed out. The website may be slow or blocking requests.';
+        } else if (errorMessage.includes('ENOTFOUND')) {
+          errorMessage = 'Website not found. Please check the URL.';
+        } else if (errorMessage.includes('403')) {
+          errorMessage = 'Access forbidden. The website may be blocking automated requests.';
+        } else if (errorMessage.includes('404')) {
+          errorMessage = 'Page not found. Please check the URL.';
+        }
+      }
+      
+      throw new Error(`Failed to scrape website: ${errorMessage}`);
     }
-    
-    throw new Error(`Failed to scrape website: ${errorMessage}`);
   } finally {
     if (browser) {
       console.log('[SCRAPER] Closing browser...');
@@ -216,4 +211,4 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
       console.log('[SCRAPER] Browser closed successfully');
     }
   }
-} 
+}
