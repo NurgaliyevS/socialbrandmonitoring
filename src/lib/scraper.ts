@@ -61,6 +61,11 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
         const bodyText = bodyMatch ? bodyMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 2000) : '';
         
         console.log('[SCRAPER] HTTP fallback scraping completed');
+        console.log(`[SCRAPER] Title: ${title}`);
+        console.log(`[SCRAPER] Description: ${description}`);
+        console.log(`[SCRAPER] Keywords: ${keywords}`);
+        console.log(`[SCRAPER] Headings: ${headings}`);
+        console.log(`[SCRAPER] Body Text: ${bodyText}`);
         return {
           title,
           description,
