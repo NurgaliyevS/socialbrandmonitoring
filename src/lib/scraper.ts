@@ -1,12 +1,13 @@
 import puppeteer from 'puppeteer';
 
-export async function scrapeWebsite(url: string) {
+export async function scrapeWebsite(url: string, proxyUrl?: string) {
   let browser;
   try {
     console.log(`[SCRAPER] Starting scrape for URL: ${url}`);
     
-    browser = await puppeteer.launch({
+    const launchOptions: any = {
       headless: true,
+      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox',
@@ -24,7 +25,15 @@ export async function scrapeWebsite(url: string) {
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding'
       ]
-    });
+    };
+
+    // Add proxy if provided
+    if (proxyUrl) {
+      console.log(`[SCRAPER] Using proxy: ${proxyUrl}`);
+      launchOptions.args.push(`--proxy-server=${proxyUrl}`);
+    }
+    
+    browser = await puppeteer.launch(launchOptions);
     console.log('[SCRAPER] Browser launched successfully');
     
     const page = await browser.newPage();
