@@ -1,57 +1,101 @@
 import puppeteer from 'puppeteer';
+import axios from 'axios';
 
 export async function scrapeWebsite(url: string, proxyUrl?: string) {
   let browser;
   try {
     console.log(`[SCRAPER] Starting scrape for URL: ${url}`);
     
-    // Use the newer Puppeteer API with product specification
-    // This ensures Puppeteer uses the correct browser installation
+    // Use simple, reliable approach that works everywhere (local and serverless)
+    // Minimal Puppeteer options with HTTP fallback for maximum compatibility
     const launchOptions: any = {
       headless: true,
-      product: 'chrome',
       args: [
-        '--no-sandbox', 
+        '--no-sandbox',
         '--disable-setuid-sandbox',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor',
         '--disable-dev-shm-usage',
+        '--disable-gpu',
         '--no-first-run',
         '--no-zygote',
-        '--disable-gpu',
-        '--disable-blink-features=AutomationControlled',
+        '--single-process',
         '--disable-extensions',
-        '--disable-plugins',
-        '--disable-images',
-        '--disable-background-timer-throttling',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
-        '--single-process'
+        '--disable-plugins'
       ]
     };
-
-    // Add proxy if provided
-    if (proxyUrl) {
-      console.log(`[SCRAPER] Using proxy: ${proxyUrl}`);
-      launchOptions.args.push(`--proxy-server=${proxyUrl}`);
-    }
     
+    // Try to use puppeteer with minimal options
     try {
       browser = await puppeteer.launch(launchOptions);
       console.log('[SCRAPER] Browser launched successfully');
     } catch (launchError) {
-      console.error('[SCRAPER] Failed to launch browser with default options:', launchError);
+      console.error('[SCRAPER] Failed to launch browser:', launchError);
+      console.log('[SCRAPER] Falling back to HTTP request scraping...');
       
-      // Fallback: Try with minimal options
-      console.log('[SCRAPER] Trying fallback launch options...');
-      const fallbackOptions = {
-        headless: true,
-        product: 'chrome',
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      // Fallback to basic HTTP request scraping
+      try {
+        const response = await axios.get(url, {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          }
+        });
+        
+        const html = response.data;
+        
+        // Basic HTML parsing (very simple)
+        const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+        const title = titleMatch ? titleMatch[1].trim() : '';
+        
+        const descriptionMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+        const description = descriptionMatch ? descriptionMatch[1].trim() : '';
+        
+        const keywordsMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']+)["']/i);
+        const keywords = keywordsMatch ? keywordsMatch[1].trim() : '';
+        
+        // Extract headings (very basic)
+        const headingMatches = html.match(/<h[1-6][^>]*>([^<]+)<\/h[1-6]>/gi);
+        const headings = headingMatches ? headingMatches.slice(0, 10).map((h: string) => h.replace(/<[^>]+>/g, '').trim()) : [];
+        
+        // Extract body text (very basic)
+        const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+        const bodyText = bodyMatch ? bodyMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 2000) : '';
+        
+        console.log('[SCRAPER] HTTP fallback scraping completed');
+        return {
+          title,
+          description,
+          keywords,
+          headings,
+          bodyText
+        };
+      } catch (httpError) {
+        console.error('[SCRAPER] HTTP fallback also failed:', httpError);
+        return {
+          title: '',
+          description: '',
+          keywords: '',
+          headings: [],
+          bodyText: ''
+        };
+      }
+    }
+
+    // Add proxy if provided
+    if (proxyUrl && browser) {
+      console.log(`[SCRAPER] Using proxy: ${proxyUrl}`);
+      // Note: Proxy configuration would need to be handled differently in serverless
+    }
+    
+    // If no browser was launched (e.g., in Vercel), return minimal data
+    if (!browser) {
+      console.log('[SCRAPER] No browser available, returning minimal data');
+      return {
+        title: '',
+        description: '',
+        keywords: '',
+        headings: [],
+        bodyText: ''
       };
-      
-      browser = await puppeteer.launch(fallbackOptions);
-      console.log('[SCRAPER] Browser launched with fallback options');
     }
     
     const page = await browser.newPage();

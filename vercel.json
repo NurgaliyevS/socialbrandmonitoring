@@ -8,5 +8,10 @@
       "path": "/api/comments-polling-service",
       "schedule": "*/1 * * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/analyze-website/route.ts": {
+      "maxDuration": 60
+    }
+  }
 } 
