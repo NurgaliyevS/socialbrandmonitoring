@@ -5,11 +5,11 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
   try {
     console.log(`[SCRAPER] Starting scrape for URL: ${url}`);
     
+    // Use the newer Puppeteer API with product specification
+    // This ensures Puppeteer uses the correct browser installation
     const launchOptions: any = {
       headless: true,
-      // Note: We removed executablePath to use Puppeteer's bundled Chromium
-      // This ensures compatibility across different deployment environments
-      // (Vercel, Railway, etc.) where system Chrome may not be available
+      product: 'chrome',
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox',
@@ -26,8 +26,7 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding',
-        '--single-process',
-        '--no-zygote'
+        '--single-process'
       ]
     };
 
@@ -47,6 +46,7 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
       console.log('[SCRAPER] Trying fallback launch options...');
       const fallbackOptions = {
         headless: true,
+        product: 'chrome',
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       };
       
