@@ -70,8 +70,6 @@ const OnboardingFlow = () => {
         body: JSON.stringify({ website }),
       });
 
-      // throw error to test the error handling
-      throw new Error('Test error');
       const result = await response.json();
       
       if (!result.success) {
@@ -87,8 +85,6 @@ const OnboardingFlow = () => {
       } else {
         throw new Error('No keywords generated');
       }
-      setIsAnalyzing(false);
-      setCurrentStep(3);
 
     } catch (error) {
       // Handle scraping failure: provide default empty keywords for manual entry
