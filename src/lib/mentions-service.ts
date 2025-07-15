@@ -35,6 +35,11 @@ export interface MentionsFilters {
   limit?: number;
 }
 
+export interface FilterOptions {
+  subreddits: string[];
+  keywords: string[];
+}
+
 class MentionsService {
   private baseUrl = '/api/mentions';
 
@@ -61,6 +66,18 @@ class MentionsService {
 
   async getMentionsByBrand(brandId: string, filters: Omit<MentionsFilters, 'brandId'> = {}): Promise<MentionsResponse> {
     return this.getMentions({ ...filters, brandId });
+  }
+
+  async getFilterOptions(): Promise<FilterOptions> {
+    const response = await fetch(`${this.baseUrl}/filter-options`);
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to fetch filter options');
+    }
+
+    const data = await response.json();
+    return data.data;
   }
 
   async markAsRead(mentionIds: string[]): Promise<{ updatedCount: number }> {

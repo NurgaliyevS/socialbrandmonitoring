@@ -1,5 +1,5 @@
-import React from 'react';
-import { MentionsFilters } from '@/lib/mentions-service';
+import React, { useState, useEffect } from 'react';
+import { MentionsFilters, FilterOptions } from '@/lib/mentions-service';
 
 interface FilterPanelProps {
   filters: MentionsFilters;
@@ -8,6 +8,29 @@ interface FilterPanelProps {
 }
 
 const FilterPanel = ({ filters, onFilterChange, selectedBrand }: FilterPanelProps) => {
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({ subreddits: [], keywords: [] });
+  const [loading, setLoading] = useState(false);
+
+  // Fetch filter options when component mounts or when selectedBrand changes
+  useEffect(() => {
+    if (selectedBrand) {
+      loadFilterOptions();
+    }
+  }, [selectedBrand]);
+
+  const loadFilterOptions = async () => {
+    try {
+      setLoading(true);
+      const { mentionsService } = await import('@/lib/mentions-service');
+      const options = await mentionsService.getFilterOptions();
+      setFilterOptions(options);
+    } catch (error) {
+      console.error('Error loading filter options:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSentimentChange = (sentiment: 'positive' | 'negative' | 'neutral' | '') => {
     onFilterChange({ sentiment: sentiment || undefined });
   };
@@ -46,13 +69,23 @@ const FilterPanel = ({ filters, onFilterChange, selectedBrand }: FilterPanelProp
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Subreddit
         </label>
-        <input
-          type="text"
-          placeholder="Filter by subreddit..."
+        <select
           value={filters.subreddit || ''}
           onChange={(e) => handleSubredditChange(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        />
+          disabled={loading}
+        >
+          <option value="">All subreddits</option>
+          {loading ? (
+            <option value="" disabled>Loading subreddits...</option>
+          ) : (
+            filterOptions.subreddits.map((subreddit) => (
+              <option key={subreddit} value={subreddit}>
+                r/{subreddit}
+              </option>
+            ))
+          )}
+        </select>
       </div>
 
       {/* Keyword Filter */}
@@ -60,13 +93,23 @@ const FilterPanel = ({ filters, onFilterChange, selectedBrand }: FilterPanelProp
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Keyword
         </label>
-        <input
-          type="text"
-          placeholder="Filter by keyword..."
+        <select
           value={filters.keyword || ''}
           onChange={(e) => handleKeywordChange(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        />
+          disabled={loading}
+        >
+          <option value="">All keywords</option>
+          {loading ? (
+            <option value="" disabled>Loading keywords...</option>
+          ) : (
+            filterOptions.keywords.map((keyword) => (
+              <option key={keyword} value={keyword}>
+                {keyword}
+              </option>
+            ))
+          )}
+        </select>
       </div>
 
       {/* Clear Filters */}
