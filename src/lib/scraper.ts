@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
 import axios from 'axios';
 
 export async function scrapeWebsite(url: string, proxyUrl?: string) {
@@ -10,22 +11,18 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
     // Minimal Puppeteer options with HTTP fallback for maximum compatibility
     const launchOptions: any = {
       headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-extensions',
-        '--disable-plugins'
-      ]
+      executablePath: await chromium.executablePath(),
+      args: chromium.args
     };
     
     // Try to use puppeteer with minimal options
-    browser = await puppeteer.launch(launchOptions);
-    console.log('[SCRAPER] Browser launched successfully');
+    try {
+      browser = await puppeteer.launch(launchOptions);
+      console.log('[SCRAPER] Browser launched successfully');
+    } catch (launchError) {
+      console.log('[SCRAPER] Browser launch failed, going to HTTP fallback');
+      throw launchError;
+    }
     
     // Add proxy if provided
     if (proxyUrl && browser) {

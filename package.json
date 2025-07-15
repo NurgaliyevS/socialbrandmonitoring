@@ -39,6 +39,7 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@slack/web-api": "^7.9.3",
+    "@sparticuz/chromium": "^138.0.1",
     "@types/mongoose": "^5.11.97",
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
