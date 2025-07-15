@@ -7,7 +7,9 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
     
     const launchOptions: any = {
       headless: true,
-      executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      // Note: We removed executablePath to use Puppeteer's bundled Chromium
+      // This ensures compatibility across different deployment environments
+      // (Vercel, Railway, etc.) where system Chrome may not be available
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox',
@@ -23,7 +25,9 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
         '--disable-images',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding'
+        '--disable-renderer-backgrounding',
+        '--single-process',
+        '--no-zygote'
       ]
     };
 
@@ -33,8 +37,22 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
       launchOptions.args.push(`--proxy-server=${proxyUrl}`);
     }
     
-    browser = await puppeteer.launch(launchOptions);
-    console.log('[SCRAPER] Browser launched successfully');
+    try {
+      browser = await puppeteer.launch(launchOptions);
+      console.log('[SCRAPER] Browser launched successfully');
+    } catch (launchError) {
+      console.error('[SCRAPER] Failed to launch browser with default options:', launchError);
+      
+      // Fallback: Try with minimal options
+      console.log('[SCRAPER] Trying fallback launch options...');
+      const fallbackOptions = {
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      };
+      
+      browser = await puppeteer.launch(fallbackOptions);
+      console.log('[SCRAPER] Browser launched with fallback options');
+    }
     
     const page = await browser.newPage();
     console.log('[SCRAPER] New page created');
@@ -125,7 +143,22 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
     
   } catch (error: unknown) {
     console.error('[SCRAPER] Error during scraping:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
+    // Provide more specific error information
+    let errorMessage = 'Unknown error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      
+      // Check for specific browser-related errors
+      if (errorMessage.includes('Browser was not found')) {
+        errorMessage = 'Browser executable not found. This may be a deployment environment issue.';
+      } else if (errorMessage.includes('Failed to launch')) {
+        errorMessage = 'Failed to launch browser. This may be due to missing dependencies or permissions.';
+      } else if (errorMessage.includes('timeout')) {
+        errorMessage = 'Request timed out. The website may be slow or blocking requests.';
+      }
+    }
+    
     throw new Error(`Failed to scrape website: ${errorMessage}`);
   } finally {
     if (browser) {
