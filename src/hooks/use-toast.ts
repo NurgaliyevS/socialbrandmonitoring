@@ -141,7 +141,7 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
-function toast({ ...props }: Toast) {
+function toast({ duration = 5000, ...props }: Toast & { duration?: number }) {
   const id = genId()
 
   const update = (props: ToasterToast) =>
@@ -149,7 +149,21 @@ function toast({ ...props }: Toast) {
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     })
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+  let dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+
+  // Only add to remove queue if duration is not very long (persistent)
+  if (duration < 300000) { // Less than 5 minutes
+    const timeout = setTimeout(() => {
+      dispatch({ type: "DISMISS_TOAST", toastId: id })
+    }, duration)
+    
+    // Clear timeout if toast is dismissed manually
+    const originalDismiss = dismiss
+    dismiss = () => {
+      clearTimeout(timeout)
+      originalDismiss()
+    }
+  }
 
   dispatch({
     type: "ADD_TOAST",
@@ -157,7 +171,7 @@ function toast({ ...props }: Toast) {
       ...props,
       id,
       open: true,
-      onOpenChange: (open) => {
+      onOpenChange: (open: boolean) => {
         if (!open) dismiss()
       },
     },

@@ -9,6 +9,7 @@ import KeywordsStep from '@/components/onboarding/KeywordsStep';
 import { KeywordSuggestion } from '@/components/onboarding/types';
 import { validateWebsite } from '@/components/onboarding/utils';
 import { useDashboard } from '@/contexts/DashboardContext';
+import { toast } from '@/components/ui/use-toast';
 
 const OnboardingFlow = () => {
   const router = useRouter();
@@ -104,6 +105,10 @@ const OnboardingFlow = () => {
         }),
       }).then(() => {
         refreshBrands();
+        toast({
+          title: "Onboarding complete",
+          description: "Our system is analyzing your brand and will notify you when we find mentions.",
+        })
       });
       router.push('/dashboard');
     } finally {

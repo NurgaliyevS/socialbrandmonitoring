@@ -31,6 +31,14 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // Check if user is verified
+          if (!user.emailVerified) {
+            // Attach a custom error for unverified accounts
+            const error: any = new Error('Email not verified');
+            error.code = 'EMAIL_NOT_VERIFIED';
+            throw error;
+          }
+
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
           
           if (!isPasswordValid) {
@@ -44,6 +52,10 @@ export const authOptions: NextAuthOptions = {
             image: user.image,
           };
         } catch (error) {
+          // If the error is for unverified email, rethrow for NextAuth to handle
+          if (error instanceof Error && (error as any).code === 'EMAIL_NOT_VERIFIED') {
+            throw error;
+          }
           console.error('Auth error:', error);
           return null;
         }

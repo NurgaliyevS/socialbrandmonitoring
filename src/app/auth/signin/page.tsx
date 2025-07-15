@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -26,19 +26,43 @@ export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resendError, setResendError] = useState<string | null>(null);
+  const [verificationSuccess, setVerificationSuccess] = useState<string | null>(null);
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
+    setValue,
   } = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
   });
 
+  // Check for verification success message in URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const verified = searchParams.get('verified');
+    const email = searchParams.get('email');
+    
+    if (verified === 'true') {
+      setVerificationSuccess('Your email has been verified successfully! You can now sign in.');
+      if (email) {
+        setValue('email', email);
+      }
+    }
+  }, [setValue]);
+
   const onSubmit = async (data: SignInForm) => {
     setIsLoading(true);
     setError(null);
+    setShowResend(false);
+    setResendMessage(null);
+    setResendError(null);
 
     try {
       const result = await signIn('credentials', {
@@ -48,7 +72,12 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        if (result.error === 'Email not verified' || result.error === 'EMAIL_NOT_VERIFIED') {
+          setError('Your email is not verified. Please check your inbox for a verification link.');
+          setShowResend(true);
+        } else {
+          setError('Invalid email or password');
+        }
       } else {
         // Check onboarding status after successful sign-in
         try {
@@ -70,6 +99,30 @@ export default function SignInPage() {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendLoading(true);
+    setResendMessage(null);
+    setResendError(null);
+    const email = getValues('email');
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setResendMessage('Verification email sent! Please check your inbox.');
+      } else {
+        setResendError(result.error || 'Failed to resend verification email.');
+      }
+    } catch (err) {
+      setResendError('Failed to resend verification email.');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -95,11 +148,33 @@ export default function SignInPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {verificationSuccess && (
+            <Alert>
+              <AlertDescription>{verificationSuccess}</AlertDescription>
+            </Alert>
+          )}
+
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
+          )}
+
+          {showResend && (
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleResendVerification}
+                disabled={resendLoading}
+              >
+                {resendLoading ? 'Resending...' : 'Resend Verification Email'}
+              </Button>
+              {resendMessage && <p className="text-green-600 text-sm text-center">{resendMessage}</p>}
+              {resendError && <p className="text-red-600 text-sm text-center">{resendError}</p>}
+            </div>
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

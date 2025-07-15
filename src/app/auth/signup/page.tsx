@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { User, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { toast } from '@/components/ui/use-toast';
 
 const signUpSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -63,10 +64,14 @@ export default function SignUpPage() {
       if (!response.ok) {
         setError(result.error || 'Registration failed. Please try again.');
       } else {
-        setSuccess('Account created successfully! Redirecting to sign in...');
-        setTimeout(() => {
-          router.push('/auth/signin');
-        }, 2000);
+        setSuccess('Account created successfully! Please check your email for verification.');
+        // show toast that won't disappear automatically until user closes it
+        toast({
+          title: 'Account created successfully!',
+          description: 'Please check your email for verification. The verification link will expire in 24 hours.',
+          variant: 'default',
+          duration: 86400000, // 24 hours - effectively persistent
+        });
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');

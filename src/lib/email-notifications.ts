@@ -75,3 +75,25 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     replyTo: "nurgasab@gmail.com"
   });
 }
+
+export async function sendVerificationEmail(email: string, token: string) {
+  const verificationUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/auth/verify-email?token=${token}`;
+  const subject = 'Verify your email address';
+  const html = `
+    <h2>Welcome to Social Brand Monitoring!</h2>
+    <p>Thank you for creating your account. Please verify your email address by clicking the link below:</p>
+    <p><a href="${verificationUrl}" style="display: inline-block; background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">Verify Email Address</a></p>
+    <p>Or copy and paste this link into your browser:</p>
+    <p>${verificationUrl}</p>
+    <p>This link will expire in 24 hours.</p>
+    <p>If you didn't create an account, you can safely ignore this email.</p>
+  `;
+
+  await resend.emails.send({
+    from: `Social Brand Monitoring <noreply@socialbrandmonitoring.com>`,
+    to: email,
+    subject,
+    html,
+    replyTo: "nurgasab@gmail.com"
+  });
+}
