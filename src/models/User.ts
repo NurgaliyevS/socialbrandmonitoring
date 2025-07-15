@@ -62,6 +62,7 @@ export interface IUser extends Document {
   stripeCustomerId?: string;
   subscriptions: IStripeSubscription[];
   oneTimePayments: IStripeOneTimePayment[];
+  onboardingComplete: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -90,7 +91,7 @@ const SessionSchema = new Schema({
 
 const StripeSubscriptionSchema = new Schema({
   id: { type: String, required: true },
-  stripeSubscriptionId: { type: String, required: true, unique: true },
+  stripeSubscriptionId: { type: String, required: true },
   stripeCustomerId: { type: String, required: true },
   status: { 
     type: String, 
@@ -111,7 +112,7 @@ const StripeSubscriptionSchema = new Schema({
 
 const StripeOneTimePaymentSchema = new Schema({
   id: { type: String, required: true },
-  stripePaymentIntentId: { type: String, required: true, unique: true },
+  stripePaymentIntentId: { type: String, required: true },
   stripeCustomerId: { type: String, required: true },
   amount: { type: Number, required: true },
   currency: { type: String, required: true, default: 'usd' },
@@ -135,16 +136,10 @@ const UserSchema = new Schema({
   sessions: [SessionSchema],
   stripeCustomerId: { type: String },
   subscriptions: [StripeSubscriptionSchema],
-  oneTimePayments: [StripeOneTimePaymentSchema]
+  oneTimePayments: [StripeOneTimePaymentSchema],
+  onboardingComplete: { type: Boolean, default: false }
 }, {
   timestamps: true
 });
-
-// Indexes for faster queries
-UserSchema.index({ email: 1 });
-UserSchema.index({ 'accounts.providerAccountId': 1 });
-UserSchema.index({ stripeCustomerId: 1 });
-UserSchema.index({ 'subscriptions.stripeSubscriptionId': 1 });
-UserSchema.index({ 'oneTimePayments.stripePaymentIntentId': 1 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema); 

@@ -1,5 +1,7 @@
+"use client";
 import React from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 type NavItem = {
   label: string;
@@ -10,52 +12,24 @@ type NavItem = {
   dropdown?: Array<{ label: string; href: string }>;
 };
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    label: "Pricing",
-    href: "#pricing",
-    className: "mr-4 hover:underline",
-    external: false,
-  },
-  //   {
-  //     label: 'Platforms',
-  //     dropdown: [
-  //       { label: 'X (Twitter)', href: '/twitter-monitoring' },
-  //       { label: 'LinkedIn', href: '/linkedin-monitoring' },
-  //       { label: 'Reddit', href: '/reddit-monitoring' },
-  //       { label: 'Bluesky', href: '/bluesky-monitoring' },
-  //       { label: 'GitHub', href: '/github-monitoring' },
-  //       { label: 'YouTube', href: '/youtube-monitoring' },
-  //       { label: 'DEV', href: '/dev-monitoring' },
-  //       { label: 'HackerNews', href: '/hackernews-monitoring' },
-  //       { label: 'Stack Overflow', href: '/stackoverflow-monitoring' },
-  //       { label: 'Newsletters', href: '/newsletter-monitoring' },
-  //     ],
-  //     className: 'mr-4 hover:underline',
-  //   },
-  //   {
-  //     label: 'Docs',
-  //     href: '/docs',
-  //     className: 'mr-4 hover:underline',
-  //     external: true,
-  //   },
-  //   {
-  //     label: 'Blog',
-  //     href: '/blog',
-  //     className: 'hover:underline',
-  //     external: false,
-  //   },
-  // {
-  //   label: 'Sign in',
-  //   href: '/dashboard',
-  //   isButton: true,
-  //   className:
-  //     'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-link hover:bg-link-100 hover:text-link h-10 px-4 py-2',
-  //   external: false,
-  // },
-];
-
 const NavigationHeader = () => {
+  const { data: session, status } = useSession();
+
+  const NAV_ITEMS: NavItem[] = [
+    {
+      label: "Pricing",
+      href: "#pricing",
+      className: "mr-4 hover:underline",
+      external: false,
+    },
+    {
+      label: session ? "Dashboard" : "Sign in",
+      href: session ? "/dashboard" : "/auth/signin",
+      className: "mr-4 hover:underline",
+      external: false,
+    },
+  ];
+
   return (
     <header className="sticky top-6 z-30 px-4">
       <div className="w-[900px] max-w-full mx-auto flex items-center justify-between bg-white rounded-lg border border-zinc-200 shadow-sm px-4 py-4 md:h-16 lg:h-16">

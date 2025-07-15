@@ -28,19 +28,16 @@ const MentionSchema = new Schema({
   brandId: { 
     type: Schema.Types.ObjectId, 
     ref: 'Company', 
-    required: true,
-    index: true 
+    required: true
   },
   keywordMatched: { 
     type: String, 
-    required: true,
-    index: true 
+    required: true
   },
   redditId: { 
     type: String, 
     required: true,
-    unique: true,
-    index: true 
+    unique: true
   },
   redditType: { 
     type: String, 
@@ -49,8 +46,7 @@ const MentionSchema = new Schema({
   },
   subreddit: { 
     type: String, 
-    required: true,
-    index: true 
+    required: true
   },
   author: { 
     type: String, 
@@ -105,10 +101,5 @@ const MentionSchema = new Schema({
 }, {
   timestamps: true
 });
-
-// Create compound indexes for efficient querying
-MentionSchema.index({ brandId: 1, createdAt: -1 });
-MentionSchema.index({ brandId: 1, sentiment: 1 });
-MentionSchema.index({ brandId: 1, subreddit: 1 });
 
 export default mongoose.models.Mention || mongoose.model<IMention>('Mention', MentionSchema); 

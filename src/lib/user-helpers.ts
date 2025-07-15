@@ -1,6 +1,7 @@
 import connectDB from '@/lib/mongodb';
 import Company from '@/models/Company';
 import { AuthenticatedRequest } from './auth-middleware';
+import User from '@/models/User';
 
 // Get all companies owned by a user
 export async function getUserCompanies(userId: string) {
@@ -37,4 +38,21 @@ export async function validateUserAccess(request: AuthenticatedRequest, companyI
   }
 
   return true; // User is authenticated
+}
+
+export async function checkUserOnboardingStatus(userId: string): Promise<boolean> {
+  try {
+    await connectDB();
+    
+    const user = await User.findById(userId).select('onboardingComplete');
+    
+    if (!user) {
+      return false;
+    }
+    
+    return user.onboardingComplete || false;
+  } catch (error) {
+    console.error('Error checking user onboarding status:', error);
+    return false;
+  }
 } 

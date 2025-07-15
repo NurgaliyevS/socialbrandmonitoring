@@ -1,5 +1,6 @@
 import connectDB from '@/lib/mongodb';
 import Company from '@/models/Company';
+import User from '@/models/User';
 import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
 import { NextResponse } from 'next/server';
 
@@ -53,6 +54,11 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
     });
 
     await company.save();
+
+    // Update user's onboarding status
+    await User.findByIdAndUpdate(request.user!.id, {
+      onboardingComplete: true
+    });
 
     return NextResponse.json({
       success: true,

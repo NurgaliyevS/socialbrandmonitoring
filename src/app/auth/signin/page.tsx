@@ -50,7 +50,21 @@ export default function SignInPage() {
       if (result?.error) {
         setError('Invalid email or password');
       } else {
-        router.push('/dashboard');
+        // Check onboarding status after successful sign-in
+        try {
+          const onboardingResponse = await fetch('/api/auth/onboarding-status');
+          const onboardingData = await onboardingResponse.json();
+          
+          if (onboardingData.success && !onboardingData.onboardingComplete) {
+            router.push('/dashboard/onboarding');
+          } else {
+            router.push('/dashboard');
+          }
+        } catch (onboardingError) {
+          // If onboarding check fails, default to dashboard
+          console.error('Error checking onboarding status:', onboardingError);
+          router.push('/dashboard');
+        }
       }
     } catch (error) {
       setError('An unexpected error occurred. Please try again.');

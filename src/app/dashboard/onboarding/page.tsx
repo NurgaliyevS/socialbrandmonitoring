@@ -8,6 +8,7 @@ import AnalysisStep from '@/components/onboarding/AnalysisStep';
 import KeywordsStep from '@/components/onboarding/KeywordsStep';
 import { KeywordSuggestion } from '@/components/onboarding/types';
 import { validateWebsite } from '@/components/onboarding/utils';
+import { useDashboard } from '@/contexts/DashboardContext';
 
 const OnboardingFlow = () => {
   const router = useRouter();
@@ -20,6 +21,8 @@ const OnboardingFlow = () => {
   const [scrapedData, setScrapedData] = useState(null);
   const [companyName, setCompanyName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const { refreshBrands } = useDashboard()
 
   const handleWebsiteSubmit = () => {
     setValidationError('');
@@ -99,6 +102,8 @@ const OnboardingFlow = () => {
           companyName,
           scrapedData,
         }),
+      }).then(() => {
+        refreshBrands();
       });
       router.push('/dashboard');
     } finally {

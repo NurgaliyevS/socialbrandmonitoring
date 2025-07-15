@@ -12,7 +12,4 @@ const VerificationTokenSchema = new Schema({
   expires: { type: Date, required: true }
 });
 
-// Compound index for faster lookups
-VerificationTokenSchema.index({ identifier: 1, token: 1 });
-
 export default mongoose.models.VerificationToken || mongoose.model<IVerificationToken>('VerificationToken', VerificationTokenSchema); 
