@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    const token = searchParams?.get("token");
     if (!token) {
       setStatus("error");
       setMessage("Verification token is missing.");
