@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
 import AuthClientProvider from "./AuthClientProvider";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Social Brand Monitoring",
@@ -34,7 +31,7 @@ export default function RootLayout({
           src="https://datafa.st/js/script.js"
         />
       </head>
-      <body className={inter.className} suppressHydrationWarning={true}>
+      <body className="font-sans" suppressHydrationWarning={true}>
         <AuthClientProvider>
           <TooltipProvider>
             <Toaster />
