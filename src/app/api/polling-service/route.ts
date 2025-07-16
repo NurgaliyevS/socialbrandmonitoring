@@ -16,6 +16,7 @@ export async function POST() {
       success: true, 
       message: 'Polling service executed successfully.',
       duration: `${duration}ms`,
+      durationInMinutes: duration / 60000,
       timestamp: new Date().toISOString()
     });
   } catch (error) {

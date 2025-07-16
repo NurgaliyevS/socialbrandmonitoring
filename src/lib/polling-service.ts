@@ -40,21 +40,37 @@ export async function updateMentionSentiments() {
     // Find mentions without sentiment analysis
     const unprocessedMentions = await Mention.find({ 
       isProcessed: false 
-    }).limit(50);
+    });
     
     console.log(`📊 Updating sentiment for ${unprocessedMentions.length} mentions`);
+    
+    // Step 2: Collect all sentiment results and update operations
+    const updates = [];
     
     for (const mention of unprocessedMentions) {
       const content = mention.title ? `${mention.title} ${mention.content}` : mention.content;
       const sentimentResult = analyzeSentiment(content);
       
-      // Update mention with sentiment analysis
-      await Mention.findByIdAndUpdate(mention._id, {
-        sentiment: sentimentResult,
-        isProcessed: true
+      // Collect update operation instead of updating immediately
+      updates.push({
+        updateOne: {
+          filter: { _id: mention._id },
+          update: {
+            sentiment: sentimentResult,
+            isProcessed: true
+          }
+        }
       });
       
-      console.log(`✅ Updated sentiment for mention ${mention._id}: ${sentimentResult.label} (${sentimentResult.score})`);
+      console.log(`📝 Collected sentiment for mention ${mention._id}: ${sentimentResult.label} (${sentimentResult.score})`);
+    }
+    
+    // Step 3: Implement Bulk Write - Replace individual updates with single bulkWrite() operation
+    if (updates.length > 0) {
+      const result = await Mention.bulkWrite(updates);
+      console.log(`✅ Bulk updated ${result.modifiedCount} mentions with sentiment analysis`);
+    } else {
+      console.log('ℹ️ No mentions to update');
     }
     
     console.log('✅ Sentiment analysis completed');
@@ -87,23 +103,3 @@ export async function runPollingService() {
     throw error;
   }
 }
-
-/**
- * Start continuous polling (for development/testing)
- * In production, this would be scheduled via Vercel Cron Jobs
- */
-export async function startContinuousPolling(intervalMinutes: number = 5) {
-  console.log(`🚀 Starting continuous polling every ${intervalMinutes} minutes`);
-  
-  // Run immediately
-  await runPollingService();
-  
-  // Then run on interval
-  setInterval(async () => {
-    try {
-      await runPollingService();
-    } catch (error) {
-      console.error('❌ Error in continuous polling:', error);
-    }
-  }, intervalMinutes * 60 * 1000);
-} 

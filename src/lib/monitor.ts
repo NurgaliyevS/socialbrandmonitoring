@@ -193,20 +193,42 @@ export async function monitorRedditContent() {
     if (newMentions.length > 0) {
       await connectDB();
 
-      // Check for duplicates before saving
-      const existingIds = await Mention.find({
-        redditId: { $in: newMentions.map((m) => m.redditId) },
-      }).distinct("redditId");
+      // Step 2: Implement Batching - Split large arrays into chunks of 100
+      const batchSize = 100;
+      const allExistingIds: string[] = [];
+      
+      // Process each chunk separately
+      for (let i = 0; i < newMentions.length; i += batchSize) {
+        const batch = newMentions.slice(i, i + batchSize);
+        const existingIds = await Mention.find({
+          redditId: { $in: batch.map(m => m.redditId) }
+        }).distinct("redditId");
+        allExistingIds.push(...existingIds);
+      }
 
+      // Combine results from all chunks
       const uniqueMentions = newMentions.filter(
-        (mention) => !existingIds.includes(mention.redditId)
+        (mention) => !allExistingIds.includes(mention.redditId)
       );
 
       if (uniqueMentions.length > 0) {
-        await Mention.insertMany(uniqueMentions);
-        console.log(
-          `💾 Saved ${uniqueMentions.length} new mentions to database`
-        );
+        // Use insertMany with ordered: false to handle any remaining duplicates gracefully
+        try {
+          await Mention.insertMany(uniqueMentions, { ordered: false });
+          console.log(
+            `💾 Saved ${uniqueMentions.length} new mentions to database`
+          );
+        } catch (error: any) {
+          // Handle any remaining duplicate errors gracefully
+          if (error.code === 11000) {
+            console.log(`⚠️ Some mentions were duplicates and skipped`);
+            // Count how many were actually inserted
+            const insertedCount = error.result?.insertedDocs?.length || 0;
+            console.log(`💾 Successfully saved ${insertedCount} new mentions to database`);
+          } else {
+            throw error;
+          }
+        }
       } else {
         console.log("ℹ️ All mentions already exist in database");
       }
@@ -292,21 +314,43 @@ export async function monitorRedditComments() {
     if (newMentions.length > 0) {
       await connectDB();
 
-      // Check for duplicates before saving
-      const existingIds = await Mention.find({
-        redditId: { $in: newMentions.map((m) => m.redditId) },
-        redditType: "comment",
-      }).distinct("redditId");
+      // Step 2: Implement Batching - Split large arrays into chunks of 100
+      const batchSize = 100;
+      const allExistingIds: string[] = [];
+      
+      // Process each chunk separately
+      for (let i = 0; i < newMentions.length; i += batchSize) {
+        const batch = newMentions.slice(i, i + batchSize);
+        const existingIds = await Mention.find({
+          redditId: { $in: batch.map(m => m.redditId) },
+          redditType: "comment",
+        }).distinct("redditId");
+        allExistingIds.push(...existingIds);
+      }
 
+      // Combine results from all chunks
       const uniqueMentions = newMentions.filter(
-        (mention) => !existingIds.includes(mention.redditId)
+        (mention) => !allExistingIds.includes(mention.redditId)
       );
 
       if (uniqueMentions.length > 0) {
-        await Mention.insertMany(uniqueMentions);
-        console.log(
-          `💾 Saved ${uniqueMentions.length} new comment mentions to database`
-        );
+        // Use insertMany with ordered: false to handle any remaining duplicates gracefully
+        try {
+          await Mention.insertMany(uniqueMentions, { ordered: false });
+          console.log(
+            `💾 Saved ${uniqueMentions.length} new comment mentions to database`
+          );
+        } catch (error: any) {
+          // Handle any remaining duplicate errors gracefully
+          if (error.code === 11000) {
+            console.log(`⚠️ Some comment mentions were duplicates and skipped`);
+            // Count how many were actually inserted
+            const insertedCount = error.result?.insertedDocs?.length || 0;
+            console.log(`💾 Successfully saved ${insertedCount} new comment mentions to database`);
+          } else {
+            throw error;
+          }
+        }
       } else {
         console.log("ℹ️ All comment mentions already exist in database");
       }
