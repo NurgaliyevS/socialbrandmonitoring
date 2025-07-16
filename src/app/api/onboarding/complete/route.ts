@@ -50,7 +50,11 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
         headings: scrapedData?.headings || [],
         bodyText: scrapedData?.bodyText || ''
       },
-      onboardingComplete: true
+      onboardingComplete: true,
+      emailConfig: {
+        enabled: false,
+        recipients: request.user!.email ? [request.user!.email] : []
+      },
     });
 
     await company.save();

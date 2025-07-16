@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import Company from '@/models/Company';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -73,10 +74,11 @@ export const authOptions: NextAuthOptions = {
           
           // Check if user already exists
           const existingUser = await User.findOne({ email: user.email });
-          
+
+          let newUser;
           if (!existingUser) {
             // Create new user
-            const newUser = new User({
+            newUser = new User({
               name: user.name,
               email: user.email,
               image: user.image,
@@ -101,6 +103,22 @@ export const authOptions: NextAuthOptions = {
             console.log('Google user created:', newUser.email);
           }
           
+          // For both new and existing Google users, update all their companies with their email
+          const userToUpdate = newUser || existingUser;
+          if (userToUpdate && userToUpdate.email) {
+            await Company.updateMany(
+              { user: userToUpdate._id },
+              { 
+                $set: { 
+                  emailConfig: {
+                    recipients: [userToUpdate.email],
+                    enabled: false
+                  }
+                } 
+              }
+            );
+          }
+
           return true;
         } catch (error) {
           console.error('Error creating Google user:', error);

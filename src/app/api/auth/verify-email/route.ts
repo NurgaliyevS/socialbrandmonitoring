@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import VerificationToken from '@/models/VerificationToken';
+import Company from '@/models/Company';
 
 export async function GET(req: NextRequest) {
   try {
@@ -51,6 +52,16 @@ export async function GET(req: NextRequest) {
     // Update user's emailVerified field to current timestamp
     await User.findByIdAndUpdate(user._id, {
       emailVerified: new Date()
+    });
+
+    // Update all companies to have email 
+    await Company.updateMany({ user: user._id }, { 
+      $set: { 
+        emailConfig: {
+          recipients: [user.email],
+          enabled: false  // Keep disabled by default
+        }
+      } 
     });
 
     // Delete the used verification token
