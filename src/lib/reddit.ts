@@ -1,14 +1,16 @@
-import Snoowrap from 'snoowrap';
-import { HttpsProxyAgent } from 'https-proxy-agent';
+// @ts-ignore
+const Snoowrap = require('snoowrap');
+// @ts-ignore
+const { HttpsProxyAgent } = require('https-proxy-agent');
 import axios from 'axios';
 
 // Reddit API client configuration
-let redditClient: Snoowrap | null = null;
+let redditClient: any = null;
 
 /**
- * Initialize the Reddit API client
+ * Initialize the Reddit API client with improved error handling
  */
-export function initializeRedditClient(): Snoowrap {
+export function initializeRedditClient(): any {
   if (!redditClient) {
     const clientId = process.env.REDDIT_CLIENT_ID;
     const clientSecret = process.env.REDDIT_CLIENT_SECRET;
@@ -20,12 +22,17 @@ export function initializeRedditClient(): Snoowrap {
       throw new Error('Missing Reddit API credentials. Please check your environment variables.');
     }
 
+    // Configure Snoowrap with better network settings
     redditClient = new Snoowrap({
       userAgent,
       clientId,
       clientSecret,
       username,
       password,
+      // Add request timeout and retry configuration
+      requestDelay: 1000, // 1 second delay between requests
+      retryErrorCodes: [502, 503, 504, 522], // Retry on server errors
+      maxRetries: 3,
     });
   }
 
@@ -35,7 +42,7 @@ export function initializeRedditClient(): Snoowrap {
 /**
  * Get the Reddit client instance
  */
-export function getRedditClient(): Snoowrap {
+export function getRedditClient(): any {
   if (!redditClient) {
     return initializeRedditClient();
   }
@@ -65,92 +72,145 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 }
 
 /**
+ * Retry function with exponential backoff
+ */
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+      
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      // Don't retry on certain errors
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        if (errorMessage.includes('unauthorized') || 
+            errorMessage.includes('forbidden') || 
+            errorMessage.includes('invalid credentials')) {
+          throw error;
+        }
+      }
+      
+      // Exponential backoff with jitter
+      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
+      console.log(`Retry attempt ${attempt + 1}/${maxRetries + 1} after ${Math.round(delay)}ms delay`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+
+/**
  * Fetch new comments from all subreddits using direct API call without auth
  * Uses the /r/all/comments.json endpoint for real-time comment data
  */
 export async function fetchAllNewComments(limit: number = 100) {
-  try {
-    const proxy: string = process.env.HTTP_PROXY || '';
-    const agent = new HttpsProxyAgent(proxy);
-    
-    const headers: Record<string, string> = {
-      'Accept': 'application/json',
-      'User-Agent': 'RedditSocialListening/1.0.0 (via Evomi Proxy)'
-    }
+  return retryWithBackoff(async () => {
+    try {
+      const proxy: string = process.env.HTTP_PROXY || '';
+      const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
+      
+      const headers: Record<string, string> = {
+        'Accept': 'application/json',
+        'User-Agent': 'RedditSocialListening/1.0.0 (via Evomi Proxy)'
+      }
 
-    // Use axios to make a direct request without authentication (fetch doesn't support proxy agent)
-    const response = await axios.get(`https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`, {
-      headers: headers,
-      httpsAgent: agent,
-    });
-    
-    const data = response.data;
-    
-    if (!data.data || !data.data.children) {
-      console.error('Response structure:', JSON.stringify(data, null, 2));
-      throw new Error('Invalid response format from Reddit API');
-    }
-    
-    console.log(data.data.children.length, 'data.data.children.length')
-
-    return data.data.children.map((commentData: any) => {
-      const comment = commentData.data;
-      return {
-        id: comment.id,
-        title: comment.link_title, // parent post title 
-        author: comment.author || 'deleted',
-        subreddit: comment.subreddit,
-        url: `https://www.reddit.com${comment.permalink}`,
-        permalink: comment.permalink,
-        score: comment.score,
-        numComments: comment.num_comments,
-        created: new Date(comment.created_utc * 1000),
-        body: comment.body,
-        linkTitle: comment.link_title, // parent post title
-        linkUrl: comment.link_url, // parent post url
+      // Configure axios with better network settings
+      const axiosConfig: any = {
+        headers: headers,
+        timeout: 30000, // 30 second timeout
+        maxRedirects: 5,
       };
-    });
-  } catch (error) {
-    console.error('Error fetching all new comments:', error);
-    throw error;
-  }
+
+      // Only add httpsAgent if proxy is configured
+      if (agent) {
+        axiosConfig.httpsAgent = agent;
+      }
+
+      // Use axios to make a direct request without authentication (fetch doesn't support proxy agent)
+      const response = await axios.get(`https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`, axiosConfig);
+      
+      const data = response.data;
+      
+      if (!data.data || !data.data.children) {
+        console.error('Response structure:', JSON.stringify(data, null, 2));
+        throw new Error('Invalid response format from Reddit API');
+      }
+      
+      console.log(data.data.children.length, 'data.data.children.length')
+
+      return data.data.children.map((commentData: any) => {
+        const comment = commentData.data;
+        return {
+          id: comment.id,
+          title: comment.link_title, // parent post title 
+          author: comment.author || 'deleted',
+          subreddit: comment.subreddit,
+          url: `https://www.reddit.com${comment.permalink}`,
+          permalink: comment.permalink,
+          score: comment.score,
+          numComments: comment.num_comments,
+          created: new Date(comment.created_utc * 1000),
+          body: comment.body,
+          linkTitle: comment.link_title, // parent post title
+          linkUrl: comment.link_url, // parent post url
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching all new comments:', error);
+      throw error;
+    }
+  });
 }
 
 /**
- * Search for posts containing specific keywords
+ * Search for posts containing specific keywords with improved error handling
  */
 export async function searchPosts(query: string, limit: number = 1000, subreddit?: string) {
-  try {
-    const reddit = getRedditClient();
-    
-    console.log(`Searching for: "${query}"`);
-    
-    const posts = await reddit.search({
-      query: `"${query}"`,  // Exact phrase matching
-      sort: 'new',
-      limit,
-      syntax: 'lucene',  // Use Lucene for better control
-      time: 'month',
-      restrictSr: false
-    });
-    
-    console.log(`Found ${posts.length} posts for "${query}"`);
-    
-    return posts.map((post: any) => ({
-      id: post.id,
-      title: post.title,
-      author: post.author?.name || 'deleted',
-      subreddit: post.subreddit.display_name,
-      url: post.url,
-      permalink: post.permalink,
-      score: post.score,
-      numComments: post.num_comments,
-      created: new Date(post.created_utc * 1000),
-      selftext: post.selftext || '',
-      isSelf: post.is_self,
-    }));
-  } catch (error) {
-    console.error('Error searching posts:', error);
-    throw error;
-  }
+  return retryWithBackoff(async () => {
+    try {
+      const reddit = getRedditClient();
+      
+      console.log(`Searching for: "${query}"`);
+      
+      const posts = await reddit.search({
+        query: `"${query}"`,  // Exact phrase matching
+        sort: 'new',
+        limit,
+        syntax: 'lucene',  // Use Lucene for better control
+        time: 'month',
+        restrictSr: false
+      });
+      
+      console.log(`Found ${posts.length} posts for "${query}"`);
+      
+      return posts.map((post: any) => ({
+        id: post.id,
+        title: post.title,
+        author: post.author?.name || 'deleted',
+        subreddit: post.subreddit.display_name,
+        url: post.url,
+        permalink: post.permalink,
+        score: post.score,
+        numComments: post.num_comments,
+        created: new Date(post.created_utc * 1000),
+        selftext: post.selftext || '',
+        isSelf: post.is_self,
+      }));
+    } catch (error) {
+      console.error('Error searching posts:', error);
+      throw error;
+    }
+  });
 }

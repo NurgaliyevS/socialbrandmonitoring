@@ -67,7 +67,7 @@ export async function getBrandsAndKeywords() {
     keywords: { $exists: true, $ne: [] },
   });
 
-  return companies.map((company) => {
+  return companies.map((company: any) => {
     console.log("company name", company?.name);
     console.log("company website", company?.website);
     console.log(
@@ -119,8 +119,25 @@ export async function monitorRedditContent() {
           console.log(
             `📝 Found ${posts.length} posts for keyword "${keyword}"`
           );
+          
+          // Add a small delay between searches to prevent rate limiting
+          await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
           console.error(`❌ Error searching for keyword "${keyword}":`, error);
+          
+          // Log specific error details for debugging
+          if (error instanceof Error) {
+            const errorMessage = error.message.toLowerCase();
+            if (errorMessage.includes('tunneling socket') || 
+                errorMessage.includes('certificate') || 
+                errorMessage.includes('connection reset') ||
+                errorMessage.includes('econnreset')) {
+              console.log(`🔧 Network connectivity issue detected for keyword "${keyword}"`);
+            }
+          }
+          
+          // Continue with next keyword instead of failing completely
+          continue;
         }
       }
     }
