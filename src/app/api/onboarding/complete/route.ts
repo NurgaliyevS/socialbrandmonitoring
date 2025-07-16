@@ -30,15 +30,6 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
       }, { status: 409 });
     }
 
-    // Check if website is already used by another user
-    const websiteExists = await Company.findOne({ website });
-    if (websiteExists) {
-      return NextResponse.json({
-        success: false,
-        error: 'This website is already registered by another user'
-      }, { status: 409 });
-    }
-
     const company = new Company({
       name: companyName,
       website,
