@@ -44,7 +44,7 @@ const KeywordSchema = new Schema({
 
 const CompanySchema = new Schema({
   name: { type: String, required: true },
-  website: { type: String, required: true, unique: true },
+  website: { type: String, required: true },
   title: { type: String },
   description: { type: String },
   keywords: [KeywordSchema],

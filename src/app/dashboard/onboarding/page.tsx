@@ -143,14 +143,58 @@ const OnboardingFlow = () => {
           companyName,
           scrapedData,
         }),
-      }).then(() => {
-        refreshBrands();
+      }).then(async (response) => {
+        console.log("response", response);
+        // only if the response is success
+        if (response?.ok) {
+          refreshBrands();
+          toast({
+            title: "Onboarding complete",
+            description: "Our system is analyzing your brand and will notify you when we find mentions.",
+          })
+          router.push('/dashboard');
+        } else {
+          const errorData = await response.json();
+          toast({
+            title: "Error saving onboarding",
+            description: errorData.error,
+          })
+        }
+      }).catch((error) => {
+        console.error('Error saving onboarding:', error);
+        // Parse error response if it's a fetch response
+        let errorMessage = "Please try again later.";
+        if (error instanceof Error) {
+          try {
+            const errorData = JSON.parse(error.message);
+            errorMessage = errorData.error || errorMessage;
+          } catch {
+            errorMessage = error.message;
+          }
+        }
         toast({
-          title: "Onboarding complete",
-          description: "Our system is analyzing your brand and will notify you when we find mentions.",
+          title: "Error saving onboarding",
+          description: errorMessage,
         })
       });
-      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error saving onboarding:', error);
+      
+      // Parse error response if it's a fetch response
+      let errorMessage = "Please try again later.";
+      if (error instanceof Error) {
+        try {
+          const errorData = JSON.parse(error.message);
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          errorMessage = error.message;
+        }
+      }
+      console.log("errorMessage", errorMessage);
+      toast({
+        title: "Error saving onboarding",
+        description: errorMessage,
+      })
     } finally {
       setIsSaving(false);
     }
