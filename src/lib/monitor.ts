@@ -63,18 +63,54 @@ function extractSentenceWithKeyword(content: string, keyword: string): string {
 }
 
 /**
- * Get all brands and their keywords from MongoDB
+ * Get all brands and their keywords from MongoDB, prioritized by mention count
+ * Brands with no mentions are processed first
  */
 export async function getBrandsAndKeywords() {
   await connectDB();
-  // Include brands that have keywords configured, regardless of onboarding status
+  
+  // First, get all companies with keywords
   const companies = await Company.find({
     keywords: { $exists: true, $ne: [] },
   }).sort({ created: -1 });
 
-  return companies.map((company: any) => {
+  // Get mention counts for each brand
+  const mentionCounts = await Mention.aggregate([
+    {
+      $group: {
+        _id: '$brandId',
+        mentionCount: { $sum: 1 }
+      }
+    }
+  ]);
+
+  console.log("mention counts", mentionCounts);
+
+  // Create a map of brandId to mention count
+  const mentionCountMap = new Map();
+  mentionCounts.forEach((item: any) => {
+    console.log("item", item);
+    mentionCountMap.set(item._id.toString(), item.mentionCount);
+  });
+
+  // Add mention count to each company and sort by mention count (ascending)
+  const companiesWithMentionCounts = companies.map((company: any) => {
+    const mentionCount = mentionCountMap.get(company._id.toString()) || 0;
+    return {
+      ...company.toObject(),
+      mentionCount
+    };
+  }).sort((a, b) => a.mentionCount - b.mentionCount);
+
+  console.log("📊 Brands sorted by mention count (ascending):");
+  companiesWithMentionCounts.forEach((company: any) => {
+    console.log(`  - ${company.name}: ${company.mentionCount} mentions`);
+  });
+
+  return companiesWithMentionCounts.map((company: any) => {
     console.log("company name", company?.name);
     console.log("company website", company?.website);
+    console.log("mention count", company.mentionCount);
     console.log(
       "keywords",
       company.keywords.map((k: any) => k.name)
@@ -83,6 +119,7 @@ export async function getBrandsAndKeywords() {
       brandId: company._id,
       brandName: company.name,
       keywords: company.keywords.map((k: any) => k.name),
+      mentionCount: company.mentionCount,
     };
   });
 }
@@ -121,7 +158,7 @@ export async function monitorRedditContent() {
       console.log(
         `🔍 Searching for mentions of "${
           brand.brandName
-        }" with keywords: ${brand.keywords.join(", ")}`
+        }" (${brand.mentionCount} existing mentions) with keywords: ${brand.keywords.join(", ")}`
       );
 
       for (const keyword of brand.keywords) {
