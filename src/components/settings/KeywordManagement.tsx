@@ -6,6 +6,7 @@ import { Trash2, Plus, MessageSquare, Save, X } from "lucide-react";
 import { Brand, Keyword, NotificationSettings } from "./types";
 import { settingsService } from '@/lib/settings-service';
 import { toast } from '@/components/ui/use-toast';
+import { useDashboard } from "@/contexts/DashboardContext";
 
 interface KeywordManagementProps {
   brands: Brand[];
@@ -35,6 +36,8 @@ const KeywordManagement = ({
     "Own Brand" | "Competitor" | "Industry"
   >("Own Brand");
 
+  const { refreshBrands } = useDashboard();
+
   const handleShowAddKeyword = (brandId: string) => {
     setAddingKeywordBrandId(brandId);
     setNewKeywordValue("");
@@ -57,6 +60,7 @@ const KeywordManagement = ({
     try {
       const savedBrand = await settingsService.updateKeywords(brandId, updatedKeywords);
       setBrands(brands.map(b => b.id === brandId ? savedBrand : b));
+      refreshBrands();
       toast({ title: 'Keyword added', description: 'Keyword saved successfully.' });
     } catch (err) {
       toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save keyword' });
@@ -80,6 +84,7 @@ const KeywordManagement = ({
     try {
       const savedBrand = await settingsService.updateKeywords(brandId, updatedKeywords);
       setBrands(brands.map(b => b.id === brandId ? savedBrand : b));
+      refreshBrands();
       toast({ title: 'Keyword deleted', description: 'Keyword deleted successfully.' });
     } catch (err) {
       toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete keyword' });
