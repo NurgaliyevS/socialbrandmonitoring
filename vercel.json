@@ -3,10 +3,6 @@
     {
       "path": "/api/polling-service",
       "schedule": "*/1 * * * *"
-    },
-    {
-      "path": "/api/comments-polling-service",
-      "schedule": "*/1 * * * *"
     }
   ],
   "functions": {
