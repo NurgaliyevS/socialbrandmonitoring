@@ -2,8 +2,28 @@ import connectDB from '@/lib/mongodb';
 import Mention from '@/models/Mention';
 import Company from '@/models/Company';
 import { withAuth, AuthenticatedRequest } from '@/lib/auth-middleware';
-import { getUserCompanyIds } from '@/lib/user-helpers';
 import { NextResponse } from 'next/server';
+
+// Helper function to get all keywords from user's companies
+async function getUserKeywords(userId: string, specificBrandId?: string): Promise<string[]> {
+  await connectDB();
+  
+  let filter: any = { user: userId };
+  
+  // If specific brand is requested, filter to only that brand
+  if (specificBrandId) {
+    filter._id = specificBrandId;
+  }
+  
+  const companies = await Company.find(filter);
+  
+  // Extract all keywords from all companies
+  const allKeywords = companies.flatMap((company: any) => 
+    company.keywords.map((keyword: any) => keyword.name.toLowerCase())
+  );
+  
+  return allKeywords;
+}
 
 // GET - Fetch mentions with filtering and pagination
 export const GET = withAuth(async (request: AuthenticatedRequest) => {
@@ -20,10 +40,10 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
 
-    // Get user's company IDs to filter mentions
-    const userCompanyIds = await getUserCompanyIds(request.user!.id);
+    // Get user's keywords instead of company IDs
+    const userKeywords = await getUserKeywords(request.user!.id, brandId || undefined);
     
-    if (userCompanyIds.length === 0) {
+    if (userKeywords.length === 0) {
       return NextResponse.json({
         success: true,
         data: {
@@ -38,16 +58,12 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
       });
     }
 
-    // Build filter object - ALWAYS filter by user's companies
+    // Build filter object - filter by keywords instead of brandId
     const filter: any = {
-      brandId: { $in: userCompanyIds }
+      keywordMatched: { $in: userKeywords }
     };
     
     // Additional filters
-    if (brandId && userCompanyIds.includes(brandId)) {
-      filter.brandId = brandId; // Override with specific company if user owns it
-    }
-    
     if (sentiment && ['positive', 'negative', 'neutral'].includes(sentiment)) {
       filter['sentiment.label'] = sentiment;
     }
@@ -124,17 +140,17 @@ export const PATCH = withAuth(async (request: AuthenticatedRequest) => {
       }, { status: 400 });
     }
 
-    // Get user's company IDs to ensure they can only update their own mentions
-    const userCompanyIds = await getUserCompanyIds(request.user!.id);
+    // Get user's keywords to ensure they can only update mentions for their keywords
+    const userKeywords = await getUserKeywords(request.user!.id);
 
     // Determine the unread value based on action
     const unreadValue = action === 'markAsUnread' ? true : false;
 
-    // Update mentions to mark them as read or unread - ONLY for user's companies
+    // Update mentions to mark them as read or unread - ONLY for user's keywords
     const result = await Mention.updateMany(
       { 
         _id: { $in: mentionIds },
-        brandId: { $in: userCompanyIds } // Only update mentions for user's companies
+        keywordMatched: { $in: userKeywords } // Only update mentions for user's keywords
       },
       { $set: { unread: unreadValue } }
     );
