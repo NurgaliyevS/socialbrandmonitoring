@@ -62,7 +62,7 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
 
     // Fetch mentions with pagination
     const mentions = await Mention.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ created: -1 }) // Sort by Reddit creation date (newest first)
       .skip(skip)
       .limit(limit)
       .populate('brandId', 'name website');
