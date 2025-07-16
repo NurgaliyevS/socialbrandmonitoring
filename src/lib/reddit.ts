@@ -7,6 +7,10 @@ import axios from 'axios';
 // Reddit API client configuration
 let redditClient: any = null;
 
+// Timeout constants for Reddit API calls
+const REDDIT_API_TIMEOUT = 25000; // 25 seconds per API call
+const REDDIT_SEARCH_TIMEOUT = 30000; // 30 seconds for search operations
+
 /**
  * Initialize the Reddit API client with improved error handling
  */
@@ -72,18 +76,27 @@ export function checkKeywordMatch(content: string, keywords: string[]): string |
 }
 
 /**
- * Retry function with exponential backoff
+ * Retry function with exponential backoff and timeout
  */
 async function retryWithBackoff<T>(
   fn: () => Promise<T>,
   maxRetries: number = 3,
-  baseDelay: number = 1000
+  baseDelay: number = 1000,
+  timeoutMs: number = REDDIT_API_TIMEOUT
 ): Promise<T> {
   let lastError: Error;
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await fn();
+      // Add timeout to each attempt
+      return await Promise.race([
+        fn(),
+        new Promise<never>((_, reject) => {
+          setTimeout(() => {
+            reject(new Error(`API call timed out after ${timeoutMs}ms`));
+          }, timeoutMs);
+        })
+      ]);
     } catch (error) {
       lastError = error as Error;
       
@@ -96,7 +109,8 @@ async function retryWithBackoff<T>(
         const errorMessage = error.message.toLowerCase();
         if (errorMessage.includes('unauthorized') || 
             errorMessage.includes('forbidden') || 
-            errorMessage.includes('invalid credentials')) {
+            errorMessage.includes('invalid credentials') ||
+            errorMessage.includes('timed out')) {
           throw error;
         }
       }
@@ -129,7 +143,7 @@ export async function fetchAllNewComments(limit: number = 100) {
       // Configure axios with better network settings
       const axiosConfig: any = {
         headers: headers,
-        timeout: 30000, // 30 second timeout
+        timeout: REDDIT_API_TIMEOUT, // Use consistent timeout
         maxRedirects: 5,
       };
 
@@ -171,7 +185,7 @@ export async function fetchAllNewComments(limit: number = 100) {
       console.error('Error fetching all new comments:', error);
       throw error;
     }
-  });
+  }, 3, 1000, REDDIT_API_TIMEOUT);
 }
 
 /**
@@ -212,5 +226,5 @@ export async function searchPosts(query: string, limit: number = 1000, subreddit
       console.error('Error searching posts:', error);
       throw error;
     }
-  });
+  }, 3, 1000, REDDIT_SEARCH_TIMEOUT);
 }

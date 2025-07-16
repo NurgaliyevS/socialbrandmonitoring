@@ -5,6 +5,11 @@ import { analyzeCommentSentiment } from "./comments-polling-service";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
 
+// Timeout constants for monitoring operations
+const MONITORING_TIMEOUT = 240000; // 4 minutes (leaving 40 seconds for other operations)
+const MAX_POSTS_PER_KEYWORD = 500; // Reduce from 1000 to prevent timeouts
+const MAX_COMMENTS_PER_FETCH = 50; // Reduce from 100 to prevent timeouts
+
 /**
  * Extract the sentence containing the keyword match
  * Returns the sentence with the keyword, or a truncated version if no sentence boundaries found
@@ -65,7 +70,7 @@ export async function getBrandsAndKeywords() {
   // Include brands that have keywords configured, regardless of onboarding status
   const companies = await Company.find({
     keywords: { $exists: true, $ne: [] },
-  });
+  }).sort({ created: -1 });
 
   return companies.map((company: any) => {
     console.log("company name", company?.name);
@@ -83,12 +88,15 @@ export async function getBrandsAndKeywords() {
 }
 
 /**
- * Monitor Reddit content for brand mentions
+ * Monitor Reddit content for brand mentions with timeout protection
  * Implementation from PRD Step 2 - Filtering Logic
  */
 export async function monitorRedditContent() {
+  const startTime = Date.now();
+  
   try {
     console.log("🔍 Starting Reddit content monitoring...");
+    console.log(`⏰ Monitoring timeout set to ${MONITORING_TIMEOUT}ms`);
 
     // Get brands and keywords from MongoDB
     const brands = await getBrandsAndKeywords();
@@ -104,6 +112,12 @@ export async function monitorRedditContent() {
     const allComments = [];
 
     for (const brand of brands) {
+      // Check if we're approaching the timeout
+      if (Date.now() - startTime > MONITORING_TIMEOUT * 0.8) {
+        console.log("⚠️ Approaching timeout limit, stopping brand processing");
+        break;
+      }
+      
       console.log(
         `🔍 Searching for mentions of "${
           brand.brandName
@@ -111,9 +125,15 @@ export async function monitorRedditContent() {
       );
 
       for (const keyword of brand.keywords) {
+        // Check timeout before each keyword search
+        if (Date.now() - startTime > MONITORING_TIMEOUT * 0.9) {
+          console.log("⚠️ Approaching timeout limit, stopping keyword processing");
+          break;
+        }
+        
         try {
-          // Search for posts containing the keyword
-          const posts = await searchPosts(keyword, 1000);
+          // Search for posts containing the keyword with reduced limit
+          const posts = await searchPosts(keyword, MAX_POSTS_PER_KEYWORD);
           allPosts.push(...posts);
 
           console.log(
@@ -131,7 +151,8 @@ export async function monitorRedditContent() {
             if (errorMessage.includes('tunneling socket') || 
                 errorMessage.includes('certificate') || 
                 errorMessage.includes('connection reset') ||
-                errorMessage.includes('econnreset')) {
+                errorMessage.includes('econnreset') ||
+                errorMessage.includes('timed out')) {
               console.log(`🔧 Network connectivity issue detected for keyword "${keyword}"`);
             }
           }
@@ -148,6 +169,12 @@ export async function monitorRedditContent() {
 
     // Check posts for keyword matches
     for (const post of allPosts) {
+      // Check timeout during post processing
+      if (Date.now() - startTime > MONITORING_TIMEOUT * 0.95) {
+        console.log("⚠️ Approaching timeout limit, stopping post processing");
+        break;
+      }
+      
       const content = `${post.title} ${post.selftext}`;
 
       for (const brand of brands) {
@@ -199,6 +226,12 @@ export async function monitorRedditContent() {
       
       // Process each chunk separately
       for (let i = 0; i < newMentions.length; i += batchSize) {
+        // Check timeout during database operations
+        if (Date.now() - startTime > MONITORING_TIMEOUT * 0.98) {
+          console.log("⚠️ Approaching timeout limit, stopping database operations");
+          break;
+        }
+        
         const batch = newMentions.slice(i, i + batchSize);
         const existingIds = await Mention.find({
           redditId: { $in: batch.map(m => m.redditId) }
@@ -236,21 +269,26 @@ export async function monitorRedditContent() {
       console.log("ℹ️ No new mentions found");
     }
 
-    console.log("✅ Reddit monitoring completed");
+    const duration = Date.now() - startTime;
+    console.log(`✅ Reddit monitoring completed in ${duration}ms (${duration / 60000} minutes)`);
     return newMentions.length;
   } catch (error) {
-    console.error("❌ Error monitoring Reddit content:", error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ Error monitoring Reddit content after ${duration}ms:`, error);
     throw error;
   }
 }
 
 /**
- * Monitor Reddit comments for brand mentions
+ * Monitor Reddit comments for brand mentions with timeout protection
  * Implementation for comments-specific monitoring
  */
 export async function monitorRedditComments() {
+  const startTime = Date.now();
+  
   try {
     console.log("🔍 Starting Reddit comments monitoring...");
+    console.log(`⏰ Monitoring timeout set to ${MONITORING_TIMEOUT}ms`);
 
     // Get brands and keywords from MongoDB
     const brands = await getBrandsAndKeywords();
@@ -261,8 +299,8 @@ export async function monitorRedditComments() {
 
     console.log(`📊 Monitoring ${brands.length} brands for comment mentions`);
 
-    // Fetch new comments from all subreddits
-    const allComments = await fetchAllNewComments(100);
+    // Fetch new comments from all subreddits with reduced limit
+    const allComments = await fetchAllNewComments(MAX_COMMENTS_PER_FETCH);
 
     console.log(`📝 Total comments fetched: ${allComments.length}`);
 
@@ -270,6 +308,12 @@ export async function monitorRedditComments() {
 
     // Check comments for keyword matches
     for (const comment of allComments) {
+      // Check timeout during comment processing
+      if (Date.now() - startTime > MONITORING_TIMEOUT * 0.95) {
+        console.log("⚠️ Approaching timeout limit, stopping comment processing");
+        break;
+      }
+      
       const content = comment.body || "";
 
       for (const brand of brands) {
@@ -320,6 +364,12 @@ export async function monitorRedditComments() {
       
       // Process each chunk separately
       for (let i = 0; i < newMentions.length; i += batchSize) {
+        // Check timeout during database operations
+        if (Date.now() - startTime > MONITORING_TIMEOUT * 0.98) {
+          console.log("⚠️ Approaching timeout limit, stopping database operations");
+          break;
+        }
+        
         const batch = newMentions.slice(i, i + batchSize);
         const existingIds = await Mention.find({
           redditId: { $in: batch.map(m => m.redditId) },
@@ -358,10 +408,12 @@ export async function monitorRedditComments() {
       console.log("ℹ️ No new comment mentions found");
     }
 
-    console.log("✅ Reddit comments monitoring completed");
+    const duration = Date.now() - startTime;
+    console.log(`✅ Reddit comments monitoring completed in ${duration}ms`);
     return newMentions.length;
   } catch (error) {
-    console.error("❌ Error monitoring Reddit comments:", error);
+    const duration = Date.now() - startTime;
+    console.error(`❌ Error monitoring Reddit comments after ${duration}ms:`, error);
     throw error;
   }
 }
