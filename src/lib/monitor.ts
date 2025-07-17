@@ -271,8 +271,8 @@ export async function monitorRedditContent() {
       
       const content = `${post.title} ${post.selftext}`;
       // Debug: Log the post content being checked
-      console.log(`🔍 Checking post: "${post.title}"`);
-      console.log(`📄 Content preview: "${content.substring(0, 200)}..."`);
+      console.log(`🔍 Checking post: "${post.title.substring(0, 50)}..."`);
+      console.log(`📄 Content preview: "${content.substring(0, 50)}..."`);
 
       for (const brand of brands) {
         console.log(`🔑 Checking keywords for ${brand.brandName}: ${brand.keywords.join(', ')}`);
