@@ -30,8 +30,8 @@ export async function generateKeywords(scrapedData: ScrapedData, website: string
   - URL: ${website}
   - Company: ${scrapedData.title}
   - Description: ${scrapedData.description}
-  - Key Headings: ${scrapedData.headings.slice(0, 5).join(', ')}
-  - Content Sample: ${scrapedData.bodyText.substring(0, 500)}
+  ${scrapedData.headings.length > 0 ? `- Key Headings: ${scrapedData.headings.slice(0, 5).join(', ')}` : ''}
+  ${scrapedData.bodyText.length > 0 ? `- Content Sample: ${scrapedData.bodyText.substring(0, 500)}` : ''}
   
   ### Keyword Requirements
   Extract exactly 5 keywords in this order:
@@ -95,6 +95,8 @@ export async function generateKeywords(scrapedData: ScrapedData, website: string
       }
     ]
   }`;
+
+  console.log("prompt", prompt);
 
   try {
     console.log('[AI] Sending request to OpenAI...');

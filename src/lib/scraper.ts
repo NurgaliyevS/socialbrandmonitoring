@@ -199,8 +199,23 @@ export async function scrapeWebsite(url: string) {
   } finally {
     if (browser) {
       console.log('[SCRAPER] Closing browser...');
-      await browser.close();
-      console.log('[SCRAPER] Browser closed successfully');
+      try {
+        // Set a timeout for browser close
+        const closePromise = browser.close();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Browser close timeout')), 5000)
+        );
+        await Promise.race([closePromise, timeoutPromise]);
+        console.log('[SCRAPER] Browser closed successfully');
+      } catch (error) {
+        console.log('[SCRAPER] Browser close failed, forcing termination');
+        // Force kill the browser process
+        try {
+          await browser.process()?.kill('SIGKILL');
+        } catch (killError) {
+          console.log('[SCRAPER] Force kill also failed:', killError);
+        }
+      }
     }
   }
 }
