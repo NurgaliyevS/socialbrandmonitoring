@@ -71,8 +71,8 @@ const OnboardingFlow = () => {
       });
 
       const result = await response.json();
-      
       if (!result.success) {
+        toast.error(result?.error || 'Analysis failed');
         throw new Error(result.error || 'Analysis failed');
       }
 
