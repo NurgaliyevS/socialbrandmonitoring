@@ -59,11 +59,6 @@ export function getRedditClient(): any {
   return redditClient;
 }
 
-/**
- * Keyword matching logic from PRD Step 1
- * Check if any keywords appear in post title, body, or comment text
- * Uses word boundaries to avoid false matches
- */
 export function checkKeywordMatch(content: string, keywords: string[]): string | null {
   const lowerContent = content.toLowerCase();
   
