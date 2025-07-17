@@ -21,6 +21,13 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
 export async function POST() {
   const startTime = Date.now();
   
+  // Clear any proxy environment variables that might interfere
+  delete process.env.HTTP_PROXY;
+  delete process.env.HTTPS_PROXY;
+  delete process.env.http_proxy;
+  delete process.env.https_proxy;
+  delete process.env.PROXY_URL;
+  
   try {
     console.log('🔄 Polling service started at:', new Date().toISOString());
     console.log(`⏰ Timeout set to ${TIMEOUT_MS}ms (${TIMEOUT_MS / 1000}s)`);

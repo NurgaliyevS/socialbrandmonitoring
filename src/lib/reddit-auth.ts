@@ -26,7 +26,8 @@ export async function getRedditAccessToken(): Promise<string> {
           username: clientId,
           password: clientSecret
         },
-        timeout: REDDIT_API_TIMEOUT
+        timeout: REDDIT_API_TIMEOUT,
+        proxy: false // Disable proxy usage
       }
     );
 

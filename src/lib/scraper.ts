@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 import axios from 'axios';
 
-export async function scrapeWebsite(url: string, proxyUrl?: string) {
+export async function scrapeWebsite(url: string) {
   let browser;
   try {
     console.log(`[SCRAPER] Starting scrape for URL: ${url}`);
@@ -22,12 +22,6 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
     } catch (launchError) {
       console.log('[SCRAPER] Browser launch failed, going to HTTP fallback');
       throw launchError;
-    }
-    
-    // Add proxy if provided
-    if (proxyUrl && browser) {
-      console.log(`[SCRAPER] Using proxy: ${proxyUrl}`);
-      // Note: Proxy configuration would need to be handled differently in serverless
     }
     
     const page = await browser.newPage();
@@ -125,6 +119,7 @@ export async function scrapeWebsite(url: string, proxyUrl?: string) {
       console.log('[SCRAPER] Starting HTTP fallback scraping...');
       const response = await axios.get(url, {
         timeout: 30000,
+        proxy: false, // Disable proxy usage
         headers: {
           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',

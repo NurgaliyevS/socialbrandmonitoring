@@ -25,7 +25,7 @@ export function initializeRedditClient(): any {
       throw new Error('Missing Reddit API credentials. Please check your environment variables.');
     }
 
-    // Configure Snoowrap with better network settings
+    // Configure Snoowrap with better network settings and disable proxy
     redditClient = new Snoowrap({
       userAgent,
       clientId,
@@ -35,6 +35,11 @@ export function initializeRedditClient(): any {
       requestDelay: 1000, // 1 second delay between requests
       retryErrorCodes: [502, 503, 504, 522], // Retry on server errors
       maxRetries: 3,
+      // Disable proxy usage
+      request: {
+        proxy: false,
+        timeout: REDDIT_API_TIMEOUT
+      }
     });
   }
 
@@ -136,11 +141,12 @@ export async function fetchAllNewComments(limit: number = 100, after?: string) {
         'User-Agent': 'RedditSocialListening/1.0.0'
       }
 
-      // Configure axios with better network settings
+      // Configure axios with better network settings and disable proxy
       const axiosConfig: any = {
         headers: headers,
         timeout: REDDIT_API_TIMEOUT, // Use consistent timeout
         maxRedirects: 5,
+        proxy: false, // Disable proxy usage
       };
 
       // Get OAuth access token for authenticated request

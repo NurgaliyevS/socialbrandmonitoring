@@ -39,9 +39,7 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
     console.log('[API] Starting website scraping for user:', userEmail);
     let scrapedData;
     try {
-      // Use proxy if available in environment
-      const proxyUrl = process.env.PROXY_URL;
-      scrapedData = await scrapeWebsite(website, proxyUrl);
+      scrapedData = await scrapeWebsite(website);
       // Detect block or garbage scrape
       if (
         scrapedData.title?.toLowerCase().includes('just a moment') ||
