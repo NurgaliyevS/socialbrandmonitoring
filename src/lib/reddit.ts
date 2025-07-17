@@ -1,7 +1,5 @@
 // @ts-ignore
 const Snoowrap = require('snoowrap');
-// @ts-ignore
-const { HttpsProxyAgent } = require('https-proxy-agent');
 import axios from 'axios';
 import { getRedditAccessToken } from './reddit-auth';
 
@@ -34,7 +32,6 @@ export function initializeRedditClient(): any {
       clientSecret,
       username,
       password,
-      // Add request timeout and retry configuration
       requestDelay: 1000, // 1 second delay between requests
       retryErrorCodes: [502, 503, 504, 522], // Retry on server errors
       maxRetries: 3,
@@ -136,7 +133,7 @@ export async function fetchAllNewComments(limit: number = 100, after?: string) {
       
       const headers: Record<string, string> = {
         'Accept': 'application/json',
-        'User-Agent': 'RedditSocialListening/1.0.0 (via Evomi Proxy)'
+        'User-Agent': 'RedditSocialListening/1.0.0'
       }
 
       // Configure axios with better network settings
