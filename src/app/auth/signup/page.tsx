@@ -13,7 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { User, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { toast } from '@/components/ui/use-toast';
+import toast from 'react-hot-toast';
 
 const signUpSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -66,10 +66,7 @@ export default function SignUpPage() {
       } else {
         setSuccess('Account created successfully! Please check your email for verification.');
         // show toast that won't disappear automatically until user closes it
-        toast({
-          title: 'Account created successfully!',
-          description: 'Please check your email for verification. The verification link will expire in 24 hours.',
-          variant: 'default',
+        toast.success('Account created successfully! Please check your email for verification. The verification link will expire in 24 hours.', {
           duration: 86400000, // 24 hours - effectively persistent
         });
       }

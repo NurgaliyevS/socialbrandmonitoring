@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Trash2, Plus, MessageSquare, Save, X } from "lucide-react";
 import { Brand, Keyword, NotificationSettings } from "./types";
 import { settingsService } from '@/lib/settings-service';
-import { toast } from '@/components/ui/use-toast';
+import toast from 'react-hot-toast';
 import { useDashboard } from "@/contexts/DashboardContext";
 
 interface KeywordManagementProps {
@@ -61,9 +61,9 @@ const KeywordManagement = ({
       const savedBrand = await settingsService.updateKeywords(brandId, updatedKeywords);
       setBrands(brands.map(b => b.id === brandId ? savedBrand : b));
       refreshBrands();
-      toast({ title: 'Keyword added', description: 'Keyword saved successfully.' });
+      toast.success('Keyword saved successfully.');
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save keyword' });
+      toast.error(err instanceof Error ? err.message : 'Failed to save keyword');
       console.error('Error saving keyword:', err);
     }
     setAddingKeywordBrandId(null);
@@ -85,9 +85,9 @@ const KeywordManagement = ({
       const savedBrand = await settingsService.updateKeywords(brandId, updatedKeywords);
       setBrands(brands.map(b => b.id === brandId ? savedBrand : b));
       refreshBrands();
-      toast({ title: 'Keyword deleted', description: 'Keyword deleted successfully.' });
+      toast.success('Keyword deleted successfully.');
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete keyword' });
+      toast.error(err instanceof Error ? err.message : 'Failed to delete keyword');
       console.error('Error deleting keyword:', err);
     }
   };

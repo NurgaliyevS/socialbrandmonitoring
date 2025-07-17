@@ -9,7 +9,7 @@ import KeywordsStep from '@/components/onboarding/KeywordsStep';
 import { KeywordSuggestion } from '@/components/onboarding/types';
 import { validateWebsite } from '@/components/onboarding/utils';
 import { useDashboard } from '@/contexts/DashboardContext';
-import { toast } from '@/components/ui/use-toast';
+import toast from 'react-hot-toast';
 
 const OnboardingFlow = () => {
   const router = useRouter();
@@ -148,17 +148,13 @@ const OnboardingFlow = () => {
         // only if the response is success
         if (response?.ok) {
           refreshBrands();
-          toast({
-            title: "Onboarding complete",
-            description: "Our system is analyzing your brand and will notify you when we find mentions.",
+          toast.success("Our system is analyzing your brand and will notify you when we find mentions.", {
+            duration: 1000000
           })
           router.push('/dashboard');
         } else {
           const errorData = await response.json();
-          toast({
-            title: "Error saving onboarding",
-            description: errorData.error,
-          })
+          toast.error(errorData.error);
         }
       }).catch((error) => {
         console.error('Error saving onboarding:', error);
@@ -172,10 +168,7 @@ const OnboardingFlow = () => {
             errorMessage = error.message;
           }
         }
-        toast({
-          title: "Error saving onboarding",
-          description: errorMessage,
-        })
+        toast.error(errorMessage);
       });
     } catch (error) {
       console.error('Error saving onboarding:', error);
@@ -191,10 +184,7 @@ const OnboardingFlow = () => {
         }
       }
       console.log("errorMessage", errorMessage);
-      toast({
-        title: "Error saving onboarding",
-        description: errorMessage,
-      })
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }

@@ -8,7 +8,7 @@ import KeywordManagement from '@/components/settings/KeywordManagement';
 import NotificationSettingsComponent from '@/components/settings/NotificationSettings';
 import { Brand, Keyword, NotificationSettings } from '@/components/settings/types';
 import { settingsService } from '@/lib/settings-service';
-import { toast } from '@/components/ui/use-toast';
+import toast from 'react-hot-toast';
 
 const Settings = () => {
   const router = useRouter();
@@ -47,10 +47,10 @@ const Settings = () => {
           brand.id === editingBrand.id ? updatedBrand : brand
         ));
         setEditingBrand(null);
-        toast({ title: 'Brand updated', description: 'Brand details updated successfully.' });
+        toast.success('Brand details updated successfully.');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to update brand');
-        toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to update brand' });
+        toast.error(err instanceof Error ? err.message : 'Failed to update brand');
         console.error('Error updating brand:', err);
       }
     }
@@ -63,10 +63,10 @@ const Settings = () => {
         setBrands([...brands, brand]);
         setNewBrand({ name: '', website: '' });
         setIsAddingBrand(false);
-        toast({ title: 'Brand created', description: 'Brand added successfully.' });
+        toast.success('Brand added successfully.');
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to create brand');
-        toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to create brand' });
+        toast.error(err instanceof Error ? err.message : 'Failed to create brand');
         console.error('Error creating brand:', err);
       }
     }
@@ -76,10 +76,10 @@ const Settings = () => {
     try {
       await settingsService.deleteBrand(brandId);
       setBrands(brands.filter(brand => brand.id !== brandId));
-      toast({ title: 'Brand deleted', description: 'Brand deleted successfully.' });
+      toast.success('Brand deleted successfully.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete brand');
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to delete brand' });
+              toast.error(err instanceof Error ? err.message : 'Failed to delete brand');
       console.error('Error deleting brand:', err);
     }
   };

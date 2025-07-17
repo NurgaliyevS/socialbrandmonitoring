@@ -6,7 +6,7 @@ import MentionCard from '@/components/MentionCard';
 import FilterPanel from '@/components/FilterPanel';
 import { mentionsService, type Mention, type MentionsFilters } from '@/lib/mentions-service';
 import { settingsService } from '@/lib/settings-service';
-import { toast } from '@/components/ui/use-toast';
+import toast from 'react-hot-toast';
 
 const Dashboard = () => {
   const router = useRouter();
@@ -63,11 +63,7 @@ const Dashboard = () => {
       setTotalPages(response.pagination?.pages || 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load mentions');
-      toast({ 
-        title: 'Error', 
-        description: err instanceof Error ? err.message : 'Failed to load mentions',
-        variant: 'destructive'
-      });
+      toast.error(err instanceof Error ? err.message : 'Failed to load mentions');
       console.error('Error loading mentions:', err);
     } finally {
       setLoading(false);

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
 import AuthClientProvider from "./AuthClientProvider";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Social Brand Monitoring",
@@ -34,9 +33,10 @@ export default function RootLayout({
       <body className="font-sans" suppressHydrationWarning={true}>
         <AuthClientProvider>
           <TooltipProvider>
-            <Toaster />
-            <Sonner />
             {children}
+            <Toaster 
+              position="top-right"
+            />
           </TooltipProvider>
         </AuthClientProvider>
       </body>

@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch';
 import { Bell, Mail, MessageSquare } from 'lucide-react';
 import { Brand, Keyword, NotificationSettings } from './types';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
+import toast from 'react-hot-toast';
 import { settingsService } from '@/lib/settings-service';
 
 interface NotificationSettingsProps {
@@ -51,10 +51,10 @@ const NotificationSettingsComponent = ({
         slackWebhook: localSlack,
       });
       setBrands(brands.map(b => b.id === brand.id ? updated : b));
-      toast({ title: 'Notifications updated', description: 'Notification settings saved.' });
+      toast.success('Notification settings saved.');
       cancelEdit();
     } catch (err) {
-      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Failed to save notifications' });
+      toast.error(err instanceof Error ? err.message : 'Failed to save notifications');
     }
   };
 
