@@ -37,7 +37,7 @@ const MAX_COMMENTS_PER_FETCH = 100; // Reduce from 100 to prevent timeouts
 
 // Rate limiting constants
 const BASE_DELAY_MS = 4000; // 4 seconds between API calls (increased from 500ms)
-const MAX_BRANDS_PER_RUN = 1; // Process only 5 brands per run instead of all 21
+const MAX_BRANDS_PER_RUN = 5; // Process only 5 brands per run instead of all 21
 const RATE_LIMIT_BACKOFF_MULTIPLIER = 2; // Double delay on rate limit errors
 const MAX_RATE_LIMIT_RETRIES = 3; // Maximum retries for rate limit errors
 
