@@ -2,7 +2,7 @@ import connectDB from "./mongodb";
 import { checkKeywordMatch, searchPosts } from "./reddit";
 import { analyzeSentiment } from "./polling-service";
 import { analyzeCommentSentiment } from "./comments-polling-service";
-import { fetchNewCommentsWithPagination } from "./reddit-pagination";
+import { fetchGlobalComments } from "./reddit-global-fetcher";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
 
@@ -336,23 +336,11 @@ export async function monitorRedditComments() {
 
     console.log(`📊 Monitoring ${brands.length} brands for comment mentions`);
 
-    // Fetch new comments from all subreddits with pagination for each brand
-    const allComments = [];
-    
-    for (const brand of brands) {
-      try {
-        console.log(`🔍 Fetching comments for brand: ${brand.brandName}`);
-        const result = await fetchNewCommentsWithPagination(brand.brandId.toString(), MAX_COMMENTS_PER_FETCH);
-        allComments.push(...result.comments);
-        console.log(`📝 Fetched ${result.comments.length} comments for ${brand.brandName}`);
-      } catch (error) {
-        console.error(`❌ Error fetching comments for brand ${brand.brandName}:`, error);
-        // Continue with other brands even if one fails
-        continue;
-      }
-    }
-
-    console.log(`📝 Total comments fetched: ${allComments.length}`);
+    // Fetch new comments once globally for all brands
+    console.log('🌐 Fetching comments globally for all brands...');
+    const globalResult = await fetchGlobalComments(MAX_COMMENTS_PER_FETCH);
+    const allComments = globalResult.comments;
+    console.log(`📝 Total comments fetched globally: ${allComments.length}`);
 
     const newMentions = [];
 
