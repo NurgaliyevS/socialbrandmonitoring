@@ -1,7 +1,8 @@
 import connectDB from "./mongodb";
-import { checkKeywordMatch, searchPosts, fetchAllNewComments } from "./reddit";
+import { checkKeywordMatch, searchPosts } from "./reddit";
 import { analyzeSentiment } from "./polling-service";
 import { analyzeCommentSentiment } from "./comments-polling-service";
+import { fetchNewCommentsWithPagination } from "./reddit-pagination";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
 
@@ -84,12 +85,11 @@ export async function getBrandsAndKeywords() {
     }
   ]);
 
-  console.log("mention counts", mentionCounts);
+  console.log("🔍 mention counts", mentionCounts);
 
   // Create a map of brandId to mention count
   const mentionCountMap = new Map();
   mentionCounts.forEach((item: any) => {
-    console.log("item", item);
     mentionCountMap.set(item._id.toString(), item.mentionCount);
   });
 
@@ -108,12 +108,12 @@ export async function getBrandsAndKeywords() {
   });
 
   return companiesWithMentionCounts.map((company: any) => {
-    console.log("company name", company?.name);
-    console.log("company website", company?.website);
-    console.log("mention count", company.mentionCount);
+    console.log("🏢 company name", company?.name);
+    console.log("🌐 company website", company?.website);
+    console.log("📊 mention count", company.mentionCount);
     console.log(
-      "keywords",
-      company.keywords.map((k: any) => k.name)
+      "🔑 keywords: ",
+      company.keywords.map((k: any) => k.name).join(', ')
     );
     return {
       brandId: company._id,
@@ -336,8 +336,21 @@ export async function monitorRedditComments() {
 
     console.log(`📊 Monitoring ${brands.length} brands for comment mentions`);
 
-    // Fetch new comments from all subreddits with reduced limit
-    const allComments = await fetchAllNewComments(MAX_COMMENTS_PER_FETCH);
+    // Fetch new comments from all subreddits with pagination for each brand
+    const allComments = [];
+    
+    for (const brand of brands) {
+      try {
+        console.log(`🔍 Fetching comments for brand: ${brand.brandName}`);
+        const result = await fetchNewCommentsWithPagination(brand.brandId.toString(), MAX_COMMENTS_PER_FETCH);
+        allComments.push(...result.comments);
+        console.log(`📝 Fetched ${result.comments.length} comments for ${brand.brandName}`);
+      } catch (error) {
+        console.error(`❌ Error fetching comments for brand ${brand.brandName}:`, error);
+        // Continue with other brands even if one fails
+        continue;
+      }
+    }
 
     console.log(`📝 Total comments fetched: ${allComments.length}`);
 

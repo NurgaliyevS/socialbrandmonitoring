@@ -130,7 +130,7 @@ async function retryWithBackoff<T>(
  * Fetch new comments from all subreddits using direct API call without auth
  * Uses the /r/all/comments.json endpoint for real-time comment data
  */
-export async function fetchAllNewComments(limit: number = 100) {
+export async function fetchAllNewComments(limit: number = 100, after?: string) {
   return retryWithBackoff(async () => {
     try {
       
@@ -152,28 +152,31 @@ export async function fetchAllNewComments(limit: number = 100) {
       // Add Authorization header for authenticated request
       axiosConfig.headers['Authorization'] = `Bearer ${accessToken}`;
       
+      // Build URL with optional after parameter for pagination
+      let url = `https://oauth.reddit.com/r/all/comments?limit=${limit}&raw_json=1`;
+      if (after) {
+        url += `&after=${after}`;
+      }
+
+      console.log("🔍 url", url);
+      
       // Use axios to make an authenticated request to OAuth endpoint
-      const response = await axios.get(`https://oauth.reddit.com/r/all/comments?limit=${limit}&raw_json=1`, axiosConfig);
+      const response = await axios.get(url, axiosConfig);
       
       const data = response.data;
-
-      console.log(data, 'data')
       
       if (!data.data || !data.data.children) {
         console.error('Response structure:', JSON.stringify(data, null, 2));
         throw new Error('Invalid response format from Reddit API');
       }
-      
-      console.log(data.data.children.length, 'data.data.children.length');
-      console.log(data?.data, 'data?.data')
 
       const before = data?.data?.before;
-      const after = data?.data?.after;
+      const responseAfter = data?.data?.after;
 
-      console.log(before, 'before')
-      console.log(after, 'after')
+      console.log("⬅️ before", before);
+      console.log("➡️ responseAfter", responseAfter);
 
-      return data.data.children.map((commentData: any) => {
+      const comments = data.data.children.map((commentData: any) => {
         const comment = commentData.data;
         return {
           id: comment.id,
@@ -190,6 +193,12 @@ export async function fetchAllNewComments(limit: number = 100) {
           linkUrl: comment.link_url, // parent post url
         };
       });
+
+      return {
+        comments,
+        after: responseAfter,
+        before: data?.data?.before
+      };
     } catch (error) {
       console.error('Error fetching all new comments:', error);
       throw error;

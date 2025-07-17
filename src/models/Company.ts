@@ -29,6 +29,8 @@ export interface ICompany extends Document {
     enabled: boolean;
   };
   onboardingComplete: boolean;
+  // Reddit pagination state for continuous monitoring
+  redditAfterToken?: string;
   user: mongoose.Types.ObjectId; // Required user reference
   createdAt: Date;
   updatedAt: Date;
@@ -63,6 +65,8 @@ const CompanySchema = new Schema({
     enabled: { type: Boolean, default: false }
   },
   onboardingComplete: { type: Boolean, default: false },
+  // Reddit pagination state for continuous monitoring
+  redditAfterToken: { type: String },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // <-- Required user reference
 }, {
   timestamps: true
