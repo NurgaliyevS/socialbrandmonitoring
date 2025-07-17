@@ -10,6 +10,9 @@ let redditClient: any = null;
 const REDDIT_API_TIMEOUT = 25000; // 25 seconds per API call
 const REDDIT_SEARCH_TIMEOUT = 30000; // 30 seconds for search operations
 
+// Rate limiting constants
+const REDDIT_REQUEST_DELAY = 3000; // 3 seconds between requests
+
 /**
  * Initialize the Reddit API client with improved error handling
  */
@@ -32,8 +35,8 @@ export function initializeRedditClient(): any {
       clientSecret,
       username,
       password,
-      requestDelay: 1000, // 1 second delay between requests
-      retryErrorCodes: [502, 503, 504, 522], // Retry on server errors
+      requestDelay: REDDIT_REQUEST_DELAY, // 3 second delay between requests (increased from 1s)
+      retryErrorCodes: [502, 503, 504, 522, 429], // Retry on server errors and rate limits
       maxRetries: 3,
       // Disable proxy usage
       request: {
@@ -112,9 +115,15 @@ async function retryWithBackoff<T>(
         const errorMessage = error.message.toLowerCase();
         if (errorMessage.includes('unauthorized') || 
             errorMessage.includes('forbidden') || 
-            errorMessage.includes('invalid credentials') ||
-            errorMessage.includes('timed out')) {
+            errorMessage.includes('invalid credentials')) {
           throw error;
+        }
+        
+        // For rate limit errors, we'll retry with backoff
+        if (errorMessage.includes('rate limit') || 
+            errorMessage.includes('too many requests') ||
+            errorMessage.includes('429')) {
+          console.log(`🚫 Rate limit detected, will retry with backoff...`);
         }
       }
       
@@ -241,7 +250,18 @@ export async function searchPosts(query: string, limit: number = 1000, subreddit
       }));
     } catch (error) {
       console.error('Error searching posts:', error);
+      
+      // Check if it's a rate limit error and provide specific logging
+      if (error instanceof Error) {
+        const errorMessage = error.message.toLowerCase();
+        if (errorMessage.includes('rate limit') || 
+            errorMessage.includes('too many requests') ||
+            errorMessage.includes('429')) {
+          console.log(`🚫 Rate limit error for query "${query}"`);
+        }
+      }
+      
       throw error;
     }
-  }, 3, 1000, REDDIT_SEARCH_TIMEOUT);
+  }, 3, 2000, REDDIT_SEARCH_TIMEOUT); // Increased base delay to 2 seconds
 }

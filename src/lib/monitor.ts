@@ -6,10 +6,40 @@ import { fetchGlobalComments } from "./reddit-global-fetcher";
 import Company from "@/models/Company";
 import Mention from "@/models/Mention";
 
+/**
+ * Rate limiting utility with exponential backoff
+ */
+async function rateLimitedDelay(baseDelay: number, retryCount: number = 0): Promise<void> {
+  const delay = baseDelay * Math.pow(RATE_LIMIT_BACKOFF_MULTIPLIER, retryCount);
+  console.log(`⏳ Rate limiting delay: ${delay}ms (retry ${retryCount})`);
+  await new Promise(resolve => setTimeout(resolve, delay));
+}
+
+/**
+ * Check if error is a rate limit error
+ */
+function isRateLimitError(error: any): boolean {
+  if (!error) return false;
+  
+  const errorMessage = error.message?.toLowerCase() || '';
+  const errorStatus = error.status || error.response?.status;
+  
+  return errorStatus === 429 || 
+         errorMessage.includes('rate limit') || 
+         errorMessage.includes('too many requests') ||
+         errorMessage.includes('429');
+}
+
 // Timeout constants for monitoring operations
 const MONITORING_TIMEOUT = 240000; // 4 minutes (leaving 40 seconds for other operations)
-const MAX_POSTS_PER_KEYWORD = 500; // Reduce from 1000 to prevent timeouts
+const MAX_POSTS_PER_KEYWORD = 200; // Reduced from 500 to prevent timeouts
 const MAX_COMMENTS_PER_FETCH = 100; // Reduce from 100 to prevent timeouts
+
+// Rate limiting constants
+const BASE_DELAY_MS = 4000; // 4 seconds between API calls (increased from 500ms)
+const MAX_BRANDS_PER_RUN = 1; // Process only 5 brands per run instead of all 21
+const RATE_LIMIT_BACKOFF_MULTIPLIER = 2; // Double delay on rate limit errors
+const MAX_RATE_LIMIT_RETRIES = 3; // Maximum retries for rate limit errors
 
 /**
  * Extract the sentence containing the keyword match
@@ -107,7 +137,12 @@ export async function getBrandsAndKeywords() {
     console.log(`  - ${company.name}: ${company.mentionCount} mentions`);
   });
 
-  return companiesWithMentionCounts.map((company: any) => {
+  // Limit the number of brands processed per run
+  const limitedBrands = companiesWithMentionCounts.slice(0, MAX_BRANDS_PER_RUN);
+  
+  console.log(`📊 Processing ${limitedBrands.length} brands out of ${companiesWithMentionCounts.length} total brands`);
+  
+  return limitedBrands.map((company: any) => {
     console.log("🏢 company name", company?.name);
     console.log("🌐 company website", company?.website);
     console.log("📊 mention count", company.mentionCount);
@@ -168,35 +203,57 @@ export async function monitorRedditContent() {
           break;
         }
         
-        try {
-          // Search for posts containing the keyword with reduced limit
-          const posts = await searchPosts(keyword, MAX_POSTS_PER_KEYWORD);
-          allPosts.push(...posts);
+        let retryCount = 0;
+        let success = false;
+        
+        while (!success && retryCount <= MAX_RATE_LIMIT_RETRIES) {
+          try {
+            // Search for posts containing the keyword with reduced limit
+            const posts = await searchPosts(keyword, MAX_POSTS_PER_KEYWORD);
+            allPosts.push(...posts);
 
-          console.log(
-            `📝 Found ${posts.length} posts for keyword "${keyword}"`
-          );
-          
-          // Add a small delay between searches to prevent rate limiting
-          await new Promise(resolve => setTimeout(resolve, 500));
-        } catch (error) {
-          console.error(`❌ Error searching for keyword "${keyword}":`, error);
-          
-          // Log specific error details for debugging
-          if (error instanceof Error) {
-            const errorMessage = error.message.toLowerCase();
-            if (errorMessage.includes('tunneling socket') || 
-                errorMessage.includes('certificate') || 
-                errorMessage.includes('connection reset') ||
-                errorMessage.includes('econnreset') ||
-                errorMessage.includes('timed out')) {
-              console.log(`🔧 Network connectivity issue detected for keyword "${keyword}"`);
+            console.log(
+              `📝 Found ${posts.length} posts for keyword "${keyword}"`
+            );
+            
+            success = true;
+          } catch (error) {
+            retryCount++;
+            console.error(`❌ Error searching for keyword "${keyword}" (attempt ${retryCount}):`, error);
+            
+            // Check if it's a rate limit error
+            if (isRateLimitError(error)) {
+              console.log(`🚫 Rate limit detected for keyword "${keyword}", backing off...`);
+              
+              if (retryCount <= MAX_RATE_LIMIT_RETRIES) {
+                await rateLimitedDelay(BASE_DELAY_MS, retryCount);
+                continue; // Retry after backoff
+              } else {
+                console.log(`⚠️ Max retries reached for keyword "${keyword}", skipping...`);
+                break;
+              }
+            } else {
+              // Log specific error details for debugging
+              if (error instanceof Error) {
+                const errorMessage = error.message.toLowerCase();
+                if (errorMessage.includes('tunneling socket') || 
+                    errorMessage.includes('certificate') || 
+                    errorMessage.includes('connection reset') ||
+                    errorMessage.includes('econnreset') ||
+                    errorMessage.includes('timed out')) {
+                  console.log(`🔧 Network connectivity issue detected for keyword "${keyword}"`);
+                }
+              }
+              
+              // For non-rate-limit errors, don't retry
+              break;
             }
           }
-          
-          // Continue with next keyword instead of failing completely
-          continue;
         }
+        
+        // Add aggressive delay between ALL searches (successful or failed)
+        console.log(`⏳ Waiting ${BASE_DELAY_MS}ms before next search...`);
+        await new Promise(resolve => setTimeout(resolve, BASE_DELAY_MS));
       }
     }
 
@@ -244,7 +301,7 @@ export async function monitorRedditContent() {
           console.log(
             `✅ Found mention: ${
               brand.brandName
-            } (${matchedKeyword}) in post: ${post.title.substring(0, 50)}...`
+            } \n Keyword: (${matchedKeyword}) \n Post: ${post.title.substring(0, 50)}...`
           );
         }
       }
