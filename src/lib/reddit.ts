@@ -3,6 +3,7 @@ const Snoowrap = require('snoowrap');
 // @ts-ignore
 const { HttpsProxyAgent } = require('https-proxy-agent');
 import axios from 'axios';
+import { getRedditAccessToken } from './reddit-auth';
 
 // Reddit API client configuration
 let redditClient: any = null;
@@ -132,8 +133,6 @@ async function retryWithBackoff<T>(
 export async function fetchAllNewComments(limit: number = 100) {
   return retryWithBackoff(async () => {
     try {
-      const proxy: string = process.env.HTTP_PROXY || '';
-      const agent = proxy ? new HttpsProxyAgent(proxy) : undefined;
       
       const headers: Record<string, string> = {
         'Accept': 'application/json',
@@ -147,22 +146,32 @@ export async function fetchAllNewComments(limit: number = 100) {
         maxRedirects: 5,
       };
 
-      // Only add httpsAgent if proxy is configured
-      if (agent) {
-        axiosConfig.httpsAgent = agent;
-      }
-
-      // Use axios to make a direct request without authentication (fetch doesn't support proxy agent)
-      const response = await axios.get(`https://www.reddit.com/r/all/comments.json?limit=${limit}&raw_json=1`, axiosConfig);
+      // Get OAuth access token for authenticated request
+      const accessToken = await getRedditAccessToken();
+      
+      // Add Authorization header for authenticated request
+      axiosConfig.headers['Authorization'] = `Bearer ${accessToken}`;
+      
+      // Use axios to make an authenticated request to OAuth endpoint
+      const response = await axios.get(`https://oauth.reddit.com/r/all/comments?limit=${limit}&raw_json=1`, axiosConfig);
       
       const data = response.data;
+
+      console.log(data, 'data')
       
       if (!data.data || !data.data.children) {
         console.error('Response structure:', JSON.stringify(data, null, 2));
         throw new Error('Invalid response format from Reddit API');
       }
       
-      console.log(data.data.children.length, 'data.data.children.length')
+      console.log(data.data.children.length, 'data.data.children.length');
+      console.log(data?.data, 'data?.data')
+
+      const before = data?.data?.before;
+      const after = data?.data?.after;
+
+      console.log(before, 'before')
+      console.log(after, 'after')
 
       return data.data.children.map((commentData: any) => {
         const comment = commentData.data;
@@ -187,7 +196,6 @@ export async function fetchAllNewComments(limit: number = 100) {
     }
   }, 3, 1000, REDDIT_API_TIMEOUT);
 }
-
 /**
  * Search for posts containing specific keywords with improved error handling
  */
