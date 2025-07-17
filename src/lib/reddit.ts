@@ -132,7 +132,7 @@ async function retryWithBackoff<T>(
  * Fetch new comments from all subreddits using direct API call without auth
  * Uses the /r/all/comments.json endpoint for real-time comment data
  */
-export async function fetchAllNewComments(limit: number = 100, after?: string) {
+export async function fetchAllNewComments(limit: number = 100) {
   return retryWithBackoff(async () => {
     try {
       
@@ -155,11 +155,8 @@ export async function fetchAllNewComments(limit: number = 100, after?: string) {
       // Add Authorization header for authenticated request
       axiosConfig.headers['Authorization'] = `Bearer ${accessToken}`;
       
-      // Build URL with optional after parameter for pagination
-      let url = `https://oauth.reddit.com/r/all/comments?limit=${limit}&raw_json=1`;
-      if (after) {
-        url += `&after=${after}`;
-      }
+      // Build URL without after parameter - always get most recent comments
+      const url = `https://oauth.reddit.com/r/all/comments?limit=${limit}&raw_json=1`;
 
       console.log("🔍 url", url);
       
