@@ -8,7 +8,7 @@ import Mention from "@/models/Mention";
 // Timeout constants for monitoring operations
 const MONITORING_TIMEOUT = 240000; // 4 minutes (leaving 40 seconds for other operations)
 const MAX_POSTS_PER_KEYWORD = 500; // Reduce from 1000 to prevent timeouts
-const MAX_COMMENTS_PER_FETCH = 50; // Reduce from 100 to prevent timeouts
+const MAX_COMMENTS_PER_FETCH = 100; // Reduce from 100 to prevent timeouts
 
 /**
  * Extract the sentence containing the keyword match
