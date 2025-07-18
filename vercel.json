@@ -7,6 +7,10 @@
     {
       "path": "/api/comments-polling-service",
       "schedule": "*/1 * * * *"
+    },
+    {
+      "path": "/api/first-email-check",
+      "schedule": "0 */6 * * *"
     }
   ],
   "functions": {

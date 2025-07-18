@@ -31,6 +31,10 @@ export interface ICompany extends Document {
   onboardingComplete: boolean;
   // Reddit pagination state for continuous monitoring
   redditAfterToken?: string;
+  // First email tracking for users with 5+ mentions
+  firstEmailSent?: boolean;
+  firstEmailSentAt?: Date;
+  firstEmailMentionCount?: number;
   user: mongoose.Types.ObjectId; // Required user reference
   createdAt: Date;
   updatedAt: Date;
@@ -62,11 +66,15 @@ const CompanySchema = new Schema({
   },
   emailConfig: {
     recipients: [{ type: String }],
-    enabled: { type: Boolean, default: false }
+    enabled: { type: Boolean, default: true }
   },
   onboardingComplete: { type: Boolean, default: false },
   // Reddit pagination state for continuous monitoring
   redditAfterToken: { type: String },
+  // First email tracking for users with 5+ mentions
+  firstEmailSent: { type: Boolean, default: false },
+  firstEmailSentAt: { type: Date },
+  firstEmailMentionCount: { type: Number },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // <-- Required user reference
 }, {
   timestamps: true

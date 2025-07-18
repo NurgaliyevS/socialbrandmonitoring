@@ -43,7 +43,7 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
       },
       onboardingComplete: true,
       emailConfig: {
-        enabled: false,
+        enabled: true,
         recipients: request.user!.email ? [request.user!.email] : []
       },
     });

@@ -7,7 +7,7 @@ const mapCompanyToBrand = (company: any): Brand => ({
   website: company.website,
   keywords: company.keywords || [],
   notifications: {
-    email: company.emailConfig?.enabled || false,
+    email: company.emailConfig?.enabled || true,
     slack: company.slackConfig?.enabled || false,
     emailAddress: company.emailConfig?.recipients?.[0] || '',
     slackWebhook: company.slackConfig?.webhookUrl || ''

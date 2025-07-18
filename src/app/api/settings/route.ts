@@ -70,7 +70,7 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
         channel: '#monitoring'
       },
       emailConfig: {
-        enabled: false,
+        enabled: true,
         recipients: request.user!.email ? [request.user!.email] : []
       },
       onboardingComplete: false

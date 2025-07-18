@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
       $set: { 
         emailConfig: {
           recipients: [user.email],
-          enabled: false  // Keep disabled by default
+          enabled: true  // Keep disabled by default
         }
       } 
     });

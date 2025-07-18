@@ -112,7 +112,7 @@ export const authOptions: NextAuthOptions = {
                 $set: { 
                   emailConfig: {
                     recipients: [userToUpdate.email],
-                    enabled: false
+                    enabled: true
                   }
                 } 
               }
