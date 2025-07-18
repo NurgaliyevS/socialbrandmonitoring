@@ -143,3 +143,7 @@ async function checkAndSendFirstEmails() {
     errors
   };
 } 
+
+export async function GET() {
+  return POST();
+}
