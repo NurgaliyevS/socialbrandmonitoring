@@ -1,4 +1,4 @@
-import { WebClient } from '@slack/web-api';
+import { IncomingWebhook } from '@slack/webhook';
 import Company from '@/models/Company';
 
 /**
@@ -28,71 +28,101 @@ export async function sendSlackNotification(
       return;
     }
 
-    // Initialize Slack client
-    const slack = new WebClient(brand.slackConfig.webhookUrl);
+    // Initialize Slack webhook
+    const webhook = new IncomingWebhook(brand.slackConfig.webhookUrl);
     
-    // Create message text
-    const sentimentEmoji = mention.sentiment.label === 'positive' ? '😊' : 
-                          mention.sentiment.label === 'negative' ? '😞' : '😐';
+    // Create sentiment emoji and color
+    const sentimentConfig = {
+      positive: { emoji: '😊', color: '#36a64f', text: 'Positive' },
+      negative: { emoji: '😞', color: '#ff0000', text: 'Negative' },
+      neutral: { emoji: '😐', color: '#808080', text: 'Neutral' }
+    };
     
+    const sentiment = sentimentConfig[mention.sentiment.label];
+    
+    // Format the content for better readability
+    const formattedContent = mention.content
+      .replace(/<strong>/g, '*')
+      .replace(/<\/strong>/g, '*')
+      .substring(0, 300);
+
     const message = {
-      channel: brand.slackConfig.channel || '#monitoring',
       text: `New ${mention.sentiment.label} mention of ${brand.name}`,
       blocks: [
         {
-          type: 'header',
-          text: {
-            type: 'plain_text',
-            text: `${sentimentEmoji} New ${mention.sentiment.label} mention of ${brand.name}`
-          }
-        },
-        {
           type: 'section',
-          fields: [
-            {
-              type: 'mrkdwn',
-              text: `*Keyword:* ${mention.keywordMatched}`
-            },
-            {
-              type: 'mrkdwn',
-              text: `*Subreddit:* r/${mention.subreddit}`
-            },
-            {
-              type: 'mrkdwn',
-              text: `*Author:* u/${mention.author}`
-            },
-            {
-              type: 'mrkdwn',
-              text: `*Sentiment Score:* ${mention.sentiment.score}`
-            }
-          ]
+          text: {
+            type: 'mrkdwn',
+            text: `🏷️ Brand: ${brand.name}` 
+          }
         },
         {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*Content:* ${mention.title ? mention.title + '\n' : ''}${mention.content.substring(0, 200)}${mention.content.length > 200 ? '...' : ''}`
+            text: `🔑 Keyword Matched: ${mention.keywordMatched}`
           }
         },
         {
-          type: 'actions',
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `📊 Sentiment: ${sentiment.emoji} ${sentiment.text}`
+          }
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `📱 Subreddit: r/${mention.subreddit}`
+          }
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `👤 Author: u/${mention.author}`
+          }
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `📝 Content:\n${formattedContent}${mention.content.length > 300 ? '...' : ''}`
+          }
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `🔗 View on Reddit:\n${mention.url}`
+          }
+        },
+        {
+          type: 'context',
           elements: [
             {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: 'View on Reddit'
-              },
-              url: mention.url,
-              style: mention.sentiment.label === 'negative' ? 'danger' : 'primary'
+              type: 'mrkdwn',
+              text: `⏰ Mention detected at ${new Date().toLocaleString()}`
             }
           ]
+        },
+        {
+          type: 'divider'
         }
       ]
-    };
+    }
 
-    // Send message to Slack
-    await slack.chat.postMessage(message);
+    // Send message to Slack with timeout protection
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Slack notification timeout after 30 seconds')), 30000);
+    });
+    
+    await Promise.race([
+      webhook.send(message),
+      timeoutPromise
+    ]);
+    
     console.log(`✅ Slack notification sent for ${brand.name} mention`);
     
   } catch (error) {

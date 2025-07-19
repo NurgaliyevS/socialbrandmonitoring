@@ -142,6 +142,15 @@ const NotificationSettingsComponent = ({
                     className="mt-1"
                     type="url"
                   />
+                  <div className="text-xs text-gray-500 mt-2 space-y-1">
+                    <p>💡 <strong>How to set up:</strong></p>
+                    <ol className="list-decimal list-inside ml-2 space-y-1">
+                      <li>Go to your Slack workspace settings</li>
+                      <li>Create a new webhook for your desired channel</li>
+                      <li>Copy the webhook URL and paste it above</li>
+                      <li>Notifications will be sent to that specific channel</li>
+                    </ol>
+                  </div>
                 </div>
               </div>
             </form>

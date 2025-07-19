@@ -26,7 +26,6 @@ const mapBrandToCompany = (brand: Brand) => ({
   slackConfig: {
     enabled: brand.notifications.slack,
     webhookUrl: brand.notifications.slackWebhook || '',
-    channel: '#monitoring'
   }
 });
 
@@ -149,7 +148,6 @@ export const settingsService = {
       const slackConfig = {
         enabled: notifications.slack,
         webhookUrl: notifications.slackWebhook || '',
-        channel: '#monitoring'
       };
 
       const response = await fetch(`/api/settings/${brandId}`, {

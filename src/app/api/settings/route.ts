@@ -67,7 +67,6 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
       slackConfig: {
         enabled: false,
         webhookUrl: '',
-        channel: '#monitoring'
       },
       emailConfig: {
         enabled: true,

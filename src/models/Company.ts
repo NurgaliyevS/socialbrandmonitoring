@@ -21,7 +21,6 @@ export interface ICompany extends Document {
   // Notification settings from PRD Step 4.2
   slackConfig?: {
     webhookUrl?: string;
-    channel?: string;
     enabled: boolean;
   };
   emailConfig?: {
@@ -61,7 +60,6 @@ const CompanySchema = new Schema({
   // Notification settings from PRD Step 4.2
   slackConfig: {
     webhookUrl: { type: String },
-    channel: { type: String, default: '#monitoring' },
     enabled: { type: Boolean, default: false }
   },
   emailConfig: {
