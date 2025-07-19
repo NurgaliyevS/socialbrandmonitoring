@@ -94,6 +94,7 @@ export async function processPendingSlackNotifications() {
       for (const mention of batch) {
         try {
           console.log(`📤 Sending notification for mention ${mention.redditId}...`);
+          console.log("🔍 Brand Website ", mention.brandId?.website);
           
                   // Send Slack notification
         await sendSlackNotification(mention.brandId._id.toString(), {
