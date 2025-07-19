@@ -5,7 +5,7 @@ import { processPendingSlackNotifications } from '@/lib/slack-notification-servi
  * API endpoint for processing Slack notifications
  * Can be called by cron job to send pending notifications
  */
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     console.log('🚀 Slack notifications API endpoint called');
     
@@ -40,36 +40,8 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * GET endpoint for checking status
- * Useful for monitoring and health checks
- */
-export async function GET(request: NextRequest) {
-  try {
-    console.log('📊 Slack notifications API status check');
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Slack notifications API is running',
-      status: 'healthy',
-      timestamp: new Date().toISOString(),
-      endpoints: {
-        POST: '/api/slack-notifications - Process pending notifications',
-        GET: '/api/slack-notifications - Health check'
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error in Slack notifications API health check:', error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        message: 'Slack notifications API health check failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
-  }
+export async function GET(){
+  // call POST endpoint
+  return await POST();
 } 
+

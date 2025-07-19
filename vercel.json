@@ -13,9 +13,8 @@
       "schedule": "0 */6 * * *"
     },
     {
-      "path": "/api/cron/slack-notifications",
-      "schedule": "*/5 * * * *",
-      "method": "POST"
+      "path": "/api/slack-notifications",
+      "schedule": "*/5 * * * *"
     }
   ],
   "functions": {
