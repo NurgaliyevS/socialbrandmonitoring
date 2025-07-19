@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Bell, Mail, MessageSquare } from 'lucide-react';
+import { Bell, Mail, MessageSquare, Play } from 'lucide-react';
 import { Brand, Keyword, NotificationSettings } from './types';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
@@ -150,6 +150,17 @@ const NotificationSettingsComponent = ({
                       <li>Copy the webhook URL and paste it above</li>
                       <li>Notifications will be sent to that specific channel</li>
                     </ol>
+                    <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+                      <a 
+                        href="https://youtu.be/IU-IDUasNvA" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        <Play className="h-4 w-4" />
+                        Watch Video Tutorial: Slack Integration Setup
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
