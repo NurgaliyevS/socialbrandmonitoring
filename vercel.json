@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/polling-service",
-      "schedule": "*/1 * * * *"
+      "schedule": "*/5 * * * *"
     },
     {
       "path": "/api/comments-polling-service",
-      "schedule": "*/1 * * * *"
+      "schedule": "*/5 * * * *"
     },
     {
       "path": "/api/first-email-check",
