@@ -63,6 +63,7 @@ export interface IUser extends Document {
   subscriptions: IStripeSubscription[];
   oneTimePayments: IStripeOneTimePayment[];
   onboardingComplete: boolean;
+  plan: 'free' | 'paid'; // Added plan field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -137,7 +138,8 @@ const UserSchema = new Schema({
   stripeCustomerId: { type: String },
   subscriptions: [StripeSubscriptionSchema],
   oneTimePayments: [StripeOneTimePaymentSchema],
-  onboardingComplete: { type: Boolean, default: false }
+  onboardingComplete: { type: Boolean, default: false },
+  plan: { type: String, enum: ['free', 'paid'], default: 'free' } // Added plan field
 }, {
   timestamps: true
 });

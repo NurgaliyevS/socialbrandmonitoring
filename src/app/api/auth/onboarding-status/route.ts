@@ -7,7 +7,7 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     
-    const user = await User.findById(request.user!.id).select('onboardingComplete');
+    const user = await User.findById(request.user!.id).select('onboardingComplete plan');
     
     if (!user) {
       return NextResponse.json({
@@ -18,7 +18,8 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     
     return NextResponse.json({
       success: true,
-      onboardingComplete: user.onboardingComplete || false
+      onboardingComplete: user.onboardingComplete || false,
+      plan: user.plan || 'free'
     });
   } catch (error) {
     return NextResponse.json({

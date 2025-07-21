@@ -23,7 +23,7 @@ const OnboardingFlow = () => {
   const [companyName, setCompanyName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const { refreshBrands } = useDashboard()
+  const { refreshBrands, setShowUpgradeModal } = useDashboard()
 
   // Check if onboarding is already complete on component mount
   useEffect(() => {
@@ -144,13 +144,18 @@ const OnboardingFlow = () => {
           scrapedData,
         }),
       }).then(async (response) => {
-        console.log("response", response);
+        const data = await response.json();
+        console.log("data", data);
         // only if the response is success
         if (response?.ok) {
           refreshBrands();
           toast.success("Our system is analyzing your brand and will notify you when we find mentions.", {
             duration: 1000000
           })
+
+          if (data?.userPlan === "free") {
+            setShowUpgradeModal(true);
+          }
           router.push('/dashboard');
         } else {
           const errorData = await response.json();

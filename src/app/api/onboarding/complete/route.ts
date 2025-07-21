@@ -9,6 +9,11 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
     await connectDB();
     const { website, keywords, companyName, scrapedData } = await request.json();
 
+    // Fetch the user's plan status
+    const user = await User.findById(request.user!.id);
+    const userPlan = user?.plan || 'free';
+    console.log('User plan status:', userPlan); // For debugging, can be removed later
+
     // Validate required fields
     if (!website || !companyName) {
       return NextResponse.json({
@@ -55,10 +60,26 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
       onboardingComplete: true
     });
 
-    return NextResponse.json({
-      success: true,
-      companyId: company._id
-    });
+    // Restrict core logic for free users
+    if (userPlan === 'free') {
+      fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/polling-service`, { method: 'POST' });
+      fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/comments-polling-service`, { method: 'POST' });
+      return NextResponse.json({
+        success: true,
+        companyId: company._id,
+        userPlan,
+        showUpgrade: true // Frontend should show upgrade popup/modal
+      });
+    } else {
+      fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/polling-service`, { method: 'POST' });
+      fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/comments-polling-service`, { method: 'POST' });
+      return NextResponse.json({
+        success: true,
+        companyId: company._id,
+        userPlan,
+        showUpgrade: false
+      });
+    }
   } catch (error) {
     return NextResponse.json({
       success: false,

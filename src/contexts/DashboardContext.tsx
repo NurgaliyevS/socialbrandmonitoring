@@ -8,6 +8,8 @@ interface DashboardContextType {
   loading: boolean;
   error: string | null;
   refreshBrands: () => Promise<void>;
+  showUpgradeModal: boolean;
+  setShowUpgradeModal: (open: boolean) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -20,6 +22,7 @@ export const DashboardProvider = ({ children }: DashboardProviderProps) => {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const loadBrands = async () => {
     try {
@@ -34,7 +37,7 @@ export const DashboardProvider = ({ children }: DashboardProviderProps) => {
       setLoading(false);
     }
   };
-
+  
   const refreshBrands = async () => {
     await loadBrands();
   };
@@ -47,7 +50,9 @@ export const DashboardProvider = ({ children }: DashboardProviderProps) => {
     brands,
     loading,
     error,
-    refreshBrands
+    refreshBrands,
+    showUpgradeModal,
+    setShowUpgradeModal
   };
 
   return (
