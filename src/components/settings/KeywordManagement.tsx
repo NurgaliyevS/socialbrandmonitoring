@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, Plus, MessageSquare, Save, X } from "lucide-react";
+import { Trash2, Plus, MessageSquare, Save, X, Pencil } from "lucide-react";
 import { Brand, Keyword, NotificationSettings } from "./types";
 import { settingsService } from '@/lib/settings-service';
 import toast from 'react-hot-toast';
@@ -27,6 +27,10 @@ const KeywordManagement = ({
   handleRemoveKeyword,
   handleUpdateKeyword,
 }: KeywordManagementProps) => {
+  // Track which brand/keyword is being edited and local state for edits
+  const [editing, setEditing] = useState<{ brandId: string; keywordId: string } | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editType, setEditType] = useState<"Own Brand" | "Competitor" | "Industry">("Own Brand");
   // Track which brand is adding a keyword and the new keyword value
   const [addingKeywordBrandId, setAddingKeywordBrandId] = useState<
     string | null
@@ -92,6 +96,25 @@ const KeywordManagement = ({
     }
   };
 
+  const startEdit = (brandId: string, keyword: Keyword) => {
+    setEditing({ brandId, keywordId: keyword.id });
+    setEditName(keyword.name);
+    setEditType(keyword.type as any);
+  };
+
+  const cancelEdit = () => {
+    setEditing(null);
+    setEditName("");
+    setEditType("Own Brand");
+  };
+
+  const saveEdit = async (brandId: string, keywordId: string) => {
+    await handleUpdateKeyword(brandId, keywordId, { name: editName, type: editType });
+    setEditing(null);
+    setEditName("");
+    setEditType("Own Brand");
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -117,45 +140,71 @@ const KeywordManagement = ({
             </div>
 
             <div className="space-y-2">
-              {brand.keywords.map((keyword) => (
-                <div
-                  key={keyword.id}
-                  className="flex items-center gap-3 p-3 border rounded-lg"
-                >
-                  <div className={`w-3 h-3 rounded-full ${keyword.type === 'Own Brand' ? 'bg-blue-500' : keyword.type === 'Competitor' ? 'bg-red-500' : 'bg-green-500'}`} />
-                  <Input
-                    value={keyword.name}
-                    onChange={(e) =>
-                      handleUpdateKeyword(brand.id, keyword.id, {
-                        name: e.target.value,
-                      })
-                    }
-                    className="flex-1"
-                    placeholder="Enter keyword"
-                  />
-                  <select
-                    value={keyword.type}
-                    onChange={(e) =>
-                      handleUpdateKeyword(brand.id, keyword.id, {
-                        type: e.target.value as any,
-                      })
-                    }
-                    className="border rounded px-3 py-2 text-sm"
+              {brand.keywords.map((keyword) => {
+                const isEditing = editing && editing.brandId === brand.id && editing.keywordId === keyword.id;
+                return (
+                  <div
+                    key={keyword.id}
+                    className="flex items-center gap-3 p-3 border rounded-lg"
                   >
-                    <option value="Own Brand">Own Brand</option>
-                    <option value="Competitor">Competitor</option>
-                    <option value="Industry">Industry</option>
-                  </select>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveKeywordWithNotification(brand.id, keyword.id)}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                    <div className={`w-3 h-3 rounded-full ${keyword.type === 'Own Brand' ? 'bg-blue-500' : keyword.type === 'Competitor' ? 'bg-red-500' : 'bg-green-500'}`} />
+                    <Input
+                      value={isEditing ? editName : keyword.name}
+                      onChange={e => isEditing ? setEditName(e.target.value) : undefined}
+                      className="flex-1"
+                      placeholder="Enter keyword"
+                      readOnly={!isEditing}
+                    />
+                    <select
+                      value={isEditing ? editType : keyword.type}
+                      onChange={e => isEditing ? setEditType(e.target.value as any) : undefined}
+                      className="border rounded px-3 py-2 text-sm"
+                      disabled={!isEditing}
+                    >
+                      <option value="Own Brand">Own Brand</option>
+                      <option value="Competitor">Competitor</option>
+                      <option value="Industry">Industry</option>
+                    </select>
+                    {isEditing ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => saveEdit(brand.id, keyword.id)}
+                        >
+                          <Save className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={cancelEdit}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => startEdit(brand.id, keyword)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveKeywordWithNotification(brand.id, keyword.id)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
               {/* New keyword input row */}
               {addingKeywordBrandId === brand.id && (
                 <form

@@ -9,6 +9,7 @@ import NotificationSettingsComponent from '@/components/settings/NotificationSet
 import { Brand, Keyword, NotificationSettings } from '@/components/settings/types';
 import { settingsService } from '@/lib/settings-service';
 import toast from 'react-hot-toast';
+import { useDashboard } from '@/contexts/DashboardContext';
 
 const Settings = () => {
   const router = useRouter();
@@ -19,6 +20,8 @@ const Settings = () => {
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [isAddingBrand, setIsAddingBrand] = useState(false);
   const [newBrand, setNewBrand] = useState({ name: '', website: '' });
+
+  const { refreshBrands } = useDashboard();
 
   // Load brands from backend on component mount
   useEffect(() => {
@@ -125,6 +128,8 @@ const Settings = () => {
       try {
         const savedBrand = await settingsService.updateKeywords(brandId, updatedBrand.keywords);
         setBrands(brands.map(b => b.id === brandId ? savedBrand : b));
+        toast.success('Keyword updated successfully.');
+        refreshBrands();
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to update keyword');
         console.error('Error updating keyword:', err);
