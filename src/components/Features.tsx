@@ -19,11 +19,6 @@ const Features = () => {
       description: "Understand the context around mentions with sentiment analysis and engagement metrics."
     },
     {
-      icon: FileText,
-      title: "Easy Reporting",
-      description: "Generate beautiful, shareable reports for clients and stakeholders in minutes."
-    },
-    {
       icon: Target,
       title: "Keyword Targeting",
       description: "Set up precise keyword combinations to track exactly what matters to your brand."
