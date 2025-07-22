@@ -9,7 +9,7 @@ const Demo = () => {
       </h2>
 
       {/* YouTube Embed */}
-      <div className="relative w-full max-w-2xl aspect-video rounded-xl overflow-hidden shadow-lg mb-12 bg-gradient-to-br from-purple-200 to-blue-200 flex items-center justify-center">
+      <div className="relative w-[90%] md:w-full max-w-2xl aspect-video rounded-xl overflow-hidden shadow-lg mb-12 bg-gradient-to-br from-purple-200 to-blue-200 flex items-center justify-center px-8">
         <iframe
           className="absolute inset-0 w-full h-full"
           src="https://www.youtube.com/embed/frpaNHz_LtU?si=uI_HmZn-OkeHLG9c"

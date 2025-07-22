@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { isDevelopment } from "@/lib/isDevelopment";
 
 const Pricing = () => {
+  console.log(isDevelopment);
   return (
     <section id="pricing" className="py-20 bg-white">
       <div className="container mx-auto flex justify-center">
@@ -49,12 +50,19 @@ const Pricing = () => {
           {/* Button */}
           <button
             className="w-full btn-primary bg-black bg-gradient-to-r from-black to-zinc-900 text-white rounded-lg py-3 text-base font-semibold shadow hover:from-zinc-900 hover:to-zinc-900 transition-all duration-200"
-            onClick={() =>
-              window.open(
-                "https://buy.stripe.com/cNi4gAcgC9KnaKE22V1oI00",
-                "_blank"
-              )
-            }
+            onClick={() => {
+              if (isDevelopment) {
+                window.open(
+                  "https://buy.stripe.com/test_bJeaEZ0tg1ssaMPbWM7Re01",
+                  "_blank"
+                );
+              } else {
+                window.open(
+                  "https://buy.stripe.com/cNi4gAcgC9KnaKE22V1oI00",
+                  "_blank"
+                );
+              }
+            }}
           >
             {/* Lock In Your Lifetime 50% Off */}
             Get Lifetime Access
