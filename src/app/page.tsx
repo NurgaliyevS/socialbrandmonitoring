@@ -3,6 +3,7 @@ import ProblemSolution from "@/components/ProblemSolution";
 import Features from "@/components/Features";
 import Pricing from "@/components/Pricing";
 import NavigationHeader from "@/components/NavigationHeader";
+import HowItWorks from "@/components/HowItWorks";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <NavigationHeader />
       <Hero />
       <ProblemSolution />
+      <HowItWorks />
       <Features />
       <Pricing />
     </div>

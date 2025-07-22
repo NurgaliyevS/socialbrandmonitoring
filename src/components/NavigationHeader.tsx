@@ -93,7 +93,7 @@ const NavigationHeader = () => {
           )}
 
           <Link
-            href="https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h"
+            href="https://buy.stripe.com/cNi4gAcgC9KnaKE22V1oI00"
             target="_blank"
           >
             <button className="inline-flex items-center justify-center whitespace-nowrap text-xs ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-8 px-3 py-1 bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
@@ -158,7 +158,7 @@ const NavigationHeader = () => {
             {/* Get Lifetime Access CTA (not in NAV_ITEMS) */}
             <li>
               <Link
-                href="https://buy.stripe.com/9B6bJ38c00vp0BIdJ6aVa0h"
+                href="https://buy.stripe.com/cNi4gAcgC9KnaKE22V1oI00"
                 target="_blank"
               >
                 <button className="inline-flex items-center justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 rounded-lg font-medium h-10 px-4 py-2 btn-sm bg-zinc-900 text-zinc-100 shadow hover:bg-zinc-800">
