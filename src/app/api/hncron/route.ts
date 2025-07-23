@@ -92,24 +92,13 @@ async function processHackerNewsResults({ results, company, keyword }: {
   let duplicates = 0;
   for (const story of results.stories.hits || []) {
     const itemId = String(story.objectID);
-    // Log for debugging duplicate key errors
-    console.log('Attempting to create Mention:', {
-      platform,
-      itemId,
-      legacyRedditId: story.redditId || null,
-      storyObject: story
-    });
     const exists = await Mention.findOne({ platform, itemId });
     if (exists) {
       duplicates++;
       continue;
     }
-    console.log(story.story_text, "story.story_text");
-    console.log(story.text, "story.text");
-    console.log(story.title, "story.title");
     // Ensure content is always set and non-empty
     let content = story.story_text || story.text || '';
-    console.log(content, "content");
     if (!content) content = story.title || '';
     const extractedContent = extractSentenceWithKeyword(content, keyword);
     // Ensure url is always set and non-empty
@@ -160,12 +149,6 @@ async function processHackerNewsResults({ results, company, keyword }: {
   for (const comment of results.comments.hits || []) {
     const itemId = String(comment.objectID);
     // Log for debugging duplicate key errors
-    console.log('Attempting to create Mention:', {
-      platform,
-      itemId,
-      legacyRedditId: comment.redditId || null,
-      commentObject: comment
-    });
     const exists = await Mention.findOne({ platform, itemId });
     if (exists) {
       duplicates++;
@@ -262,6 +245,7 @@ async function getCompanyKeywordsMap() {
   const companies = await fetchAllCompaniesWithKeywords();
   return companies.map((company: any) => ({
     brandId: company._id,
+    brandName: company.name,
     keywords: (company.keywords || []).map((k: any) => k.name)
   }));
 }
@@ -297,7 +281,47 @@ export async function GET(req: NextRequest) {
 
   console.log(companyKeywordMap, "companyKeywordMap");
 
-  for (const company of companyKeywordMap) {
+  // Add mentionCount to each company and sort by mentionCount ascending
+  const mentionCounts = await Mention.aggregate([
+    {
+      $group: {
+        _id: '$brandId',
+        mentionCount: { $sum: 1 }
+      }
+    }
+  ]);
+
+  // Map mention counts to each company in companyKeywordMap
+  const mentionCountMap = new Map();
+  mentionCounts.forEach((item: any) => {
+    mentionCountMap.set(item._id.toString(), item.mentionCount);
+  });
+
+  // Add mentionCount to each company and sort by mentionCount ascending
+  const sortedCompanyKeywordMap = companyKeywordMap
+    .map((company: any) => ({
+      ...company,
+      mentionCount: mentionCountMap.get(company.brandId?.toString()) || 0
+    }))
+    .sort((a: any, b: any) => a.mentionCount - b.mentionCount);
+
+  console.log('📊 All brands sorted by mention count (ascending):');
+  sortedCompanyKeywordMap.forEach((company, idx) => {
+    console.log(`  ${idx + 1}. Brand: ${company.brandId} | Name: ${company.brandName || company.name || ''} | MentionCount: ${company.mentionCount}`);
+  });
+
+  // Limit to first 5 brands
+  const limitedCompanyKeywordMap = sortedCompanyKeywordMap.slice(0, 5);
+
+  // Add timing and logging for limited brands
+  const processStart = Date.now();
+  console.log('🔍 Limiting to 5 brands for this run:');
+  limitedCompanyKeywordMap.forEach((company, idx) => {
+    console.log(`  ${idx + 1}. Brand: ${company.brandId} | Name: ${company.brandName || company.name || ''} | MentionCount: ${company.mentionCount}`);
+  });
+
+  // Use limitedCompanyKeywordMap for processing
+  for (const company of limitedCompanyKeywordMap) {
     for (const keyword of company.keywords) {
       totalKeywords++;
       try {
@@ -309,6 +333,9 @@ export async function GET(req: NextRequest) {
       }
     }
   }
+
+  const processEnd = Date.now();
+  console.log(`⏱️ HNCRON processing for 5 brands took ${(processEnd - processStart) / 1000}s (${processEnd - processStart}ms) in minutes ${((processEnd - processStart) / 1000) / 60}`);
 
   console.log(results, "results");
 
