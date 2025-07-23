@@ -104,7 +104,9 @@ export async function processPendingSlackNotifications() {
             subreddit: mention.subreddit,
             author: mention.author,
             url: mention.url,
-            sentiment: mention.sentiment
+            sentiment: mention.sentiment,
+            itemType: mention.itemType,
+            platform: mention.platform
           });
           
           // Mark as sent immediately after successful notification
