@@ -88,11 +88,14 @@ export async function POST(request: Request): Promise<Response> {
       );
     } else if (!isSubscription) {
       // ONE-TIME: Add new one-time payment
+      console.log(session.payment_intent, 'payment_intent');
       const paymentIntentId = session.payment_intent as string;
+      console.log(paymentIntentId, 'paymentIntentId');
       const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId) as Stripe.PaymentIntent;
+      console.log(paymentIntent, 'paymentIntent');
       const newPayment: IStripeOneTimePayment = {
         id: paymentIntent.id,
-        stripePaymentIntentId: paymentIntent.id,
+        stripePaymentIntentId: paymentIntent.id || '',
         stripeCustomerId: customerId || '',
         amount: paymentIntent.amount_received,
         currency: paymentIntent.currency,
