@@ -57,7 +57,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       setError(null);
-      
+      // Pass the full filters object, including platform
       const response = await mentionsService.getMentionsByBrand(selectedBrand, filters);
       setMentions(response.mentions);
       setTotalPages(response.pagination?.pages || 1);
@@ -73,7 +73,7 @@ const Dashboard = () => {
   const filteredMentions = mentions.filter(mention =>
     mention.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     mention.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    mention.subreddit.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (mention.subreddit?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
     mention.brandName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -89,6 +89,7 @@ const Dashboard = () => {
   };
 
   const handleFilterChange = (newFilters: Partial<MentionsFilters>) => {
+    console.log(newFilters, "newFilters");
     setFilters(prev => ({ ...prev, ...newFilters, page: 1 })); // Reset to first page
   };
 

@@ -252,7 +252,7 @@ function summarizeHNCronResults(results: Array<{ created: number; duplicates: nu
 // Fetch all companies with at least one keyword
 async function fetchAllCompaniesWithKeywords() {
   // only name is datafast
-  return Company.find({ keywords: { $exists: true, $ne: [] }, name: "datafast" });
+  return Company.find({ keywords: { $exists: true, $ne: [] }});
 }
 
 // Returns an array of { brandId, keywords } for each company

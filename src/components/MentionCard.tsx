@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check, MailCheck, MailQuestion } from 'lucide-react';
+import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check, MailCheck, MailQuestion, Globe } from 'lucide-react';
 import { mentionsService } from '@/lib/mentions-service';
 
 interface MentionCardProps {
@@ -73,14 +73,19 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
     }
   };
 
-  console.log(mention.permalink, 'mention permalink')
-  console.log(mention.url, 'mention url')
-
   return (
     <div 
       className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full cursor-pointer ${mention.unread ? 'border-l-4 border-l-blue-500' : ''}`}
       onClick={handleCardClick}
     >
+      {/* Platform label/icon */}
+      <div className="flex items-center mb-2">
+        {mention.platform === 'reddit' ? (
+          <span className="flex items-center text-orange-500 font-semibold text-xs mr-2"><Globe size={16} className="mr-1" />Reddit</span>
+        ) : (
+          <span className="flex items-center text-yellow-600 font-semibold text-xs mr-2"><Globe size={16} className="mr-1" />Hacker News</span>
+        )}
+      </div>
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0 w-full">
           <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">

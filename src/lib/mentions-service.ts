@@ -34,11 +34,13 @@ export interface MentionsFilters {
   keyword?: string;
   page?: number;
   limit?: number;
+  platform?: 'reddit' | 'hackernews'; // Add platform filter
 }
 
 export interface FilterOptions {
   subreddits: string[];
   keywords: string[];
+  platforms?: string[]; // Add platforms array for filter options
 }
 
 class MentionsService {
@@ -53,6 +55,7 @@ class MentionsService {
     if (filters.keyword) params.append('keyword', filters.keyword);
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.limit) params.append('limit', filters.limit.toString());
+    if (filters.platform) params.append('platform', filters.platform);
 
     const response = await fetch(`${this.baseUrl}?${params.toString()}`);
     
@@ -66,6 +69,7 @@ class MentionsService {
   }
 
   async getMentionsByBrand(brandId: string, filters: Omit<MentionsFilters, 'brandId'> = {}): Promise<MentionsResponse> {
+    console.log(filters, "filters");
     return this.getMentions({ ...filters, brandId });
   }
 

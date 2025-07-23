@@ -36,22 +36,27 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
       });
     }
 
+    const searchParams = request.nextUrl.searchParams;
+    const platform = searchParams.get('platform');
     // Build filter object - filter by keywords instead of brandId
     const filter: any = {
       keywordMatched: { $in: userKeywords }
     };
-
+    if (platform && ['reddit', 'hackernews'].includes(platform)) {
+      filter.platform = platform;
+    }
     // Get unique subreddits
     const subreddits = await Mention.distinct('subreddit', filter);
-    
     // Get unique keywords that match user's keywords
     const keywords = await Mention.distinct('keywordMatched', filter);
-
+    // Get unique platforms present for this user's brands
+    const platforms = await Mention.distinct('platform', filter);
     return NextResponse.json({
       success: true,
       data: {
         subreddits: subreddits.sort(),
-        keywords: keywords.sort()
+        keywords: keywords.sort(),
+        platforms: platforms.sort()
       }
     });
   } catch (error) {

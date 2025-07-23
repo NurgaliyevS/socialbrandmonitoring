@@ -39,6 +39,7 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
+    const platform = searchParams.get('platform');
 
     // Get user's keywords instead of company IDs
     const userKeywords = await getUserKeywords(request.user!.id, brandId || undefined);
@@ -66,6 +67,10 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     // Additional filters
     if (sentiment && ['positive', 'negative', 'neutral'].includes(sentiment)) {
       filter['sentiment.label'] = sentiment;
+    }
+    
+    if (platform && ['reddit', 'hackernews'].includes(platform)) {
+      filter.platform = platform;
     }
     
     if (subreddit) {
@@ -102,7 +107,7 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
       brandName: (mention.brandId as any)?.name || 'Unknown Brand',
       permalink: mention.permalink,
       itemType: mention.itemType, // Use itemType instead of redditType
-      platform: mention.platform, // Add platform for source distinction
+      platform: mention.platform, // Always include platform
       unread: mention.unread
     }));
 
