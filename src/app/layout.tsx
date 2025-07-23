@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Social Brand Monitoring",
-  description: "Get real-time alerts for Reddit opportunities",
+  description: "Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis",
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Social Brand Monitoring",
-    description: "Get real-time alerts for Reddit opportunities",
+    description: "Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis",
     url: "https://socialbrandmonitoring.com",
     siteName: "Social Brand Monitoring",
     images: [
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Social Brand Monitoring",
-    description: "Get real-time alerts for Reddit opportunities",
+    description: "Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis",
     images: ["/og-image.png"],
     creator: "@socialbrandmonitoring",
   },
