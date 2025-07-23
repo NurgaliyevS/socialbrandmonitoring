@@ -10,6 +10,12 @@ if (!STRIPE_SECRET_KEY || !STRIPE_WEBHOOK_SECRET) {
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 const webhookSecret = STRIPE_WEBHOOK_SECRET;
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export async function POST(request: Request): Promise<Response> {
   await connectDB();
 
