@@ -6,7 +6,7 @@ import { mentionsService } from '@/lib/mentions-service';
 interface MentionCardProps {
   mention: {
     id: string;
-    subreddit: string;
+    subreddit?: string;
     author: string;
     title: string;
     content: string;
@@ -18,7 +18,8 @@ interface MentionCardProps {
     keywords: string[];
     brandName?: string;
     permalink?: string;
-    redditType?: 'post' | 'comment';
+    itemType: 'post' | 'comment' | 'story'; // Use itemType instead of redditType
+    platform: 'reddit' | 'hackernews'; // Add platform for source distinction
     unread: boolean;
   };
   onMentionRead?: (mentionId: string) => void;

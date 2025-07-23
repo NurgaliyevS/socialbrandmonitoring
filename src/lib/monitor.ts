@@ -1,6 +1,6 @@
 import connectDB from "./mongodb";
 import { checkKeywordMatch, searchPosts } from "./reddit";
-import { analyzeSentiment } from "./polling-service";
+import { analyzeSentiment } from "./analyzeSentiment";
 import { analyzeCommentSentiment } from "./comments-polling-service";
 import { fetchGlobalComments } from "./reddit-global-fetcher";
 import Company from "@/models/Company";
@@ -286,9 +286,10 @@ export async function monitorRedditContent() {
           const mention = {
             brandId: brand.brandId,
             keywordMatched: matchedKeyword,
-            redditId: post.id,
-            redditType: "post",
-            subreddit: post.subreddit,
+            platform: 'reddit',
+            itemId: post.id,
+            itemType: 'post',
+            subreddit: post.subreddit, // Required for Reddit
             author: post.author,
             title: boldTitle,
             content: extractedContent,
@@ -399,9 +400,10 @@ export async function monitorRedditComments() {
           const mention = {
             brandId: brand.brandId,
             keywordMatched: matchedKeyword,
-            redditId: comment.id,
-            redditType: "comment",
-            subreddit: comment.subreddit,
+            platform: 'reddit',
+            itemId: comment.id,
+            itemType: 'comment',
+            subreddit: comment.subreddit, // Required for Reddit
             author: comment.author,
             title: boldTitle, // Parent post title with bold keywords
             content: extractedContent,

@@ -38,7 +38,8 @@ export async function updateCommentMentionSentiments() {
     // Find comment mentions without sentiment analysis
     const unprocessedMentions = await Mention.find({ 
       isProcessed: false,
-      redditType: 'comment'
+      itemType: 'comment',
+      platform: 'reddit'
     }).limit(50);
     
     console.log(`📊 Updating sentiment for ${unprocessedMentions.length} comment mentions`);

@@ -3,9 +3,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IMention extends Document {
   brandId: mongoose.Types.ObjectId;
   keywordMatched: string;
-  redditId: string;
-  redditType: 'post' | 'comment';
-  subreddit: string;
+  platform: 'reddit' | 'hackernews';
+  itemId: string;
+  itemType: 'post' | 'comment' | 'story';
+  subreddit?: string; // Optional for HN
   author: string;
   title?: string;
   content: string;
@@ -36,19 +37,23 @@ const MentionSchema = new Schema({
     type: String, 
     required: true
   },
-  redditId: { 
-    type: String, 
-    required: true,
-    unique: true
+  platform: {
+    type: String,
+    enum: ['reddit', 'hackernews'],
+    required: true
   },
-  redditType: { 
-    type: String, 
-    enum: ['post', 'comment'], 
-    required: true 
+  itemId: {
+    type: String,
+    required: true,
+  },
+  itemType: {
+    type: String,
+    enum: ['post', 'comment', 'story'],
+    required: true
   },
   subreddit: { 
     type: String, 
-    required: true
+    required: false // Optional for HN
   },
   author: { 
     type: String, 

@@ -101,7 +101,8 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
       keywords: [mention.keywordMatched],
       brandName: (mention.brandId as any)?.name || 'Unknown Brand',
       permalink: mention.permalink,
-      redditType: mention.redditType,
+      itemType: mention.itemType, // Use itemType instead of redditType
+      platform: mention.platform, // Add platform for source distinction
       unread: mention.unread
     }));
 

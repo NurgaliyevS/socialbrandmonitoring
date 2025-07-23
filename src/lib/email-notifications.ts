@@ -14,13 +14,15 @@ export async function sendEmailAlert(
     keywordMatched: string;
     title?: string;
     content: string;
-    subreddit: string;
+    subreddit?: string; // Make subreddit optional
     author: string;
     url: string;
     sentiment: {
       score: number;
       label: 'positive' | 'negative' | 'neutral';
     };
+    itemType: 'post' | 'comment' | 'story'; // Use itemType instead of redditType
+    platform: 'reddit' | 'hackernews'; // Add platform for source distinction
   }
 ) {
   try {

@@ -1,0 +1,145 @@
+# Hacker News Integration PRD
+
+## 1. Purpose and Scope
+
+Integrate Hacker News (HN) as a new data source for brand-mention monitoring. Similar to Reddit, the system will fetch Hacker News *posts* (stories) and *comments*, scan them for target keywords, compute sentiment, and store them as “mentions” in MongoDB. This document outlines the requirements, data flow, and schema changes needed to implement HN support using our stack (Next.js, TypeScript, Vercel, MongoDB, App Router).
+
+## 2. Current System Overview
+
+* **Existing Platform:** The system currently scrapes Reddit posts and comments, matches them against brand keywords, analyzes sentiment, and stores results in a MongoDB collection using the `Mention` schema (with fields like `brandId`, `redditId`, `redditType`, `author`, `content`, etc.). Slack notifications are sent for new mentions.
+* **Tech Stack:** Full-stack Next.js with App Router, TypeScript, deployed on Vercel; MongoDB with Mongoose for data storage; Vercel Cron for scheduled jobs; using the `sentiment` npm library for sentiment analysis.
+
+## 3. Goals and Requirements
+
+* **Functional:** Automatically fetch new Hacker News stories and comments that mention tracked keywords. Store each as a mention (with associated brand and keyword) in MongoDB. Ensure parity with Reddit pipeline (e.g. sentiment analysis, Slack alerts).
+* **Performance:** Use efficient data retrieval (avoid crawling entire HN history every run). Fetch only recent or relevant items.
+* **Reliability:** Run on a schedule (e.g. hourly) using Vercel Cron jobs. Prevent duplicates.
+* **Data Consistency:** Extend or adapt the existing schema to accommodate HN data, reusing as much as possible. Mark fields irrelevant to HN as optional.
+* **UX / API Changes:** In any UI or APIs that display mentions, include Hacker News as a source. Allow filtering or labeling by platform.
+
+## 4. Data Sources and APIs
+
+2. **Hacker News Algolia Search API** – A free public search API (no key) that indexes HN data. It supports querying by keyword, tags (story/comment/author), and sorting by relevance or date. For example:
+
+   * **Search by relevance:** `GET https://hn.algolia.com/api/v1/search?query=BRAND&tags=story` returns stories matching "BRAND", sorted by relevance/points/comments. Use `tags=comment` to search comments.
+   * **Search by date:** `GET https://hn.algolia.com/api/v1/search_by_date?query=BRAND&tags=story` for most recent matches.
+   * It can fetch whole threads or user data (e.g. `/api/v1/items/:id` for a story with comments).
+     This API simplifies retrieving items containing specific keywords (our brand terms) without crawling all HN content.
+
+3. **Choosing Data Retrieval Method:**
+
+   * **Preferred:** Use the Algolia search API to query brand keywords directly. This returns matching stories/comments quickly, avoiding a full crawl. It handles sorting and filtering (e.g. by author or date).
+
+## 5. Data Model and Schema Changes
+
+The existing `Mention` schema is Reddit-centric. To support HN, we must adapt it:
+
+* **Platform Identification:** Add a new field (e.g. `platform` or `source`) with enum `['reddit', 'hackernews']`. This distinguishes Reddit vs HN mentions.
+* **ID Fields:** Replace or supplement `redditId` with a generic `itemId`. For HN, use the numeric `id` (as string) from HN. Alternatively, prefix it (e.g. `hn_<id>`) to avoid collision. Ensure uniqueness by combining `platform+id`.
+* **Type Field:** Extend `redditType` to something like `itemType` with values `['post','comment','story']`. For HN, use `story` for main posts and `comment`. Mark existing `redditType` optional or migrate to new field.
+* **Subreddit Field:** Not applicable for HN (no categories). Options: mark `subreddit` optional (nullable) for HN, or repurpose it to store HN tags (e.g. 'Ask HN', 'Show HN' if needed), or simply set it to `'Hacker News'`.
+* **Title and Content:** In HN, a *story* has a `title` and may have a `text` (for Ask/Show HN), while a comment has only `text`. Map HN’s `title` to our `title` and `text` (HTML) to `content`. Ensure to strip HTML tags from `text` since our schema’s `content` is plain text. (HN item text is “HTML” per docs.)
+* **URL/Permalink:** HN stories include an external `url`. Use that for `url` field. Build a `permalink` as the HN item link (e.g. `https://news.ycombinator.com/item?id=<id>`). Comments only have an HN link.
+* **Score and Comments:** Map HN’s `score` to `score`. Map HN’s `descendants` (total comments) to `numComments` (for stories). For comments, HN `score` is usually undefined, so `score` may remain 0 or null.
+* **Timestamp:** HN’s `time` is Unix time (seconds). Convert to JS Date for our `created`.
+* **Sentiment:** Keep the same `sentiment` sub-document. Compute sentiment on the combined `title`+`content`.
+* **Flags:** Fields like `isProcessed`, `unread`, `slackNotificationSent` work identically for HN.
+
+By making fields like `subreddit` and original `redditType` optional (or removing them in favor of generic fields), the model can store either Reddit or HN mentions. This avoids duplicate schemas.
+
+## 6. Data Retrieval Workflow
+
+* **Scheduling:** Set up a Vercel cron job (via `vercel.json`) that triggers a Next.js API route or serverless function at a fixed interval (e.g. hourly or every 4 hours). This function will fetch HN data.
+
+* **Fetching Posts:** In each run, for each brand keyword:
+
+  1. **Search HN:** Use the Algolia API to `search` or `search_by_date` with the brand keyword and tags (`story` and `comment`). This returns recent stories/comments containing the keyword.
+  2. **Filter and Dedupe:** For each hit, check our DB for existing mention (by `platform + id`). Skip if already stored.
+  3. **Fetch Details:** If using Algolia, many fields (text, title, author) are already present in search hits. If needed, fetch more via `/api/v1/items/:id`. If using official API, call `/v0/item/{id}.json`.
+  4. **Keyword Matching:** Confirm the keyword was in the content (Algolia ensures this). Identify which brand/keyword matched.
+  5. **Construct Mention:** Populate fields as per schema (brandId, keywordMatched, itemId, itemType, author, title, content, url, permalink, score, numComments, created). Sanitize HN HTML text to plain text.
+  6. **Sentiment Analysis:** Use the `sentiment` library (v5.0.2) on the plain-text content. Store its `score` and derive a label (positive/negative/neutral) based on sign or threshold.
+  7. **Store in Mongo:** Save the mention document via Mongoose. The model will add `createdAt`/`updatedAt` automatically.
+
+* **Fetching Comments of New Stories (Optional):** If a new HN *story* mention is found, optionally fetch its comments to check for keyword mentions there as well. For each story ID, call `/api/v1/items/:id` which can return children, or fetch `/v0/item/{commentId}` for each comment. (Algolia can also return comments directly by searching or using `tags=comment`).
+
+* **Error Handling:** Log and handle API errors (network issues or rate limits). While HN API has no strict rate limit, implement retry or exponential backoff as needed.
+
+## 7. Next.js & Serverless Implementation
+
+* **API Routes:** Create new Next.js API routes (e.g. in `app/api/hncron/route.ts`) or serverless functions to run the fetch-and-store logic. These functions should be secured (only Vercel cron should call them, so path can be obscure or protected by a token).
+* **TypeScript:** Write all code in TypeScript. Reuse interfaces where possible (extend `IMention` or create a common interface for mentions from any platform).
+* **Database Connection:** Use Mongoose to connect to MongoDB from the API routes. Follow best practices to reuse connections between invocations (e.g. caching the connection in a global variable in Vercel) to avoid exhausting connections.
+* **Environment Variables:** Configure MongoDB URI, any API URLs, and Slack webhook URLs (if used) in Vercel’s environment variables for production.
+* **Deployment:** On push to main, Vercel will deploy and set up the cron job (per `vercel.json`), which will automatically hit the designated API path on schedule.
+
+## 8. Data Storage and De-duplication
+
+* **Uniqueness:** Ensure a unique index on `(platform, itemId)` so the same HN item isn’t saved twice. For simplicity, the code can prefix `itemId` (e.g. `hn_12345`) or store `platform` separately.
+* **Idempotency:** The cron job should be idempotent: if it runs twice on the same data, it should not create duplicates (check existing IDs before insert).
+* **Processing Flags:** Similar to Reddit mentions, mark new HN mentions with `unread = true` and `slackNotificationSent = false`.
+* **Brand Association:** Use existing brand-keyword data to link a mention to `brandId`. If a mention contains multiple brands, create separate mention records or decide on priority.
+
+## 9. Sentiment Analysis
+
+* **Existing Library:** The project already uses `sentiment (v5.0.2)`. Continue using it for HN content.
+* **HTML to Text:** Hacker News `text` fields contain HTML entities/tags. Before analysis, strip HTML to plain text (e.g. using a library or regex) so sentiment scores are accurate.
+* **Integration:** After preparing `content`, call the sentiment analyzer (e.g. `sentiment.analyze(content)`) to get a score. Convert the numeric score into a label: positive (score > 0), negative (score < 0), or neutral (score = 0). Save these in the `sentiment` sub-document of the mention.
+
+## 10. Notifications and UI
+
+* **Slack Notifications:** Reuse existing Slack alert logic. When a new HN mention is saved, trigger a Slack message if the brand’s settings call for it. The message should clearly indicate “Hacker News” as the source and include a link (use `url` or `permalink`) to the story/comment.
+* **Web UI / Frontend:** In any frontend or API that lists mentions, include an indicator for Hacker News (e.g. an icon or label). Allow filtering by platform. The mention fields like author, content, score, date apply similarly.
+* **App Router:** If the app uses Next.js App Router (`app/` directory), ensure new API routes and pages (if any) follow that structure. No major frontend component changes are required beyond showing HN as a source.
+
+## 11. Scheduling with Vercel Cron
+
+* **Configuration:** In `vercel.json`, define a cron entry such as:
+
+  ```json
+  {
+    "crons": [
+      { "path": "/api/hncron", "schedule": "0 * * * *" }
+    ]
+  }
+  ```
+
+  This example runs every hour on the hour. Adjust the cron expression as needed.
+* **Scope:** Note that Vercel cron jobs only run on production deployments. Ensure the project is deployed to production after merging these changes.
+* **Alternative Providers:** If finer control or reliability is needed, third-party schedulers (e.g. Upstash QStash, Zeplo) can be used, but Vercel’s built-in cron is sufficient for simple periodic tasks.
+
+## 12. Data Flow Summary
+
+1. **Trigger:** Vercel Cron hits the Next.js API endpoint.
+2. **Fetch:** The endpoint queries HN (via Algolia or Firebase) for each brand’s keywords.
+3. **Process:** For each returned story/comment, parse fields, strip HTML, detect keyword and brand.
+4. **Analyze:** Run sentiment analysis on the content.
+5. **Store:** Upsert mention into MongoDB with appropriate schema fields (ensuring uniqueness).
+6. **Notify:** If new, optionally send Slack notification. Mark `unread` and `slackNotificationSent` accordingly.
+
+## 13. Errors and Edge Cases
+
+* **Deleted/Dead Items:** HN API may mark items as `deleted` or `dead`. Skip these. (The `deleted` and `dead` flags appear in the official API.)
+* **API Limits:** The official API is unlimited, but to be safe, implement caching or slight delays if looping through many comments. The Algolia API has query limits (60 calls/minute unauthenticated). If needed, respect these or batch queries.
+* **Content Size:** Some HN posts or comments could be large (e.g. long job postings); ensure processing and DB fields handle expected sizes. MongoDB’s default limits should suffice for text.
+* **Time Zones:** HN `time` is UTC. Convert properly to store in UTC (or with timezone handling) in DB.
+* **Missing Data:** If an HN story has no URL (e.g. Ask HN), set `url` to the permalink. If a story has no title (unlikely), leave it blank.
+
+## 14. Testing and Validation
+
+* **Unit Tests:** Write tests for the fetching logic using sample HN JSON payloads. Ensure keywords are detected and mentions are constructed correctly.
+* **Integration Tests:** After deployment, run a few manual cron triggers (or wait) and verify that HN mentions appear in the database with correct fields.
+* **Monitor Logs:** Use Vercel or custom logging to catch errors (e.g. API failures or DB errors).
+* **QA:** Have stakeholders confirm that HN mentions show up in the app UI and Slack correctly.
+
+## 15. Future Considerations
+
+* **Real-time Updates:** The Firebase HN API supports live subscriptions (not easily doable in serverless). Currently, cron polling is sufficient, but for more real-time needs, consider a persistent listener or a cheaper schedule.
+* **Additional Content:** HN also has “Poll” and “Job” items. Currently, only monitor stories and comments (where brand names are likely). If needed, polls or jobs could be added by extending `type` enum.
+* **Rate of Mention:** Hacker News has a different culture and volume than Reddit. Monitor how often brands are mentioned to adjust cron frequency or filtering logic.
+
+## References
+
+* Hacker News Official API documentation (Firebase endpoints).
+* Hacker News Algolia Search API documentation and examples.
+* Vercel Cron Job guide for scheduling serverless functions.

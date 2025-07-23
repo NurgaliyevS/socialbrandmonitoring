@@ -1,33 +1,8 @@
-import Sentiment from 'sentiment';
 import { monitorRedditContent } from './monitor';
 import Mention from '@/models/Mention';
 import connectDB from './mongodb';
+import { analyzeSentiment } from './analyzeSentiment';
 
-// Initialize sentiment analyzer
-const sentiment = new Sentiment();
-
-/**
- * Perform sentiment analysis on text
- * Implementation from PRD Step 3 - Sentiment Analysis
- */
-export function analyzeSentiment(text: string): { score: number; label: 'positive' | 'negative' | 'neutral' } {
-  const result = sentiment.analyze(text);
-  
-  // Determine sentiment label based on score
-  let label: 'positive' | 'negative' | 'neutral';
-  if (result.score > 0) {
-    label = 'positive';
-  } else if (result.score < 0) {
-    label = 'negative';
-  } else {
-    label = 'neutral';
-  }
-  
-  return {
-    score: result.score,
-    label
-  };
-}
 
 /**
  * Update sentiment for existing mentions
@@ -48,6 +23,7 @@ export async function updateMentionSentiments() {
     const updates = [];
     
     for (const mention of unprocessedMentions) {
+      // No usage of redditId or redditType in this file, so no changes needed.
       const content = mention.title ? `${mention.title} ${mention.content}` : mention.content;
       const sentimentResult = analyzeSentiment(content);
       

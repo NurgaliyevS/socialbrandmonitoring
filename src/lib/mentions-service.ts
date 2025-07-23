@@ -1,6 +1,6 @@
 export interface Mention {
   id: string;
-  subreddit: string;
+  subreddit?: string;
   author: string;
   title: string;
   content: string;
@@ -12,7 +12,8 @@ export interface Mention {
   keywords: string[];
   brandName: string;
   permalink: string;
-  redditType: 'post' | 'comment';
+  itemType: 'post' | 'comment' | 'story'; // Use itemType instead of redditType
+  platform: 'reddit' | 'hackernews'; // Add platform for source distinction
   unread: boolean;
 }
 
