@@ -75,8 +75,7 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
   };
 
   // Platform-specific icon
-  let platformIcon = mention.platform === 'reddit' && <SiReddit className="mr-1 text-orange-500" />;
-  platformIcon = mention.platform === 'hackernews' && <SiYcombinator className="mr-1 text-yellow-600" />;
+  let platformIcon = mention.platform === 'reddit' ? <SiReddit className="mr-1 text-orange-500" /> : <SiYcombinator className="mr-1 text-yellow-600" />;
 
   return (
     <div 
