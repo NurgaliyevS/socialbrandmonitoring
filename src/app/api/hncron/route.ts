@@ -4,6 +4,7 @@ import Mention from '@/models/Mention';
 import Company from '@/models/Company';
 import { analyzeSentiment } from '@/lib/analyzeSentiment';
 import { sendSlackNotification } from '@/lib/slack-notifications';
+import { extractSentenceWithKeyword } from '@/lib/extractSentenceWithKeyword';
 
 // Utility to strip HTML tags from a string
 function stripHtml(html: string): string {
@@ -110,6 +111,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
     let content = story.story_text || story.text || '';
     console.log(content, "content");
     if (!content) content = story.title || '';
+    const extractedContent = extractSentenceWithKeyword(content, keyword);
     // Ensure url is always set and non-empty
     let url = `https://news.ycombinator.com/item?id=${itemId}`;
     if (!url) url = story.url;
@@ -122,7 +124,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
       subreddit: undefined,
       author: story.author || '',
       title: story.title || '',
-      content,
+      content: extractedContent,
       url,
       permalink: story.url || `https://news.ycombinator.com/item?id=${itemId}`,
       score: story.points || story.score || 0,
@@ -172,6 +174,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
     // Ensure content is always set and non-empty
     let content = comment.comment_text || comment.text || '';
     if (!content) content = '';
+    const extractedCommentContent = extractSentenceWithKeyword(content, keyword);
     // Ensure url is always set and non-empty for comments
     let url = `https://news.ycombinator.com/item?id=${itemId}`;
     if (!url) url = comment.story_url;
@@ -184,7 +187,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
       subreddit: undefined,
       author: comment.author || '',
       title: '',
-      content,
+      content: extractedCommentContent,
       url,
       permalink: comment.story_url || `https://news.ycombinator.com/item?id=${itemId}`,
       score: comment.points || comment.score || 0,
