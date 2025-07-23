@@ -72,12 +72,12 @@ export async function POST(request: Request): Promise<Response> {
       };
       // Upsert subscription (replace if exists, else push)
       await User.updateOne(
-        { _id: user._id, "subscriptions.stripeSubscriptionId": subscription.id },
+        { _id: user?._id, "subscriptions.stripeSubscriptionId": subscription.id },
         { $set: { "subscriptions.$": newSub, plan: "paid", stripeCustomerId: customerId } }
       );
       // If not found, push as new
       await User.updateOne(
-        { _id: user._id, "subscriptions.stripeSubscriptionId": { $ne: subscription.id } },
+        { _id: user?._id, "subscriptions.stripeSubscriptionId": { $ne: subscription.id } },
         { $push: { subscriptions: newSub }, $set: { plan: "paid", stripeCustomerId: customerId } }
       );
     } else if (!isSubscription) {
@@ -95,7 +95,7 @@ export async function POST(request: Request): Promise<Response> {
         metadata: paymentIntent.metadata,
         createdAt: new Date(),
       };
-      await User.findByIdAndUpdate(user._id, {
+      await User.findByIdAndUpdate(user?._id, {
         $push: { oneTimePayments: newPayment },
         ...(customerId ? { $set: { stripeCustomerId: customerId, plan: "paid" } } : {}),
       });
