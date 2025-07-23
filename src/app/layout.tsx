@@ -13,6 +13,40 @@ export const metadata: Metadata = {
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
+  openGraph: {
+    title: "Social Brand Monitoring",
+    description: "Get real-time alerts for Reddit opportunities",
+    url: "https://socialbrandmonitoring.com",
+    siteName: "Social Brand Monitoring",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Social Brand Monitoring Dashboard",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Social Brand Monitoring",
+    description: "Get real-time alerts for Reddit opportunities",
+    images: ["/og-image.png"],
+    creator: "@socialbrandmonitoring",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
