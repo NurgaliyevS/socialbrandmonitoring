@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check, MailCheck, MailQuestion, Globe } from 'lucide-react';
+import { MessageSquare, ArrowUp, ArrowDown, ExternalLink, Clock, Circle, Check, MailCheck, MailQuestion, Globe, Flame } from 'lucide-react';
 import { mentionsService } from '@/lib/mentions-service';
+import { SiReddit, SiYcombinator } from 'react-icons/si';
 
 interface MentionCardProps {
   mention: {
@@ -73,6 +74,10 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
     }
   };
 
+  // Platform-specific icon
+  let platformIcon = mention.platform === 'reddit' && <SiReddit className="mr-1 text-orange-500" />;
+  platformIcon = mention.platform === 'hackernews' && <SiYcombinator className="mr-1 text-yellow-600" />;
+
   return (
     <div 
       className={`bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full cursor-pointer ${mention.unread ? 'border-l-4 border-l-blue-500' : ''}`}
@@ -80,20 +85,33 @@ const MentionCard = ({ mention, onMentionRead, onMentionUnread }: MentionCardPro
     >
       {/* Platform label/icon */}
       <div className="flex items-center mb-2">
-        {mention.platform === 'reddit' ? (
-          <span className="flex items-center text-orange-500 font-semibold text-xs mr-2"><Globe size={16} className="mr-1" />Reddit</span>
-        ) : (
-          <span className="flex items-center text-yellow-600 font-semibold text-xs mr-2"><Globe size={16} className="mr-1" />Hacker News</span>
+        {mention.platform === 'reddit' && (
+          <span className="flex items-center text-orange-500 font-semibold text-xs mr-2">{platformIcon}Reddit</span>
+        )}
+        {mention.platform === 'hackernews' && (
+          <span className="flex items-center text-yellow-600 font-semibold text-xs mr-2">{platformIcon}Hacker News</span>
         )}
       </div>
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-3 gap-2">
         <div className="flex flex-wrap items-center gap-2 min-w-0 w-full">
-          <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-            <span className="text-xs font-bold text-white">r/</span>
-          </div>
-          <span className="font-medium text-gray-900">r/{mention.subreddit}</span>
-          <span className="text-gray-500 hidden md:inline">•</span>
-          <span className="text-gray-500 text-sm block md:inline mt-1 md:mt-0">u/{mention.author}</span>
+          {mention.platform === 'reddit' && (
+            <>
+              <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-white">r/</span>
+              </div>
+              <span className="font-medium text-gray-900">r/{mention.subreddit}</span>
+              <span className="text-gray-500 hidden md:inline">•</span>
+            </>
+          )}
+          {mention.platform === 'reddit' && (
+            <span className="text-gray-500 text-sm block md:inline mt-1 md:mt-0">
+              u/{mention.author}</span>
+          )}
+          {mention.platform === 'hackernews' && (
+            <span className="text-gray-500 text-sm block md:inline mt-1 md:mt-0">
+              {mention.author}
+            </span>
+          )}
           {mention.unread && (
             <>
               <div className="flex items-center gap-1">

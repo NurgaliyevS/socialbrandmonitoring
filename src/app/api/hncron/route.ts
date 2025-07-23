@@ -44,8 +44,8 @@ async function processItem({ item, itemType, companies, platform, keyword }: {
       author: item.author || '',
       title: plainTitle,
       content: plainContent,
-      url: item.url || '',
-      permalink: `https://news.ycombinator.com/item?id=${itemId}`,
+      url: `https://news.ycombinator.com/item?id=${itemId}`,
+      permalink: item.url || `https://news.ycombinator.com/item?id=${itemId}`,
       score: item.points || item.score || 0,
       numComments: item.num_comments || item.children?.length || 0,
       created: new Date((item.created_at_i || item.created_at) * 1000 || Date.now()),
@@ -111,8 +111,8 @@ async function processHackerNewsResults({ results, company, keyword }: {
     console.log(content, "content");
     if (!content) content = story.title || '';
     // Ensure url is always set and non-empty
-    let url = story.url || '';
-    if (!url) url = `https://news.ycombinator.com/item?id=${itemId}`;
+    let url = `https://news.ycombinator.com/item?id=${itemId}`;
+    if (!url) url = story.url;
     const mention = await Mention.create({
       brandId: company.brandId,
       keywordMatched: keyword,
@@ -124,7 +124,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
       title: story.title || '',
       content,
       url,
-      permalink: `https://news.ycombinator.com/item?id=${itemId}`,
+      permalink: story.url || `https://news.ycombinator.com/item?id=${itemId}`,
       score: story.points || story.score || 0,
       numComments: story.num_comments || story.children?.length || 0,
       created: new Date((story.created_at_i || story.created_at) * 1000 || Date.now()),
@@ -173,8 +173,8 @@ async function processHackerNewsResults({ results, company, keyword }: {
     let content = comment.comment_text || comment.text || '';
     if (!content) content = '';
     // Ensure url is always set and non-empty for comments
-    let url = comment.story_url || '';
-    if (!url) url = `https://news.ycombinator.com/item?id=${itemId}`;
+    let url = `https://news.ycombinator.com/item?id=${itemId}`;
+    if (!url) url = comment.story_url;
     const mention = await Mention.create({
       brandId: company.brandId,
       keywordMatched: keyword,
@@ -186,7 +186,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
       title: '',
       content,
       url,
-      permalink: `https://news.ycombinator.com/item?id=${itemId}`,
+      permalink: comment.story_url || `https://news.ycombinator.com/item?id=${itemId}`,
       score: comment.points || comment.score || 0,
       numComments: comment.num_comments || comment.children?.length || 0,
       created: new Date((comment.created_at_i || comment.created_at) * 1000 || Date.now()),
@@ -251,8 +251,7 @@ function summarizeHNCronResults(results: Array<{ created: number; duplicates: nu
 
 // Fetch all companies with at least one keyword
 async function fetchAllCompaniesWithKeywords() {
-  // only name is datafast
-  return Company.find({ keywords: { $exists: true, $ne: [] }});
+  return Company.find({ keywords: { $exists: true, $ne: [] } });
 }
 
 // Returns an array of { brandId, keywords } for each company
@@ -266,8 +265,10 @@ async function getCompanyKeywordsMap() {
 
 // Search Hacker News stories and comments for a given keyword using Algolia API
 async function searchHackerNewsForKeyword(keyword: string) {
-  const storyUrl = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(keyword)}&tags=story`;
-  const commentUrl = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(keyword)}&tags=comment`;
+  // Wrap keyword in double quotes and enable advanced syntax for exact phrase matching
+  const encodedKeyword = encodeURIComponent('"' + keyword + '"');
+  const storyUrl = `https://hn.algolia.com/api/v1/search?query=${encodedKeyword}&tags=story&advancedSyntax=true`;
+  const commentUrl = `https://hn.algolia.com/api/v1/search?query=${encodedKeyword}&tags=comment&advancedSyntax=true`;
   const [storyRes, commentRes] = await Promise.all([
     fetch(storyUrl),
     fetch(commentUrl)
