@@ -34,6 +34,7 @@ export async function POST(request: Request): Promise<Response> {
   if (event.type === "checkout.session.completed") {
     // Handles both subscriptions and one-time payments
     const session = event.data.object as Stripe.Checkout.Session;
+    console.log(session, 'session');
     const customerIdRaw = session.customer;
     const customerId = typeof customerIdRaw === 'string' ? customerIdRaw : null;
     const email = session.customer_details?.email || session.customer_email;
