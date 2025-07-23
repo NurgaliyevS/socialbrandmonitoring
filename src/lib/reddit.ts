@@ -2,6 +2,7 @@
 const Snoowrap = require('snoowrap');
 import axios from 'axios';
 import { getRedditAccessToken } from './reddit-auth';
+import { sendTelegramErrorNotification } from './telegram';
 
 // Reddit API client configuration
 let redditClient: any = null;
@@ -245,6 +246,15 @@ export async function searchPosts(query: string, limit: number = 1000, subreddit
       }));
     } catch (error) {
       console.error('Error searching posts:', error);
+      // --- TELEGRAM NOTIFICATION FOR 401 ERRORS ---
+      if (error instanceof Error && error.message.includes('401')) {
+        await sendTelegramErrorNotification(
+          `🚫 Reddit Error: 401 Unauthorized FIX ASAP
+          🔍 Query: ${query}
+          🚫 Error: ${error.message}
+          `
+        );
+      }
       
       // Check if it's a rate limit error and provide specific logging
       if (error instanceof Error) {
