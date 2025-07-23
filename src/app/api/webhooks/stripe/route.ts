@@ -41,7 +41,14 @@ export async function POST(request: Request): Promise<Response> {
       user = await User.findOne({ email });
     }
     if (!user) {
-      return new Response("User not found", { status: 404 });
+      // create new user
+      user = new User({
+        name: session.customer_details?.name || '',
+        email: email || '',
+        stripeCustomerId: customerId || '',
+        plan: "paid",
+      });
+      await user?.save();
     }
 
     if (isSubscription && customerId) {
