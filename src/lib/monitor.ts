@@ -57,6 +57,9 @@ export async function getBrandsAndKeywords() {
   // Get mention counts for each brand
   const mentionCounts = await Mention.aggregate([
     {
+      $match: { platform: 'reddit' }
+    },
+    {
       $group: {
         _id: '$brandId',
         mentionCount: { $sum: 1 }
