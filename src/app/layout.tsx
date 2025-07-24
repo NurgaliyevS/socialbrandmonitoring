@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Script from "next/script";
 import AuthClientProvider from "./AuthClientProvider";
 import { Toaster } from "react-hot-toast";
+import CrispScript from "@/components/CrispScript";
 
 export const metadata: Metadata = {
   title: "Social Brand Monitoring",
@@ -71,6 +72,7 @@ export default function RootLayout({
             <Toaster 
               position="top-right"
             />
+            <CrispScript />
           </TooltipProvider>
         </AuthClientProvider>
       </body>
