@@ -279,10 +279,11 @@ export async function GET(req: NextRequest) {
   let results: Array<{ created: number; duplicates: number; error?: string | null }> = [];
   let totalKeywords = 0;
 
-  console.log(companyKeywordMap, "companyKeywordMap");
-
   // Add mentionCount to each company and sort by mentionCount ascending
   const mentionCounts = await Mention.aggregate([
+    {
+      $match: { platform: 'hackernews' }
+    },
     {
       $group: {
         _id: '$brandId',
