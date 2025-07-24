@@ -62,6 +62,7 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
 
     // Restrict core logic for free users
     if (userPlan === 'free') {
+      fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/hncron`, { method: 'GET' });
       fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/polling-service`, { method: 'POST' });
       fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/comments-polling-service`, { method: 'POST' });
       return NextResponse.json({
@@ -71,6 +72,7 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
         showUpgrade: true // Frontend should show upgrade popup/modal
       });
     } else {
+      fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/hncron`, { method: 'GET' });
       fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/polling-service`, { method: 'POST' });
       fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/comments-polling-service`, { method: 'POST' });
       return NextResponse.json({
