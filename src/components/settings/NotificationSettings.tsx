@@ -207,7 +207,7 @@ const NotificationSettingsComponent = ({
                       <li>Copy the token and paste it above</li>
                       <li>Notifications will be sent to that specific channel</li>
                     </ol>
-                    <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+                    {/* <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
                       <a 
                         href="https://youtu.be/IU-IDUasNvA" 
                         target="_blank" 
@@ -217,7 +217,7 @@ const NotificationSettingsComponent = ({
                         <Play className="h-4 w-4" />
                         Watch Video Tutorial: Telegram Integration Setup
                       </a>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
