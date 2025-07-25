@@ -195,7 +195,7 @@ const NotificationSettingsComponent = ({
                     id={`telegram-chatid-${brand.id}`}
                     value={localTelegramChatId}
                     onChange={e => setLocalTelegramChatId(e.target.value)}
-                    placeholder="8452186985:AAEj3i9P-UoOvY7iQfNeunqDVS1SZanmUyk"
+                    placeholder="959457806"
                     className="mt-1"
                     type="text"
                   />
