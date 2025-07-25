@@ -27,6 +27,10 @@ export interface ICompany extends Document {
     recipients: string[];
     enabled: boolean;
   };
+  telegramConfig?: {
+    enabled: boolean;
+    chatId?: string;
+  };
   onboardingComplete: boolean;
   // Reddit pagination state for continuous monitoring
   redditAfterToken?: string;
@@ -65,6 +69,10 @@ const CompanySchema = new Schema({
   emailConfig: {
     recipients: [{ type: String }],
     enabled: { type: Boolean, default: true }
+  },
+  telegramConfig: {
+    enabled: { type: Boolean, default: false },
+    chatId: { type: String },
   },
   onboardingComplete: { type: Boolean, default: false },
   // Reddit pagination state for continuous monitoring

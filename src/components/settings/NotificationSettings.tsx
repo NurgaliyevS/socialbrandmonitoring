@@ -3,8 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Bell, Mail, MessageSquare, Play } from 'lucide-react';
-import { Brand, Keyword, NotificationSettings } from './types';
+import { Bell, Mail, MessageSquare, Play, Send } from 'lucide-react';
+import { Brand, NotificationSettings } from './types';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import { settingsService } from '@/lib/settings-service';
@@ -23,15 +23,19 @@ const NotificationSettingsComponent = ({
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [localEmail, setLocalEmail] = React.useState('');
   const [localSlack, setLocalSlack] = React.useState('');
+  const [localTelegramChatId, setLocalTelegramChatId] = React.useState('');
   const [localEmailEnabled, setLocalEmailEnabled] = React.useState(false);
   const [localSlackEnabled, setLocalSlackEnabled] = React.useState(false);
+  const [localTelegramEnabled, setLocalTelegramEnabled] = React.useState(false);
 
   const startEdit = (brand: Brand) => {
     setEditingId(brand.id);
     setLocalEmail(brand.notifications.emailAddress || '');
     setLocalSlack(brand.notifications.slackWebhook || '');
+    setLocalTelegramChatId(brand.notifications.telegramChatId || '');
     setLocalEmailEnabled(brand.notifications.email);
     setLocalSlackEnabled(brand.notifications.slack);
+    setLocalTelegramEnabled(brand.notifications.telegram);  
   };
 
   const cancelEdit = () => {
@@ -47,8 +51,10 @@ const NotificationSettingsComponent = ({
       const updated = await settingsService.updateNotifications(brand.id, {
         email: localEmailEnabled,
         slack: localSlackEnabled,
+        telegram: localTelegramEnabled,
         emailAddress: localEmail,
         slackWebhook: localSlack,
+        telegramChatId: localTelegramChatId,
       });
       setBrands(brands.map(b => b.id === brand.id ? updated : b));
       toast.success('Notification settings saved.');
@@ -163,6 +169,57 @@ const NotificationSettingsComponent = ({
                     </div>
                   </div>
                 </div>
+
+                {/* Telegram Notifications */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Send className="h-5 w-5 text-gray-600" />
+                    <div>
+                      <Label htmlFor={`slack-${brand.id}`} className="font-medium">
+                        Telegram Notifications
+                      </Label>
+                      <p className="text-sm text-gray-600">
+                        Receive alerts in Telegram
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id={`telegram-${brand.id}`}
+                    checked={localTelegramEnabled}
+                    onCheckedChange={setLocalTelegramEnabled}
+                  />
+                </div>
+                <div className="ml-8">
+                  <Label htmlFor={`telegram-chatid-${brand.id}`}>Telegram Chat/Channel ID</Label>
+                  <Input
+                    id={`telegram-chatid-${brand.id}`}
+                    value={localTelegramChatId}
+                    onChange={e => setLocalTelegramChatId(e.target.value)}
+                    placeholder="8452186985:AAEj3i9P-UoOvY7iQfNeunqDVS1SZanmUyk"
+                    className="mt-1"
+                    type="text"
+                  />
+                  <div className="text-xs text-gray-500 mt-2 space-y-1">
+                    <p>💡 <strong>How to set up:</strong></p>
+                    <ol className="list-decimal list-inside ml-2 space-y-1">
+                      <li>Go to your Telegram bot settings</li>
+                      <li>Create a new bot and get the token</li>
+                      <li>Copy the token and paste it above</li>
+                      <li>Notifications will be sent to that specific channel</li>
+                    </ol>
+                    <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+                      <a 
+                        href="https://youtu.be/IU-IDUasNvA" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        <Play className="h-4 w-4" />
+                        Watch Video Tutorial: Telegram Integration Setup
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </form>
           ) : (
@@ -230,6 +287,36 @@ const NotificationSettingsComponent = ({
                     value={brand.notifications.slackWebhook || ''}
                     readOnly
                     placeholder='Slack webhook is not set'
+                    className="mt-1"
+                    type="text"
+                  />
+                </div>
+                {/* Telegram Notifications */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Send className="h-5 w-5 text-gray-600" />
+                    <div>
+                      <Label htmlFor={`slack-${brand.id}`} className="font-medium">
+                        Telegram Notifications
+                      </Label>
+                      <p className="text-sm text-gray-600">
+                        Receive alerts in Telegram
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id={`telegram-${brand.id}`}
+                    checked={brand.notifications.telegram}
+                    disabled
+                  />
+                </div>
+                <div className="ml-8">
+                  <Label htmlFor={`telegram-chatid-${brand.id}`}>Telegram Chat/Channel ID</Label>
+                  <Input
+                    id={`telegram-chatid-${brand.id}`}
+                    value={brand.notifications.telegramChatId || ''}
+                    readOnly
+                    placeholder='Telegram chat/channel id is not set'
                     className="mt-1"
                     type="text"
                   />

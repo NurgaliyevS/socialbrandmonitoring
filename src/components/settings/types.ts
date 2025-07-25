@@ -16,6 +16,8 @@ export interface Keyword {
 export interface NotificationSettings {
   email: boolean;
   slack: boolean;
+  telegram: boolean;
   slackWebhook?: string;
   emailAddress?: string;
+  telegramChatId?: string;
 } 

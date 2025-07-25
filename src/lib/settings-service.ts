@@ -9,8 +9,10 @@ const mapCompanyToBrand = (company: any): Brand => ({
   notifications: {
     email: company.emailConfig?.enabled || true,
     slack: company.slackConfig?.enabled || false,
+    telegram: company.telegramConfig?.enabled || false,
     emailAddress: company.emailConfig?.recipients?.[0] || '',
-    slackWebhook: company.slackConfig?.webhookUrl || ''
+    slackWebhook: company.slackConfig?.webhookUrl || '',
+    telegramChatId: company.telegramConfig?.chatId || ''
   }
 });
 
@@ -150,12 +152,17 @@ export const settingsService = {
         webhookUrl: notifications.slackWebhook || '',
       };
 
+      const telegramConfig = {
+        enabled: notifications.telegram,
+        chatId: notifications.telegramChatId || '',
+      };
+
       const response = await fetch(`/api/settings/${brandId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ emailConfig, slackConfig }),
+        body: JSON.stringify({ emailConfig, slackConfig, telegramConfig }),
       });
       
       const result = await response.json();

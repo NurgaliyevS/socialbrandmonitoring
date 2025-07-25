@@ -23,6 +23,8 @@ export interface IMention extends Document {
   unread: boolean;
   slackNotificationSent: boolean;
   slackNotificationSentAt?: Date;
+  telegramNotificationSent: boolean;
+  telegramNotificationSentAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -110,6 +112,13 @@ const MentionSchema = new Schema({
     default: false 
   },
   slackNotificationSentAt: { 
+    type: Date 
+  },
+  telegramNotificationSent: { 
+    type: Boolean, 
+    default: false 
+  },
+  telegramNotificationSentAt: { 
     type: Date 
   }
 }, {

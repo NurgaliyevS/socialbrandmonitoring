@@ -10,7 +10,7 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     
     // Only fetch companies owned by the authenticated user
     const companies = await Company.find({ user: request.user!.id })
-      .select('name website keywords slackConfig emailConfig onboardingComplete');
+      .select('name website keywords slackConfig emailConfig telegramConfig onboardingComplete');
     
     return NextResponse.json({
       success: true,
@@ -71,6 +71,10 @@ export const POST = withAuth(async (request: AuthenticatedRequest) => {
       emailConfig: {
         enabled: true,
         recipients: request.user!.email ? [request.user!.email] : []
+      },
+      telegramConfig: {
+        enabled: false,
+        chatId: '',
       },
       onboardingComplete: false
     });
