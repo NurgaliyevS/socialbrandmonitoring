@@ -202,10 +202,15 @@ const NotificationSettingsComponent = ({
                   <div className="text-xs text-gray-500 mt-2 space-y-1">
                     <p>💡 <strong>How to set up:</strong></p>
                     <ol className="list-decimal list-inside ml-2 space-y-1">
-                      <li>Go to your Telegram bot settings</li>
-                      <li>Create a new bot and get the token</li>
-                      <li>Copy the token and paste it above</li>
-                      <li>Notifications will be sent to that specific channel</li>
+                      <li>Click on <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium">@userinfobot</a> on Telegram</li>
+                      <li>Click on start</li>
+                      <li>Copy the ID from the bot's reply</li>
+                      <li>Paste the ID into the input field above</li>
+                      <li>Turn on the switch</li>
+                      <li>Save the settings</li>
+                      <li>Navigate to <a href="https://web.telegram.org/k/#@socialbrandmonitoringbot" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 font-medium">https://web.telegram.org/k/#@socialbrandmonitoringbot</a></li>
+                      <li>Click on start</li>
+                      <li>Done! You will receive notifications as soon system detects a new mention</li>
                     </ol>
                     {/* <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
                       <a 
