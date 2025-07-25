@@ -4,28 +4,57 @@ import Company from '@/models/Company';
 import { sendSlackNotification } from './slack-notifications';
 
 /**
+ * Get companies that have Slack notifications enabled and configured
+ */
+export async function getCompaniesWithSlackEnabled() {
+  try {
+  await connectDB();
+  
+  const companies = await Company.find({
+    'slackConfig.enabled': true,
+    'slackConfig.webhookUrl': { $exists: true, $ne: null },
+    $expr: { $ne: ['$slackConfig.webhookUrl', ''] }
+  });
+  
+  console.log(`📋 Found ${companies.length} companies with Slack notifications enabled`);
+  return companies;
+  } catch (error) {
+    console.error('❌ [Slack] Error in getCompaniesWithSlackEnabled:', error);
+    throw error;
+  }
+}
+
+/**
  * Get mentions that need Slack notifications
  * Finds mentions that haven't been sent to Slack yet
  */
 export async function getPendingNotifications() {
+  try {
   await connectDB();
-  
-  // Find mentions that haven't been sent to Slack yet
+
+  const companies = await getCompaniesWithSlackEnabled();
+
+  if (companies.length === 0) {
+    console.log('ℹ️ No companies have Slack notifications enabled');
+    return [];
+  }
+
+  const companyIds = companies.map(company => company._id);
+
   const pendingMentions = await Mention.find({
+    brandId: { $in: companyIds },
     slackNotificationSent: { $ne: true }
-  }).populate('brandId');
+  }).populate('brandId').limit(50);
   
   console.log(`📋 Found ${pendingMentions.length} pending Slack notifications`);
   
-  // Filter to only include mentions for brands with Slack enabled
-  const filteredMentions = pendingMentions.filter((mention: any) => {
-    const brand = mention.brandId;
-    return brand && brand.slackConfig?.enabled && brand.slackConfig?.webhookUrl;
-  });
+  console.log(`📋 ${pendingMentions.length} mentions have Slack notifications enabled`);
   
-  console.log(`📋 ${filteredMentions.length} mentions have Slack notifications enabled`);
-  
-  return filteredMentions;
+  return pendingMentions;
+  } catch (error) {
+    console.error('❌ [Slack] Error in getPendingNotifications:', error);
+    throw error;
+  }
 }
 
 /**
