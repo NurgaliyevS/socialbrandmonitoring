@@ -43,7 +43,7 @@ export async function getPendingNotifications() {
 
   const pendingMentions = await Mention.find({
     brandId: { $in: companyIds },
-    slackNotificationSent: { $ne: true }
+    slackNotificationSent: { $ne: true },
   }).populate('brandId').limit(50);
   
   console.log(`📋 Found ${pendingMentions.length} pending Slack notifications`);
@@ -127,6 +127,7 @@ export async function processPendingSlackNotifications() {
           
                   // Send Slack notification
         await sendSlackNotification(mention.brandId._id.toString(), {
+            brandName: mention.brandId.name,
             keywordMatched: mention.keywordMatched,
             title: mention.title,
             content: mention.content,

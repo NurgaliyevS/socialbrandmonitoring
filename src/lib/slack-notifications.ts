@@ -8,18 +8,20 @@ import Company from '@/models/Company';
 export async function sendSlackNotification(
   brandId: string,
   mention: {
+    brandName: string;
     keywordMatched: string;
     title?: string;
     content: string;
-    subreddit?: string; // Make subreddit optional
+    subreddit?: string;
     author: string;
     url: string;
     sentiment: {
       score: number;
       label: 'positive' | 'negative' | 'neutral';
     };
-    itemType: 'post' | 'comment' | 'story'; // Use itemType instead of redditType
-    platform: 'reddit' | 'hackernews'; // Add platform for source distinction
+    itemType: 'post' | 'comment' | 'story';
+    platform: 'reddit' | 'hackernews';
+    detectedAt?: Date;
   }
 ) {
   try {
@@ -48,72 +50,90 @@ export async function sendSlackNotification(
       .replace(/<\/strong>/g, '*')
       .substring(0, 300);
 
+    // Build blocks array dynamically to avoid null values
+    const blocks = [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `🏷️ Brand: ${brand.name}` 
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `🔑 Keyword Matched: ${mention.keywordMatched}`
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `📊 Sentiment: ${sentiment.emoji} ${sentiment.text}`
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `📱 Platform: ${mention.platform}`
+        }
+      }
+    ];
+
+    // Add subreddit block only for Reddit mentions
+    if (mention.platform === 'reddit' && mention.subreddit) {
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `📢 Subreddit: r/${mention.subreddit}`
+        }
+      });
+    }
+
+    // Add remaining blocks
+    blocks.push(
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `👤 Author: ${mention.platform === 'reddit' ? 'u/' : ''}${mention.author}`
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `📝 Content:\n${formattedContent}${mention.content.length > 300 ? '...' : ''}`
+        }
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `🔗 View on ${mention.platform === 'reddit' ? 'Reddit' : 'Hacker News'}:\n${mention.url}`
+        }
+      },
+      {
+        type: 'context',
+        elements: [
+          {
+            type: 'mrkdwn',
+            text: `⏰ Mention detected at ${new Date().toLocaleString()}`
+          }
+        ]
+      } as any,
+      {
+        type: 'divider'
+      } as any
+    );
+
     const message = {
       text: `New ${mention.sentiment.label} mention of ${brand.name}`,
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `🏷️ Brand: ${brand.name}` 
-          }
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `🔑 Keyword Matched: ${mention.keywordMatched}`
-          }
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `📊 Sentiment: ${sentiment.emoji} ${sentiment.text}`
-          }
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `📱 Subreddit: r/${mention.subreddit}`
-          }
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `👤 Author: u/${mention.author}`
-          }
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `📝 Content:\n${formattedContent}${mention.content.length > 300 ? '...' : ''}`
-          }
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `🔗 View on Reddit:\n${mention.url}`
-          }
-        },
-        {
-          type: 'context',
-          elements: [
-            {
-              type: 'mrkdwn',
-              text: `⏰ Mention detected at ${new Date().toLocaleString()}`
-            }
-          ]
-        },
-        {
-          type: 'divider'
-        }
-      ]
-    }
+      blocks: blocks
+    };
 
     // Send message to Slack with timeout protection
     const timeoutPromise = new Promise((_, reject) => {
