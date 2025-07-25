@@ -59,6 +59,7 @@ async function processItem({ item, itemType, companies, platform, keyword }: {
     if (company.slackConfig?.enabled && company.slackConfig?.webhookUrl) {
       try {
         await sendSlackNotification(company._id.toString(), {
+          brandName: company.name,
           keywordMatched: keyword,
           title: plainTitle,
           content: plainContent,
@@ -127,6 +128,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
     if (company.slackConfig?.enabled && company.slackConfig?.webhookUrl) {
       try {
         await sendSlackNotification(company.brandId.toString(), {
+          brandName: company.name,
           keywordMatched: keyword,
           title: story.title || '',
           content: story.story_text || story.text || '',
@@ -184,6 +186,7 @@ async function processHackerNewsResults({ results, company, keyword }: {
     if (company.slackConfig?.enabled && company.slackConfig?.webhookUrl) {
       try {
         await sendSlackNotification(company.brandId.toString(), {
+          brandName: company.name,
           keywordMatched: keyword,
           title: '',
           content: comment.comment_text || comment.text || '',
