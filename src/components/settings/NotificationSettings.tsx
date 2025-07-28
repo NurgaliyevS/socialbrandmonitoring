@@ -190,7 +190,7 @@ const NotificationSettingsComponent = ({
                   />
                 </div>
                 <div className="ml-8">
-                  <Label htmlFor={`telegram-chatid-${brand.id}`}>Telegram Chat/Channel ID</Label>
+                  <Label htmlFor={`telegram-chatid-${brand.id}`}>Telegram Chat ID</Label>
                   <Input
                     id={`telegram-chatid-${brand.id}`}
                     value={localTelegramChatId}
@@ -316,7 +316,7 @@ const NotificationSettingsComponent = ({
                   />
                 </div>
                 <div className="ml-8">
-                  <Label htmlFor={`telegram-chatid-${brand.id}`}>Telegram Chat/Channel ID</Label>
+                  <Label htmlFor={`telegram-chatid-${brand.id}`}>Telegram Chat ID</Label>
                   <Input
                     id={`telegram-chatid-${brand.id}`}
                     value={brand.notifications.telegramChatId || ''}
