@@ -212,9 +212,9 @@ const NotificationSettingsComponent = ({
                       <li>Click on start</li>
                       <li>Done! You will receive notifications as soon system detects a new mention</li>
                     </ol>
-                    {/* <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
+                    <div className="mt-3 p-2 bg-blue-50 rounded border border-blue-200">
                       <a 
-                        href="https://youtu.be/IU-IDUasNvA" 
+                        href="https://youtu.be/LYjNbIkJl7c" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium"
@@ -222,7 +222,7 @@ const NotificationSettingsComponent = ({
                         <Play className="h-4 w-4" />
                         Watch Video Tutorial: Telegram Integration Setup
                       </a>
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               </div>
