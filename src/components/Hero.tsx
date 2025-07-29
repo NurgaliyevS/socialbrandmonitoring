@@ -12,7 +12,7 @@ const Hero = () => {
             Social Listening for B2B
           </span>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Social Brand Monitoring for Reddit
+            Find Relevant Conversations About Your Brand
           </h1>
           <p className="text-lg md:text-xl mb-8 text-gray-600 leading-relaxed">
             Monitor discussions about your brand, competitors, and industry
@@ -46,7 +46,11 @@ const Hero = () => {
         {/* Right column */}
         <div className="flex-1 flex items-center justify-center w-full max-w-xl mx-auto md:mx-0">
           <div className="w-full h-72 md:h-96 rounded-xl flex items-center justify-center">
-            <img src="/social-listening-tool.webp" alt="SocialBrandMonitoring" className="h-48 md:h-72 object-contain" />
+            <img
+              src="/social-listening-tool.webp"
+              alt="SocialBrandMonitoring"
+              className="h-48 md:h-72 object-contain"
+            />
           </div>
         </div>
       </div>
