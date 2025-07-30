@@ -1,5 +1,16 @@
 import React from "react";
-import { Tag, Users, Globe, Smile, BarChart2, TrendingUp, Mail, Slack } from "lucide-react";
+import {
+  Tag,
+  Users,
+  Globe,
+  Smile,
+  BarChart2,
+  TrendingUp,
+  Mail,
+  Slack,
+} from "lucide-react";
+// import from react-icons
+import { FaTelegram } from "react-icons/fa";
 
 const HowItWorks: React.FC = () => {
   return (
@@ -14,8 +25,8 @@ const HowItWorks: React.FC = () => {
             <h3 className="text-xl font-semibold mb-2">1. Set Your Keywords</h3>
             <p className="text-gray-700">
               Track keywords for your brand, competitors, or industry topics.
-              Our platform will scan Reddit for every mention, so you never miss
-              a critical conversation.
+              Platform will scan Reddit and Hacker News for every mention,
+              so you never miss a critical conversation.
             </p>
             <div className="flex flex-wrap gap-2 mt-2">
               <span className="bg-gray-100 px-3 py-1 rounded-full text-sm flex items-center gap-1">
@@ -31,10 +42,10 @@ const HowItWorks: React.FC = () => {
           </div>
           <div>
             <h3 className="text-xl font-semibold mb-2">
-              2. AI Monitors Reddit 24/7
+              2. Monitor Reddit and Hacker News 24/7
             </h3>
             <p className="text-gray-700">
-              Our system scans posts and comments across all subreddits,
+              System scans posts and comments across all subreddits, stories,
               filtering out noise and analyzing sentiment, engagement, and
               trends in real time.
             </p>
@@ -55,9 +66,9 @@ const HowItWorks: React.FC = () => {
               3. Get Real-Time Alerts
             </h3>
             <p className="text-gray-700">
-              Receive instant notifications via Email or Slack. You will be able
-              to see the sentiment of the post, the engagement metrics, and the
-              trends in the post.
+              Receive instant notifications via Email, Slack or Telegram. You
+              will be able to see the sentiment of the post, the engagement
+              metrics, and the trends in the post.
             </p>
 
             <div className="flex flex-wrap gap-2 mt-2">
@@ -66,6 +77,9 @@ const HowItWorks: React.FC = () => {
               </span>
               <span className="bg-gray-100 px-3 py-1 rounded-full text-sm flex items-center gap-1">
                 <Slack className="w-4 h-4" /> Slack
+              </span>
+              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                <FaTelegram className="w-4 h-4" /> Telegram
               </span>
             </div>
           </div>
