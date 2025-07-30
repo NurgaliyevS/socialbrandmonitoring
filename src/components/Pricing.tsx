@@ -10,38 +10,31 @@ const Pricing = () => {
         <div className="relative flex flex-col justify-between bg-white p-4 shadow-sm sm:p-6 rounded-2xl border-2 border-primary border-gray-300 z-10 lg:scale-[1.02] w-full max-w-lg items-center">
           <div className="absolute -top-4 left-1/2 -translate-x-1/2">
             <span className="bg-black text-white px-4 py-1 rounded-full text-sm font-semibold">
-              Launch
+              Limited Time Offer
             </span>
           </div>
 
           {/* Plan name */}
           <h3 className="mt-4 text-xl font-bold text-zinc-900">
-            Early Adopter Access
+            Lifetime Access
           </h3>
-          <p className="text-zinc-600 text-sm mt-2 mb-6 text-center">
-            Be among the first to experience powerful Reddit monitoring.
-          </p>
 
           <div className="flex items-center justify-center gap-4 mb-4">
-            <span className="text-4xl font-bold text-zinc-900">
-              $197
-            </span>
+            <span className="text-4xl font-bold text-zinc-900">$197</span>
             <div className="text-left">
               <div className="text-lg text-gray-500 line-through">$497</div>
-              <div className="text-sm text-zinc-900 font-medium">
-                lifetime
-              </div>
+              <div className="text-sm text-zinc-900 font-medium">lifetime</div>
             </div>
           </div>
 
           <p className="text-zinc-900 font-medium mb-2 mt-4 text-left w-full">
-            What you'll get as an early adopter:
+            What's included:
           </p>
           <ul className="text-zinc-700 text-sm mb-8 w-full pl-5 list-disc space-y-2">
-            <li>Complete access to all monitoring features</li>
+            <li>Full access to all monitoring features</li>
             <li>Priority support and direct feedback channel</li>
             <li>Influence product development and new features</li>
-            <li>Exclusive early access to future updates</li>
+            <li>Exclusive early access to future updates (coming soon)</li>
             <li>Market rate: $59-119/month</li>
             <li>Your rate: $197 lifetime</li>
             <li>No recurring bills ever</li>

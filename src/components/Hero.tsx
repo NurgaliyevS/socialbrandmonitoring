@@ -1,6 +1,6 @@
 "use client";
 
-import { MdAutoAwesome, MdRocketLaunch } from "react-icons/md";
+import { MdRocketLaunch } from "react-icons/md";
 
 const Hero = () => {
   return (
