@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { MdAutoAwesome, MdRocketLaunch } from "react-icons/md";
 
 const Hero = () => {
   return (
@@ -8,7 +8,8 @@ const Hero = () => {
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between px-4 py-12 md:py-0 gap-8 w-full">
         {/* Left column */}
         <div className="flex-1 flex flex-col items-start justify-center max-w-xl w-full mx-auto md:mx-0">
-          <span className="inline-block mb-4 px-4 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold border border-blue-100">
+          <span className="inline-flex items-center gap-2 mb-4 px-4 py-1 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold border border-blue-100">
+            <MdRocketLaunch className="h-4 w-4" />
             Social Listening for B2B
           </span>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
