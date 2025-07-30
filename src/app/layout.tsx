@@ -7,7 +7,7 @@ import { Toaster } from "react-hot-toast";
 import CrispScript from "@/components/CrispScript";
 
 export const metadata: Metadata = {
-  title: "Social Brand Monitoring",
+  title: "Find Relevant Conversations About Your Brand",
   description: "Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis",
   icons: {
     icon: "/icon.svg",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     apple: "/icon.svg",
   },
   openGraph: {
-    title: "Social Brand Monitoring",
+    title: "Find Relevant Conversations About Your Brand",
     description: "Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis",
     url: "https://socialbrandmonitoring.com",
     siteName: "Social Brand Monitoring",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Social Brand Monitoring",
+    title: "Find Relevant Conversations About Your Brand",
     description: "Monitor discussions about your brand, competitors, and industry keywords. Get clean data and sentiment analysis",
     images: ["/og-image.png"],
     creator: "@socialbrandmonitoring",
