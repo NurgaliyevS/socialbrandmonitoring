@@ -51,7 +51,7 @@ const Pricing = () => {
                 );
               } else {
                 window.open(
-                  "https://buy.stripe.com/cNi4gAcgC9KnaKE22V1oI00",
+                  "https://buy.stripe.com/fZu3cwbcyg8L1a4cHz1oI01?prefilled_promo_code=APPSUMOCAMPAING2025",
                   "_blank"
                 );
               }
