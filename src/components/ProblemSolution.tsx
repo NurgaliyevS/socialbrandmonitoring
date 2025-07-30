@@ -29,8 +29,9 @@ const ProblemSolution = () => {
             Why You Need This
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            People talk about your brand every day. Someone might be praising
-            your product or complaining about it. You need to react ASAP.
+            People talk about your brand <strong>every day</strong>. Someone might
+            be praising your product or complaining about it. You need to react
+            ASAP.
           </p>
         </div>
 
