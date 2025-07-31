@@ -63,7 +63,7 @@ export interface IUser extends Document {
   subscriptions: IStripeSubscription[];
   oneTimePayments: IStripeOneTimePayment[];
   onboardingComplete: boolean;
-  plan: 'free' | 'paid'; // Added plan field
+  plan: 'free' | 'paid' | 'lifetime'; // Added plan field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -139,7 +139,7 @@ const UserSchema = new Schema({
   subscriptions: [StripeSubscriptionSchema],
   oneTimePayments: [StripeOneTimePaymentSchema],
   onboardingComplete: { type: Boolean, default: false },
-  plan: { type: String, enum: ['free', 'paid'], default: 'free' } // Added plan field
+  plan: { type: String, enum: ['free', 'paid', 'lifetime'], default: 'free' } // Added plan field
 }, {
   timestamps: true
 });
