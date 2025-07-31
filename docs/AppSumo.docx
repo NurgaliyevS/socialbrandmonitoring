@@ -1,0 +1,180 @@
+📄 Product Requirements Document (PRD)
+Project: AppSumo Lifetime Deal Redemption Flow
+Owner: Sabyr Nurgaliyev
+Goal: Allow AppSumo buyers to redeem their purchased codes on your website, automatically validate codes, mark them as used, and grant access to their lifetime deal account.
+1️⃣ Objectives
+Provide a simple /redeem page for customers to enter their AppSumo codes.
+
+Validate codes against a database (MongoDB) where all pre-generated codes are stored.
+
+Mark codes as used once redeemed.
+
+Prevent duplicate use of the same code.
+
+Make the flow seamless and AppSumo-approvable.
+
+2️⃣ Key Features
+Frontend
+/redeem page with:
+
+Input field for the code
+
+Redeem button
+
+Success/error messages
+
+Redirect to /welcome after successful redemption
+
+Backend
+/api/redeem endpoint:
+
+Accepts POST { code }
+
+Looks up the code in MongoDB
+
+If valid and unused → marks it redeemed (redeemed: true)
+
+Returns success message
+
+If invalid or already used → returns error message
+
+Database (MongoDB)
+codes collection:
+
+ts
+Copy
+Edit
+{
+  _id: ObjectId,
+  code: String,
+  redeemed: Boolean,
+  redeemedAt: Date,
+  buyerEmail: String | null
+}
+Pre-populate database with the 1,000 codes from your generated CSV.
+
+3️⃣ Tech Stack
+Frontend: Next.js 15 (App Router, TypeScript)
+
+Backend: API routes in Next.js
+
+Database: MongoDB Atlas (cloud-hosted)
+
+ODM: Mongoose
+
+4️⃣ Implementation Steps
+Step 1: Import codes to MongoDB
+Use MongoDB Compass or CLI to import:
+
+bash
+Copy
+Edit
+mongoimport --uri "your-mongo-uri" \
+  --collection codes \
+  --type csv \
+  --file codes.csv \
+  --fields code
+After import, run:
+
+js
+Copy
+Edit
+db.codes.updateMany({}, { $set: { redeemed: false } })
+This ensures every code starts unused.
+
+Step 2: Create Mongoose Model
+models/Code.ts
+
+ts
+Copy
+Edit
+import mongoose, { Schema, Document } from 'mongoose';
+
+interface ICode extends Document {
+  code: string;
+  redeemed: boolean;
+  redeemedAt?: Date;
+  buyerEmail?: string;
+}
+
+const CodeSchema = new Schema<ICode>({
+  code: { type: String, required: true, unique: true },
+  redeemed: { type: Boolean, default: false },
+  redeemedAt: { type: Date },
+  buyerEmail: { type: String, default: null }
+});
+
+export default mongoose.models.Code || mongoose.model<ICode>('Code', CodeSchema);
+Step 3: Create /api/redeem/route.ts
+ts
+Copy
+Edit
+import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
+import Code from "@/models/Code";
+
+const MONGO_URI = process.env.MONGODB_URI!;
+
+export async function POST(req: NextRequest) {
+  try {
+    const { code, email } = await req.json();
+
+    if (!code) return NextResponse.json({ success: false, message: "Please provide a code." });
+
+    if (!mongoose.connections[0]?.readyState) {
+      await mongoose.connect(MONGO_URI);
+    }
+
+    const codeDoc = await Code.findOne({ code });
+
+    if (!codeDoc) {
+      return NextResponse.json({ success: false, message: "Invalid code." });
+    }
+
+    if (codeDoc.redeemed) {
+      return NextResponse.json({ success: false, message: "This code has already been redeemed." });
+    }
+
+    codeDoc.redeemed = true;
+    codeDoc.redeemedAt = new Date();
+    if (email) codeDoc.buyerEmail = email;
+    await codeDoc.save();
+
+    return NextResponse.json({ success: true, message: "✅ Code redeemed successfully!" });
+  } catch (error) {
+    return NextResponse.json({ success: false, message: "Server error. Please try again." });
+  }
+}
+Step 4: Update /redeem Frontend Page
+Same as previous version, but optionally ask for email to associate with the redemption.
+
+Call the updated API route.
+
+Step 5: Test the Flow
+Use a valid code → should succeed and mark redeemed in DB.
+
+Try same code again → should fail.
+
+Try a random code → should fail.
+
+Check MongoDB document updates.
+
+5️⃣ Deliverables
+✅ /redeem page (Next.js 15)
+
+✅ /api/redeem route with Mongoose
+
+✅ MongoDB with pre-imported codes
+
+✅ Tested redemption flow
+
+✅ Codes uploaded to AppSumo dashboard
+
+6️⃣ Future Enhancements
+Auto-create user accounts after code redemption.
+
+Send confirmation email via Mailgun.
+
+Admin panel to view redeemed codes.
+
+Would you like me to write the final Next.js folder structure with all necessary files (frontend + backend + mongoose connection) so you can copy-paste it into your project immediately?
