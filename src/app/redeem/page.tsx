@@ -14,6 +14,11 @@ export default function RedeemPage() {
       return;
     }
 
+    if (!email.trim()) {
+      setMessage("⚠️ Please enter your email address");
+      return;
+    }
+
     setIsLoading(true);
     setMessage("");
 
@@ -35,7 +40,9 @@ export default function RedeemPage() {
         setCode("");
         setEmail("");
         setTimeout(() => {
-          window.location.href = "/"; // redirect after redeem
+          // Redirect to dashboard or welcome page based on response
+          const redirectUrl = data.redirectTo || "/dashboard";
+          window.location.href = redirectUrl;
         }, 2000);
       }
     } catch (error) {
@@ -76,7 +83,7 @@ export default function RedeemPage() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Email Address (Optional)
+              Email Address *
             </label>
             <input
               id="email"
@@ -88,14 +95,13 @@ export default function RedeemPage() {
               disabled={isLoading}
             />
             <p className="text-xs text-gray-500 mt-1">
-              We'll use this to send you important updates about your lifetime
-              deal.
+              We'll use this to create your account and send you important updates about your lifetime deal.
             </p>
           </div>
 
           <button
             onClick={handleRedeem}
-            disabled={isLoading || !code.trim()}
+            disabled={isLoading || !code.trim() || !email.trim()}
             className="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition-colors"
           >
             {isLoading ? "Redeeming..." : "Redeem Code"}
