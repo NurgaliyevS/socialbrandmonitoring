@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
       user.plan = 'lifetime';
       user.onboardingComplete = false;
       user.password = hashedPassword;
+      user.emailVerified = new Date();
       await user.save();
     } else {
       // Create new user with lifetime access
@@ -63,7 +64,8 @@ export async function POST(req: NextRequest) {
         email: email,
         password: hashedPassword,
         plan: 'lifetime',
-        onboardingComplete: true
+        onboardingComplete: false,
+        emailVerified: new Date()
       });
     }
 
