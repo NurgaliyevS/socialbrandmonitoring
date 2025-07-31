@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import Code from "@/models/Code";
 import User from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/welcome-email";
+import bcrypt from "bcryptjs";
 
 const MONGO_URI = process.env.MONGODB_API_KEY!;
 
@@ -33,27 +34,42 @@ export async function POST(req: NextRequest) {
     if (email) codeDoc.buyerEmail = email;
     await codeDoc.save();
 
+    // Generate random password
+    const generatePassword = () => {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let password = '';
+      for (let i = 0; i < 10; i++) {
+        password += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return password;
+    };
+
+    const plainPassword = generatePassword();
+    const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
     // Auto-create or update user account with lifetime access
     let user = await User.findOne({ email });
     
     if (user) {
       // Update existing user with lifetime access
       user.plan = 'lifetime';
-      user.onboardingComplete = true;
+      user.onboardingComplete = false;
+      user.password = hashedPassword;
       await user.save();
     } else {
       // Create new user with lifetime access
       user = await User.create({
         name: email.split('@')[0], // Use email prefix as name
         email: email,
+        password: hashedPassword,
         plan: 'lifetime',
         onboardingComplete: true
       });
     }
 
-    // Send welcome email
+    // Send welcome email with login details
     try {
-      await sendWelcomeEmail(email, code);
+      await sendWelcomeEmail(email, code, plainPassword);
     } catch (emailError) {
       console.error('Failed to send welcome email:', emailError);
       // Don't fail the redemption if email fails

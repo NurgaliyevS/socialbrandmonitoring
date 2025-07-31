@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendWelcomeEmail(email: string, code: string) {
+export async function sendWelcomeEmail(email: string, code: string, password: string) {
   try {
     const { data, error } = await resend.emails.send({
       from: 'Social Brand Monitoring <noreply@socialbrandmonitoring.com>',
@@ -16,6 +16,15 @@ export async function sendWelcomeEmail(email: string, code: string) {
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>Your code ${code} has been redeemed successfully!</strong></p>
             <p>You now have <strong>lifetime access</strong> to Social Brand Monitoring.</p>
+          </div>
+          
+          <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2563eb;">
+            <h3 style="margin-top: 0; color: #1e40af;">Your Login Details:</h3>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Password:</strong> ${password}</p>
+            <p style="font-size: 14px; color: #6b7280; margin-top: 10px;">
+              Please save these credentials for future logins.
+            </p>
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
