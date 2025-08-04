@@ -15,8 +15,6 @@ const Code = mongoose.models.Code || mongoose.model('Code', CodeSchema);
 
 const MONGO_URI = process.env.MONGODB_API_KEY;
 
-console.log(MONGO_URI, 'MONGO_URI');
-
 if (!MONGO_URI) {
   console.error('Please define the MONGODB_API_KEY environment variable');
   process.exit(1);
