@@ -65,7 +65,9 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         plan: 'lifetime',
         onboardingComplete: false,
-        emailVerified: new Date()
+        emailVerified: new Date(),
+        oneTimePayments: [],
+        subscriptions: []
       });
     }
 

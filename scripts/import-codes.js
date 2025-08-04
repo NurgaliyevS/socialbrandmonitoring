@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 
 // Define the Code schema
 const CodeSchema = new mongoose.Schema({
@@ -14,6 +14,8 @@ const CodeSchema = new mongoose.Schema({
 const Code = mongoose.models.Code || mongoose.model('Code', CodeSchema);
 
 const MONGO_URI = process.env.MONGODB_API_KEY;
+
+console.log(MONGO_URI, 'MONGO_URI');
 
 if (!MONGO_URI) {
   console.error('Please define the MONGODB_API_KEY environment variable');
