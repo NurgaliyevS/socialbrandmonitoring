@@ -47,29 +47,28 @@ export async function POST(req: NextRequest) {
     const plainPassword = generatePassword();
     const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-    // Auto-create or update user account with lifetime access
-    let user = await User.findOne({ email });
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
     
-    if (user) {
-      // Update existing user with lifetime access
-      user.plan = 'lifetime';
-      user.onboardingComplete = false;
-      user.password = hashedPassword;
-      user.emailVerified = new Date();
-      await user.save();
-    } else {
-      // Create new user with lifetime access
-      user = await User.create({
-        name: email.split('@')[0], // Use email prefix as name
-        email: email,
-        password: hashedPassword,
-        plan: 'lifetime',
-        onboardingComplete: false,
-        emailVerified: new Date(),
-        oneTimePayments: [],
-        subscriptions: []
+    if (existingUser) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "⚠️ An account with this email already exists. Please sign in instead.",
+        userExists: true
       });
     }
+    
+    // Create new user with lifetime access
+    const user = await User.create({
+      name: email.split('@')[0], // Use email prefix as name
+      email: email,
+      password: hashedPassword,
+      plan: 'lifetime',
+      onboardingComplete: false,
+      emailVerified: new Date(),
+      oneTimePayments: [],
+      subscriptions: []
+    });
 
     // Send welcome email with login details
     try {

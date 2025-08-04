@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import toast from 'react-hot-toast';
 
 export default function RedeemPage() {
   const [code, setCode] = useState("");
@@ -44,9 +45,15 @@ export default function RedeemPage() {
           const redirectUrl = data.redirectTo || "/dashboard";
           window.location.href = redirectUrl;
         }, 2000);
+      } else if (data.userExists) {
+        // Show special message for existing users with lifetime access
+        setMessage(data.message);
+        // Don't clear the form in this case
       }
     } catch (error) {
-      setMessage("Something went wrong. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+      setMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -117,6 +124,16 @@ export default function RedeemPage() {
             }`}
           >
             {message}
+            {message.includes("already has lifetime access") && (
+              <div className="mt-2">
+                <a 
+                  href="/auth/signin" 
+                  className="text-blue-600 hover:text-blue-800 underline font-medium"
+                >
+                  Click here to sign in
+                </a>
+              </div>
+            )}
           </div>
         )}
 
