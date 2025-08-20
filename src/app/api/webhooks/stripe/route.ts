@@ -106,8 +106,8 @@ export async function POST(request: Request): Promise<Response> {
         createdAt: new Date(),
       };
       await User.findByIdAndUpdate(user?._id, {
-        $push: { oneTimePayments: newPayment },
-        ...(customerId ? { $set: { stripeCustomerId: customerId, plan: "paid" } } : {}),
+        $push: { oneTimePayments: newPayment, plan: "lifetime" },
+        ...(customerId ? { $set: { stripeCustomerId: customerId, plan: "lifetime" } } : {}),
       });
     }
   }
