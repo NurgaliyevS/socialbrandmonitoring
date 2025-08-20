@@ -62,7 +62,7 @@ const Pricing = () => {
           </button>
 
           <p className="text-center text-sm text-zinc-500 mt-4">
-            Only 10 spots left.
+            Only 9 spots left.
           </p>
         </div>
       </div>

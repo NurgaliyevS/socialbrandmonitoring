@@ -58,7 +58,7 @@ const Hero = () => {
       {/* Bottom center text */}
       <div className="w-full flex justify-center mt-6 md:mt-12">
         <p className="text-zinc-500 text-sm font-semibold">
-          Only 10 spots left.
+          Only 9 spots left.
         </p>
       </div>
     </section>
