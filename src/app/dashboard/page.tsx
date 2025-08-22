@@ -97,7 +97,19 @@ const Dashboard = () => {
   const handleRemoveFilter = (filterKey: string) => {
     setFilters(prev => {
       const newFilters = { ...prev };
-      delete newFilters[filterKey as keyof MentionsFilters];
+      
+      // Handle date range filter removal
+      if (filterKey === 'dateRange') {
+        delete newFilters.startDate;
+        delete newFilters.endDate;
+      } else if (filterKey === 'startDate') {
+        delete newFilters.startDate;
+      } else if (filterKey === 'endDate') {
+        delete newFilters.endDate;
+      } else {
+        delete newFilters[filterKey as keyof MentionsFilters];
+      }
+      
       return { ...newFilters, page: 1 };
     });
   };
@@ -122,7 +134,22 @@ const Dashboard = () => {
   const activeFilters = [
     filters.sentiment && { key: 'sentiment', label: 'Sentiment', value: filters.sentiment },
     filters.subreddit && { key: 'subreddit', label: 'Subreddit', value: filters.subreddit },
-    filters.keyword && { key: 'keyword', label: 'Keyword', value: filters.keyword }
+    filters.keyword && { key: 'keyword', label: 'Keyword', value: filters.keyword },
+    filters.startDate && filters.endDate && { 
+      key: 'dateRange', 
+      label: 'Date Range', 
+      value: `${new Date(filters.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to ${new Date(filters.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` 
+    },
+    filters.startDate && !filters.endDate && { 
+      key: 'startDate', 
+      label: 'From Date', 
+      value: new Date(filters.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    },
+    !filters.startDate && filters.endDate && { 
+      key: 'endDate', 
+      label: 'To Date', 
+      value: new Date(filters.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    }
   ].filter(Boolean) as Array<{ key: string; label: string; value: string }>;
 
   return (

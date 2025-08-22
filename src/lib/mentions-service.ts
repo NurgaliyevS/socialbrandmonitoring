@@ -36,6 +36,8 @@ export interface MentionsFilters {
   limit?: number;
   platform?: 'reddit' | 'hackernews'; // Add platform filter
   unread?: boolean;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface FilterOptions {
@@ -58,6 +60,8 @@ class MentionsService {
     if (filters.limit) params.append('limit', filters.limit.toString());
     if (filters.platform) params.append('platform', filters.platform);
     if (filters.unread) params.append('unread', filters.unread.toString());
+    if (filters.startDate) params.append('startDate', filters.startDate);
+    if (filters.endDate) params.append('endDate', filters.endDate);
 
     const response = await fetch(`${this.baseUrl}?${params.toString()}`);
     

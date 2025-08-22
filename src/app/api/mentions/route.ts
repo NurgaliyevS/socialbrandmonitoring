@@ -41,6 +41,8 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     const skip = (page - 1) * limit;
     const platform = searchParams.get('platform');
     const unread = searchParams.get('unread');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     // Get user's keywords instead of company IDs
     const userKeywords = await getUserKeywords(request.user!.id, brandId || undefined);
     
@@ -83,6 +85,20 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
 
     if (unread) {
       filter.unread = unread === 'true';
+    }
+
+    // Date filtering
+    if (startDate || endDate) {
+      filter.created = {};
+      if (startDate) {
+        filter.created.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Set end date to end of day (23:59:59.999)
+        const endDateTime = new Date(endDate);
+        endDateTime.setHours(23, 59, 59, 999);
+        filter.created.$lte = endDateTime;
+      }
     }
 
     // Fetch mentions with pagination
