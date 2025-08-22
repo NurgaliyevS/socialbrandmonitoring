@@ -221,6 +221,17 @@ export async function monitorRedditContent() {
         break;
       }
       
+      // Check if this post already exists in our database to prevent duplicates
+      const existingMention = await Mention.findOne({ 
+        platform: 'reddit', 
+        itemId: post.id 
+      });
+      
+      if (existingMention) {
+        console.log(`⏭️ Skipping duplicate post: ${post.title.substring(0, 50)}... (already exists)`);
+        continue;
+      }
+      
       const content = `${post.title} ${post.selftext}`;
       // Debug: Log the post content being checked
       console.log(`🔍 Checking post: "${post.title.substring(0, 50)}..."`);
@@ -271,23 +282,40 @@ export async function monitorRedditContent() {
     if (newMentions.length > 0) {
       await connectDB();
 
-      // Use insertMany with ordered: false to handle duplicates gracefully
-      try {
-        console.log(`💾 Attempting to save ${newMentions.length} mentions to database...`);
-        const result = await Mention.insertMany(newMentions, { ordered: false });
-        console.log(
-          `💾 Successfully saved ${result.length} new mentions to database`
-        );
-      } catch (error: any) {
-        // Handle duplicate errors gracefully
-        if (error.code === 11000) {
-          console.log(`⚠️ Some mentions were duplicates and skipped`);
-          // Count how many were actually inserted
-          const insertedCount = error.result?.insertedDocs?.length || 0;
-          console.log(`💾 Successfully saved ${insertedCount} new mentions to database`);
-        } else {
-          throw error;
+      let savedCount = 0;
+      let duplicateCount = 0;
+
+      // Insert mentions individually to ensure proper duplicate handling
+      for (const mention of newMentions) {
+        try {
+          // Double-check for duplicates before insertion
+          const existingMention = await Mention.findOne({ 
+            platform: mention.platform, 
+            itemId: mention.itemId 
+          });
+          
+          if (existingMention) {
+            console.log(`⏭️ Skipping duplicate mention for ${mention.platform}/${mention.itemId}`);
+            duplicateCount++;
+            continue;
+          }
+          
+          await Mention.create(mention);
+          savedCount++;
+          console.log(`💾 Saved mention: ${mention.platform}/${mention.itemId}`);
+        } catch (error: any) {
+          if (error.code === 11000) {
+            console.log(`⏭️ Duplicate key error for ${mention.platform}/${mention.itemId}`);
+            duplicateCount++;
+          } else {
+            console.error(`❌ Error saving mention ${mention.platform}/${mention.itemId}:`, error);
+          }
         }
+      }
+
+      console.log(`💾 Successfully saved ${savedCount} new mentions to database`);
+      if (duplicateCount > 0) {
+        console.log(`⏭️ Skipped ${duplicateCount} duplicate mentions`);
       }
     } else {
       console.log(`ℹ️ No new mentions found (processed ${allPosts.length} posts)`);
@@ -339,6 +367,17 @@ export async function monitorRedditComments() {
         break;
       }
       
+      // Check if this comment already exists in our database to prevent duplicates
+      const existingMention = await Mention.findOne({ 
+        platform: 'reddit', 
+        itemId: comment.id 
+      });
+      
+      if (existingMention) {
+        console.log(`⏭️ Skipping duplicate comment: ${comment.body.substring(0, 50)}... (already exists)`);
+        continue;
+      }
+      
       const content = comment.body || "";
 
       for (const brand of brands) {
@@ -384,23 +423,40 @@ export async function monitorRedditComments() {
     if (newMentions.length > 0) {
       await connectDB();
 
-      // Use insertMany with ordered: false to handle duplicates gracefully
-      try {
-        console.log(`💾 Attempting to save ${newMentions.length} comment mentions to database...`);
-        const result = await Mention.insertMany(newMentions, { ordered: false });
-        console.log(
-          `💾 Successfully saved ${result.length} new comment mentions to database`
-        );
-      } catch (error: any) {
-        // Handle duplicate errors gracefully
-        if (error.code === 11000) {
-          console.log(`⚠️ Some comment mentions were duplicates and skipped`);
-          // Count how many were actually inserted
-          const insertedCount = error.result?.insertedDocs?.length || 0;
-          console.log(`💾 Successfully saved ${insertedCount} new comment mentions to database`);
-        } else {
-          throw error;
+      let savedCount = 0;
+      let duplicateCount = 0;
+
+      // Insert mentions individually to ensure proper duplicate handling
+      for (const mention of newMentions) {
+        try {
+          // Double-check for duplicates before insertion
+          const existingMention = await Mention.findOne({ 
+            platform: mention.platform, 
+            itemId: mention.itemId 
+          });
+          
+          if (existingMention) {
+            console.log(`⏭️ Skipping duplicate mention for ${mention.platform}/${mention.itemId}`);
+            duplicateCount++;
+            continue;
+          }
+          
+          await Mention.create(mention);
+          savedCount++;
+          console.log(`💾 Saved mention: ${mention.platform}/${mention.itemId}`);
+        } catch (error: any) {
+          if (error.code === 11000) {
+            console.log(`⏭️ Duplicate key error for ${mention.platform}/${mention.itemId}`);
+            duplicateCount++;
+          } else {
+            console.error(`❌ Error saving mention ${mention.platform}/${mention.itemId}:`, error);
+          }
         }
+      }
+
+      console.log(`💾 Successfully saved ${savedCount} new comment mentions to database`);
+      if (duplicateCount > 0) {
+        console.log(`⏭️ Skipped ${duplicateCount} duplicate comment mentions`);
       }
     } else {
       console.log("ℹ️ No new comment mentions found");

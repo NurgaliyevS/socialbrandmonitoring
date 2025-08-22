@@ -125,4 +125,8 @@ const MentionSchema = new Schema({
   timestamps: true
 });
 
+// Add unique compound index to prevent duplicate mentions
+// This ensures the same Reddit item (platform + itemId) can't be saved multiple times
+MentionSchema.index({ platform: 1, itemId: 1 }, { unique: true });
+
 export default mongoose.models.Mention || mongoose.model<IMention>('Mention', MentionSchema); 
