@@ -125,4 +125,4 @@ const MentionSchema = new Schema({
   timestamps: true
 });
 
-export default mongoose.models.Mention || mongoose.model<IMention>('Mention', MentionSchema); 
+export default (mongoose.models && mongoose.models.Mention) || mongoose.model<IMention>('Mention', MentionSchema); 

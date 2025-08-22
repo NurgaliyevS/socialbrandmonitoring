@@ -14,4 +14,4 @@ const CodeSchema = new Schema<ICode>({
   buyerEmail: { type: String, default: null }
 }, { collection: 'codes' });
 
-export default mongoose.models.Code || mongoose.model<ICode>('Code', CodeSchema); 
+export default (mongoose.models && mongoose.models.Code) || mongoose.model<ICode>('Code', CodeSchema); 
