@@ -37,12 +37,14 @@ const MentionSchema = new Schema({
   },
   keywordMatched: { 
     type: String, 
-    required: true
+    required: true,
+    index: true
   },
   platform: {
     type: String,
     enum: ['reddit', 'hackernews'],
-    required: true
+    required: true,
+    index: true
   },
   itemId: {
     type: String,
@@ -55,7 +57,8 @@ const MentionSchema = new Schema({
   },
   subreddit: { 
     type: String, 
-    required: false // Optional for HN
+    required: false, // Optional for HN
+    index: true
   },
   author: { 
     type: String, 
@@ -86,7 +89,8 @@ const MentionSchema = new Schema({
   },
   created: { 
     type: Date, 
-    required: true 
+    required: true,
+    index: true
   },
   sentiment: {
     score: { 
@@ -96,7 +100,8 @@ const MentionSchema = new Schema({
     label: { 
       type: String, 
       enum: ['positive', 'negative', 'neutral'], 
-      required: true 
+      required: true,
+      index: true
     }
   },
   isProcessed: { 
@@ -105,7 +110,8 @@ const MentionSchema = new Schema({
   },
   unread: { 
     type: Boolean, 
-    default: true 
+    default: true,
+    index: true
   },
   slackNotificationSent: { 
     type: Boolean, 
@@ -124,5 +130,9 @@ const MentionSchema = new Schema({
 }, {
   timestamps: true
 });
+
+// Add compound indexes for common query patterns
+MentionSchema.index({ keywordMatched: 1, created: -1 });
+MentionSchema.index({ keywordMatched: 1, unread: 1, created: -1 });
 
 export default (mongoose.models && mongoose.models.Mention) || mongoose.model<IMention>('Mention', MentionSchema); 
