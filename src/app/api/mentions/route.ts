@@ -40,7 +40,7 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     const limit = parseInt(searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
     const platform = searchParams.get('platform');
-
+    const unread = searchParams.get('unread');
     // Get user's keywords instead of company IDs
     const userKeywords = await getUserKeywords(request.user!.id, brandId || undefined);
     
@@ -79,6 +79,10 @@ export const GET = withAuth(async (request: AuthenticatedRequest) => {
     
     if (keyword) {
       filter.keywordMatched = { $regex: keyword, $options: 'i' };
+    }
+
+    if (unread) {
+      filter.unread = unread === 'true';
     }
 
     // Fetch mentions with pagination

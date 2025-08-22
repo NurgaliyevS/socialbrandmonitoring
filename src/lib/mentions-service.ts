@@ -35,6 +35,7 @@ export interface MentionsFilters {
   page?: number;
   limit?: number;
   platform?: 'reddit' | 'hackernews'; // Add platform filter
+  unread?: boolean;
 }
 
 export interface FilterOptions {
@@ -56,6 +57,7 @@ class MentionsService {
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.limit) params.append('limit', filters.limit.toString());
     if (filters.platform) params.append('platform', filters.platform);
+    if (filters.unread) params.append('unread', filters.unread.toString());
 
     const response = await fetch(`${this.baseUrl}?${params.toString()}`);
     

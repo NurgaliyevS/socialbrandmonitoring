@@ -18,7 +18,8 @@ const Dashboard = () => {
   const [brands, setBrands] = useState<any[]>([]);
   const [filters, setFilters] = useState<MentionsFilters>({
     page: 1,
-    limit: 20
+    limit: 20,
+    unread: true
   });
   const [totalPages, setTotalPages] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -103,11 +104,7 @@ const Dashboard = () => {
 
   const handleMentionRead = (mentionId: string) => {
     setMentions(prev => 
-      prev.map(mention => 
-        mention.id === mentionId 
-          ? { ...mention, unread: false }
-          : mention
-      )
+      prev.filter(mention => mention.id !== mentionId)
     );
   };
 
